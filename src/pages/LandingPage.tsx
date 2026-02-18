@@ -154,7 +154,7 @@ export function LandingPage() {
               <span className="hero__orbit hero__orbit--2" />
               <span className="hero__orbit hero__orbit--3" />
               <img
-                src="/ReverionTech.webp"
+                src="/ReverionTech.png"
                 alt="ReverionTech"
                 className="hero__image-logo"
               />
@@ -169,12 +169,12 @@ export function LandingPage() {
           <Reveal direction="left" className="services__text">
             <SectionHeading subtitle="Our Services" title="WHAT WE" highlight="DO?" />
             <p className="services__description">
-            Reverion builds secure, scalable digital solutions using Web3, Generative AI,
-            and modern software technologies to help businesses innovate, automate, and grow.
+              Reverion builds secure, scalable digital solutions using Web3, Generative AI,
+              and modern software technologies to help businesses innovate, automate, and grow.
             </p>
             <p className="services__description">
-            We transform complex ideas into reliable, production-ready platforms
-            built for speed, security, and long-term scale.
+              We transform complex ideas into reliable, production-ready platforms
+              built for speed, security, and long-term scale.
             </p>
             <div className="services__view-btn">
               <Button variant="primary" to="/case-studies" size="md">
