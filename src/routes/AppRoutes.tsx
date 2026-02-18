@@ -14,6 +14,8 @@ import { PortfolioPage } from '../pages/PortfolioPage';
 import { AboutPage } from '../pages/AboutPage';
 import { PartnershipPage } from '../pages/PartnershipPage';
 import { SolutionsPage } from '../pages/SolutionsPage';
+import { TermsPage } from '../pages/TermsPage';
+import { PrivacyPage } from '../pages/PrivacyPage';
 
 function AppRoutes() {
     const location = useLocation();
@@ -42,6 +44,8 @@ function AppRoutes() {
                         <Route path="/solutions" element={<SolutionsPage />} />
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/partners" element={<PartnershipPage />} />
+                        <Route path="/terms" element={<TermsPage />} />
+                        <Route path="/privacy" element={<PrivacyPage />} />
                     </Routes>
                 </main>
                 {!isDashboard && <Footer />}

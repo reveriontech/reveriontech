@@ -116,41 +116,44 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <nav className="dashboard__nav">
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('projects'); closeSidebar(); }}
-          >
-            <Icon name="dashboard" size={18} />
-            Projects
-          </button>
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
-          >
-            <Icon name="chart" size={18} />
-            Analytics
-          </button>
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('settings'); closeSidebar(); }}
-          >
-            <Icon name="settings" size={18} />
-            Settings
-          </button>
-          <button
-            type="button"
-            className="dashboard__nav-btn dashboard__nav-btn--logout"
-            onClick={() => {
-              logout();
-              navigate('/');
-              closeSidebar();
-            }}
-          >
-            <Icon name="logout" size={18} />
-            Log out
-          </button>
-        </nav>
+        <div className="dashboard__nav-scroll">
+          <nav className="dashboard__nav">
+            <button
+              className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
+              onClick={() => { setActiveTab('projects'); closeSidebar(); }}
+            >
+              <Icon name="dashboard" size={18} />
+              Projects
+            </button>
+            <button
+              className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
+              onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
+            >
+              <Icon name="chart" size={18} />
+              Analytics
+            </button>
+            <button
+              className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
+              onClick={() => { setActiveTab('settings'); closeSidebar(); }}
+            >
+              <Icon name="settings" size={18} />
+              Settings
+            </button>
+          </nav>
+        </div>
+
+        <button
+          type="button"
+          className="dashboard__nav-btn dashboard__nav-btn--logout"
+          onClick={() => {
+            logout();
+            navigate('/');
+            closeSidebar();
+          }}
+        >
+          <Icon name="logout" size={18} />
+          <span className="dashboard__nav-btn-text">Log out</span>
+        </button>
       </aside>
 
       {/* Main */}
