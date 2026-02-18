@@ -92,17 +92,39 @@
 
 @media (min-width: 901px) {
   .dashboard__sidebar {
+    position: sticky;
+    top: 0;
     height: 100vh;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .dashboard__sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .dashboard__sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dashboard__sidebar::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
+
+  .dashboard__sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-hover);
   }
 }
 
-/* Scrollable nav area so Log out stays visible without scrolling */
+/* Nav area - no longer scrollable, all content visible */
 .dashboard__nav-scroll {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 /* Hide sidebar toggle - desktop only */
