@@ -53,7 +53,7 @@ function AppRoutes() {
                 </main>
                 {!isDashboard && !isAuthCallback && <Footer />}
             </AuthProvider>
-        </ThemeProvider>
+        </ThemeProvider >
     );
 }
 

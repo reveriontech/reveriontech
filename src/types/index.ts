@@ -100,3 +100,16 @@ export interface MonthlyData {
   tasks: number;
   completed: number;
 }
+
+export interface ContactRequest {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  service: string;
+  budget: string;
+  description: string;
+  timeline: string;
+  status: 'new' | 'read' | 'contacted';
+  createdAt: string;
+}

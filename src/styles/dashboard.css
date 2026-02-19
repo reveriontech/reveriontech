@@ -1332,3 +1332,70 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Table Styles - Contact Requests */
+.dashboard__table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.dashboard__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.dashboard__table th {
+  padding: 1rem;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.dashboard__table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  vertical-align: top;
+  transition: background 0.2s;
+}
+
+.dashboard__table tr:last-child td {
+  border-bottom: none;
+}
+
+.dashboard__table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="light"] .dashboard__table tr:hover td {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.dashboard__table-desc {
+  margin: 0;
+  white-space: pre-wrap;
+  max-height: 80px;
+  overflow-y: auto;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  scrollbar-width: thin;
+}
+
+.dashboard__table-company {
+  font-weight: 500;
+}
+
+.dashboard__table-company.empty {
+  color: var(--color-text-muted);
+  font-style: italic;
+}

@@ -6,9 +6,10 @@ import { useTheme } from '../context/ThemeContext';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { dashboardProjects, onboardingChecklist, analyticsData } from '../data/dashboardData';
+import type { ContactRequest } from '../types';
 import '../styles/dashboard.css';
 
-type Tab = 'projects' | 'analytics' | 'settings';
+type Tab = 'projects' | 'analytics' | 'settings' | 'contact-requests';
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(false);
+  const [contactRequests, setContactRequests] = useState<ContactRequest[]>([]);
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -31,6 +33,26 @@ export function DashboardPage() {
       document.body.style.overflow = '';
     };
   }, [sidebarOpen]);
+
+  useEffect(() => {
+    if (activeTab === 'contact-requests') {
+      const stored = localStorage.getItem('contact_requests');
+      if (stored) {
+        try {
+          setContactRequests(JSON.parse(stored));
+        } catch (e) {
+          console.error('Failed to parse requests', e);
+        }
+      }
+    }
+  }, [activeTab]);
+
+  const clearContactRequests = () => {
+    if (confirm('Are you sure you want to clear all requests?')) {
+      localStorage.removeItem('contact_requests');
+      setContactRequests([]);
+    }
+  };
 
   const [settingsName, setSettingsName] = useState(user?.name || '');
   const [settingsEmail, setSettingsEmail] = useState(user?.email || '');
@@ -75,6 +97,7 @@ export function DashboardPage() {
     projects: 'Projects',
     analytics: 'Analytics',
     settings: 'Settings',
+    'contact-requests': 'Contact Requests',
   };
 
   return (
@@ -135,6 +158,13 @@ export function DashboardPage() {
               Analytics
             </button>
             <button
+              className={`dashboard__nav-btn ${activeTab === 'contact-requests' ? 'dashboard__nav-btn--active' : ''}`}
+              onClick={() => { setActiveTab('contact-requests'); closeSidebar(); }}
+            >
+              <Icon name="file" size={18} />
+              Requests
+            </button>
+            <button
               className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
               onClick={() => { setActiveTab('settings'); closeSidebar(); }}
             >
@@ -161,13 +191,21 @@ export function DashboardPage() {
       {/* Main */}
       <main className="dashboard__main">
         <header className="dashboard__page-header">
-          <div>
-            <h1 className="dashboard__page-title">{tabTitles[activeTab]}</h1>
-            <p className="dashboard__page-subtitle">
-              {activeTab === 'projects' && 'Track and manage your active projects'}
-              {activeTab === 'analytics' && 'View performance metrics and trends'}
-              {activeTab === 'settings' && 'Update your profile and preferences'}
-            </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div>
+              <h1 className="dashboard__page-title">{tabTitles[activeTab]}</h1>
+              <p className="dashboard__page-subtitle">
+                {activeTab === 'projects' && 'Track and manage your active projects'}
+                {activeTab === 'analytics' && 'View performance metrics and trends'}
+                {activeTab === 'settings' && 'Update your profile and preferences'}
+                {activeTab === 'contact-requests' && 'View submitted contact forms'}
+              </p>
+            </div>
+            {activeTab === 'contact-requests' && contactRequests.length > 0 && (
+              <Button variant="outline" size="sm" onClick={clearContactRequests}>
+                Clear All
+              </Button>
+            )}
           </div>
         </header>
 
@@ -269,6 +307,56 @@ export function DashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Contact Requests Tab */}
+        {activeTab === 'contact-requests' && (
+          <div className="dashboard__content">
+            <div className="dashboard__section">
+              {contactRequests.length === 0 ? (
+                <p className="dashboard__empty">No contact requests yet.</p>
+              ) : (
+                <div className="dashboard__table-wrapper">
+                  <table className="dashboard__table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Company</th>
+                        <th>Service Interest</th>
+                        <th>Budget Range</th>
+                        <th>Timeline</th>
+                        <th>Project Description</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {contactRequests.map((req) => (
+                        <tr key={req.id}>
+                          <td>
+                            <strong>{req.name}</strong>
+                          </td>
+                          <td>{req.email}</td>
+                          <td>
+                            <span className={`dashboard__table-company ${!req.company ? 'empty' : ''}`}>
+                              {req.company || '-'}
+                            </span>
+                          </td>
+                          <td>{req.service}</td>
+                          <td>{req.budget}</td>
+                          <td>{req.timeline}</td>
+                          <td>
+                            <p className="dashboard__table-desc">
+                              {req.description}
+                            </p>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -491,6 +579,7 @@ export function DashboardPage() {
                 </div>
               </div>
 
+              {/* Submit */}
               <Button type="submit">Save Changes</Button>
             </form>
           </div>

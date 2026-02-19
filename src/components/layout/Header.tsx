@@ -115,9 +115,7 @@ export function Header() {
           <button className="header__search-btn" onClick={toggleTheme} aria-label="Toggle theme">
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
           </button>
-          <button className="header__search-btn" aria-label="Search">
-            <Icon name="search" size={18} />
-          </button>
+
           <button
             className="header__menu-btn"
             onClick={() => setMobileOpen(!mobileOpen)}

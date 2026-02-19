@@ -58,7 +58,20 @@ export function ContactPage() {
 
     setIsLoading(true);
     try {
+      // Simulate API call
       await new Promise((r) => setTimeout(r, 800));
+
+      // Save to localStorage (MOCK BACKEND)
+      const newRequest = {
+        id: crypto.randomUUID(),
+        ...form,
+        status: 'new',
+        createdAt: new Date().toISOString(),
+      };
+
+      const existingRequests = JSON.parse(localStorage.getItem('contact_requests') || '[]');
+      localStorage.setItem('contact_requests', JSON.stringify([newRequest, ...existingRequests]));
+
       setSubmitted(true);
     } finally {
       setIsLoading(false);

@@ -161,13 +161,28 @@ export function AuthPage() {
         <div className="auth__tabs">
           <button
             className={`auth__tab ${mode === 'login' ? 'auth__tab--active' : ''}`}
-            onClick={() => { setMode('login'); setError(''); setConfirmPassword(''); }}
+            onClick={() => {
+              setMode('login');
+              setError('');
+              setEmail('');
+              setPassword('');
+              setConfirmPassword('');
+            }}
           >
             Login
           </button>
           <button
             className={`auth__tab ${mode === 'register' ? 'auth__tab--active' : ''}`}
-            onClick={() => { setMode('register'); setError(''); setConfirmPassword(''); setAgreedToTerms(false); setNeedsEmailConfirm(false); setConfirmToken(''); }}
+            onClick={() => {
+              setMode('register');
+              setError('');
+              setEmail('');
+              setPassword('');
+              setConfirmPassword('');
+              setAgreedToTerms(false);
+              setNeedsEmailConfirm(false);
+              setConfirmToken('');
+            }}
           >
             Register
           </button>
@@ -182,6 +197,8 @@ export function AuthPage() {
               <input
                 id="email"
                 type="email"
+                name="email"
+                autoComplete="email"
                 className="auth__input"
                 placeholder="you@example.com"
                 value={email}
@@ -195,6 +212,8 @@ export function AuthPage() {
               <input
                 id="password"
                 type="password"
+                name="password"
+                autoComplete="current-password"
                 className="auth__input"
                 placeholder="••••••••"
                 value={password}
@@ -229,6 +248,8 @@ export function AuthPage() {
               <input
                 id="confirmCode"
                 type="text"
+                name="confirmCode"
+                autoComplete="one-time-code"
                 className="auth__input"
                 placeholder="Enter 6-digit code"
                 value={confirmToken}
@@ -244,10 +265,10 @@ export function AuthPage() {
               </Button>
             </div>
             <div className="auth__resend">
-              <button 
-                type="button" 
-                onClick={handleResendConfirmation} 
-                className="auth__link" 
+              <button
+                type="button"
+                onClick={handleResendConfirmation}
+                className="auth__link"
                 disabled={confirmLoading}
               >
                 Resend confirmation code
@@ -261,6 +282,8 @@ export function AuthPage() {
               <input
                 id="name"
                 type="text"
+                name="name"
+                autoComplete="name"
                 className="auth__input"
                 placeholder="John Doe"
                 value={name}
@@ -274,6 +297,8 @@ export function AuthPage() {
               <input
                 id="email"
                 type="email"
+                name="email"
+                autoComplete="email"
                 className="auth__input"
                 placeholder="you@example.com"
                 value={email}
@@ -287,6 +312,8 @@ export function AuthPage() {
               <input
                 id="password"
                 type="password"
+                name="password"
+                autoComplete="new-password"
                 className="auth__input"
                 placeholder="••••••••"
                 value={password}
@@ -311,6 +338,8 @@ export function AuthPage() {
               <input
                 id="confirmPassword"
                 type="password"
+                name="confirmPassword"
+                autoComplete="new-password"
                 className={`auth__input ${confirmPassword.length > 0 && password !== confirmPassword ? 'auth__input--error' : ''}`}
                 placeholder="••••••••"
                 value={confirmPassword}
