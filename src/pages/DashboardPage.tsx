@@ -416,6 +416,7 @@ export function DashboardPage() {
           </div>
         </div>
 
+<<<<<<< HEAD
         <div className="dashboard__nav-scroll">
           <nav className="dashboard__nav">
             <button
@@ -474,6 +475,43 @@ export function DashboardPage() {
           <Icon name="logout" size={18} />
           <span className="dashboard__nav-btn-text">Log out</span>
         </button>
+=======
+        <nav className="dashboard__nav">
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('projects'); closeSidebar(); }}
+          >
+            <Icon name="dashboard" size={18} />
+            Projects
+          </button>
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
+          >
+            <Icon name="chart" size={18} />
+            Analytics
+          </button>
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('settings'); closeSidebar(); }}
+          >
+            <Icon name="settings" size={18} />
+            Settings
+          </button>
+          <button
+            type="button"
+            className="dashboard__nav-btn dashboard__nav-btn--logout"
+            onClick={() => {
+              logout();
+              navigate('/');
+              closeSidebar();
+            }}
+          >
+            <Icon name="logout" size={18} />
+            Log out
+          </button>
+        </nav>
+>>>>>>> 1a1ea13 (search bar update)
       </aside>
 
       {/* Main */}
@@ -517,6 +555,7 @@ export function DashboardPage() {
                 <span className="dashboard__kpi-label">In Review</span>
               </div>
             </div>
+<<<<<<< HEAD
 
             {/* Project Selector – team only */}
             {isTeam && (
@@ -550,10 +589,27 @@ export function DashboardPage() {
                     <div className="dashboard__progress-header">
                       <span>Progress</span>
                       <span>{selectedProject.progress}%</span>
+=======
+            <div className="dashboard__projects">
+              {dashboardProjects.map((project) => (
+                <div key={project.id} className="dashboard__project">
+                  <div className="dashboard__project-header">
+                    <h3>{project.name}</h3>
+                    <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
+                      {project.status}
+                    </span>
+                  </div>
+
+                  <div className="dashboard__progress">
+                    <div className="dashboard__progress-header">
+                      <span>Progress</span>
+                      <span>{project.progress}%</span>
+>>>>>>> 1a1ea13 (search bar update)
                     </div>
                     <div className="dashboard__progress-bar">
                       <div
                         className="dashboard__progress-fill"
+<<<<<<< HEAD
                         style={{ width: `${selectedProject.progress}%` }}
                       />
                     </div>
@@ -562,6 +618,17 @@ export function DashboardPage() {
                     <h4>Milestones</h4>
                     <div className="dashboard__timeline">
                       {selectedProject.milestones.map((ms) => (
+=======
+                        style={{ width: `${project.progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="dashboard__milestones">
+                    <h4>Milestones</h4>
+                    <div className="dashboard__timeline">
+                      {project.milestones.map((ms) => (
+>>>>>>> 1a1ea13 (search bar update)
                         <div
                           key={ms.label}
                           className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
@@ -572,9 +639,16 @@ export function DashboardPage() {
                       ))}
                     </div>
                   </div>
+<<<<<<< HEAD
                   <div className="dashboard__deliverables">
                     <h4>Deliverables</h4>
                     {selectedProject.deliverables.map((d) => (
+=======
+
+                  <div className="dashboard__deliverables">
+                    <h4>Deliverables</h4>
+                    {project.deliverables.map((d) => (
+>>>>>>> 1a1ea13 (search bar update)
                       <div key={d.name} className="dashboard__deliverable">
                         <span>{d.name}</span>
                         <span
@@ -586,6 +660,7 @@ export function DashboardPage() {
                     ))}
                   </div>
                 </div>
+<<<<<<< HEAD
 
                 {/* Actions & Activity */}
                 <div className="dashboard__activity-center">
@@ -730,6 +805,9 @@ export function DashboardPage() {
                   </table>
                 </div>
               )}
+=======
+              ))}
+>>>>>>> 1a1ea13 (search bar update)
             </div>
           </div>
         )}
