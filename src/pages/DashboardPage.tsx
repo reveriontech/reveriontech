@@ -63,7 +63,9 @@ export function DashboardPage() {
 
   const totalTasks = analyticsData.reduce((a, d) => a + d.tasks, 0);
   const totalCompleted = analyticsData.reduce((a, d) => a + d.completed, 0);
-  const avgProgress = dashboardProjects.reduce((a, p) => a + p.progress, 0) / dashboardProjects.length;
+  const avgProgress = dashboardProjects.length
+    ? dashboardProjects.reduce((a, p) => a + p.progress, 0) / dashboardProjects.length
+    : 0;
 
   const initials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -218,58 +220,55 @@ export function DashboardPage() {
               </div>
             </div>
             <div className="dashboard__projects">
-            {dashboardProjects.map((project) => (
-              <div key={project.id} className="dashboard__project">
-                <div className="dashboard__project-header">
-                  <h3>{project.name}</h3>
-                  <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
-                    {project.status}
-                  </span>
-                </div>
-
-                <div className="dashboard__progress">
-                  <div className="dashboard__progress-header">
-                    <span>Progress</span>
-                    <span>{project.progress}%</span>
+              {dashboardProjects.map((project) => (
+                <div key={project.id} className="dashboard__project">
+                  <div className="dashboard__project-header">
+                    <h3>{project.name}</h3>
+                    <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
+                      {project.status}
+                    </span>
                   </div>
-                  <div className="dashboard__progress-bar">
-                    <div
-                      className="dashboard__progress-fill"
-                      style={{ width: `${project.progress}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="dashboard__milestones">
-                  <h4>Milestones</h4>
-                  <div className="dashboard__timeline">
-                    {project.milestones.map((ms) => (
+                  <div className="dashboard__progress">
+                    <div className="dashboard__progress-header">
+                      <span>Progress</span>
+                      <span>{project.progress}%</span>
+                    </div>
+                    <div className="dashboard__progress-bar">
                       <div
-                        key={ms.label}
-                        className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
-                      >
-                        <span className="dashboard__milestone-label">{ms.label}</span>
-                        <span className="dashboard__milestone-date">{ms.date}</span>
+                        className="dashboard__progress-fill"
+                        style={{ width: `${project.progress}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="dashboard__milestones">
+                    <h4>Milestones</h4>
+                    <div className="dashboard__timeline">
+                      {project.milestones.map((ms) => (
+                        <div
+                          key={ms.label}
+                          className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
+                        >
+                          <span className="dashboard__milestone-label">{ms.label}</span>
+                          <span className="dashboard__milestone-date">{ms.date}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="dashboard__deliverables">
+                    <h4>Deliverables</h4>
+                    {project.deliverables.map((d) => (
+                      <div key={d.name} className="dashboard__deliverable">
+                        <span>{d.name}</span>
+                        <span
+                          className={`dashboard__deliverable-status dashboard__deliverable-status--${d.status.toLowerCase().replace(' ', '-')}`}
+                        >
+                          {d.status}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                <div className="dashboard__deliverables">
-                  <h4>Deliverables</h4>
-                  {project.deliverables.map((d) => (
-                    <div key={d.name} className="dashboard__deliverable">
-                      <span>{d.name}</span>
-                      <span
-                        className={`dashboard__deliverable-status dashboard__deliverable-status--${d.status.toLowerCase().replace(' ', '-')}`}
-                      >
-                        {d.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))}
             </div>
           </div>
         )}
@@ -293,62 +292,62 @@ export function DashboardPage() {
             </div>
             <div className="dashboard__analytics">
               <h3 className="dashboard__section-title">Monthly Overview</h3>
-            <div className="dashboard__chart-line">
-              <ResponsiveLine
-                data={lineChartData}
-                margin={{ top: 20, right: 20, bottom: 70, left: 50 }}
-                xScale={{ type: 'point' }}
-                yScale={{ type: 'linear', min: 0, max: 'auto', stacked: false }}
-                curve="monotoneX"
-                axisTop={null}
-                axisRight={null}
-                axisBottom={{
-                  tickSize: 0,
-                  tickPadding: 10,
-                  tickRotation: 0,
-                  legendOffset: 36,
-                }}
-                axisLeft={{
-                  tickSize: 0,
-                  tickPadding: 10,
-                  tickRotation: 0,
-                  legendOffset: -40,
-                }}
-                colors={['var(--color-border-hover)', 'var(--color-accent)']}
-                lineWidth={2}
-                pointSize={8}
-                pointColor={{ theme: 'background' }}
-                pointBorderWidth={2}
-                pointBorderColor={{ from: 'serieColor' }}
-                pointLabelYOffset={-12}
-                enableArea={true}
-                areaOpacity={0.15}
-                useMesh={true}
-                legends={[
-                  {
-                    anchor: 'bottom',
-                    direction: 'row',
-                    justify: false,
-                    translateX: 0,
-                    translateY: 48,
-                    itemsSpacing: 0,
-                    itemDirection: 'left-to-right',
-                    itemWidth: 100,
-                    itemHeight: 20,
-                    itemOpacity: 1,
-                    symbolSize: 10,
-                    symbolShape: 'circle',
-                  },
-                ]}
-                theme={{
-                  text: { fill: 'var(--color-text-muted)', fontSize: 12 },
-                  axis: { ticks: { text: { fill: 'var(--color-text-muted)' } } },
-                  grid: { line: { stroke: 'var(--color-border)', strokeWidth: 1 } },
-                  legends: { text: { fill: 'var(--color-text-muted)' } },
-                  crosshair: { line: { stroke: 'var(--color-accent)' } },
-                }}
-              />
-            </div>
+              <div className="dashboard__chart-line">
+                <ResponsiveLine
+                  data={lineChartData}
+                  margin={{ top: 20, right: 20, bottom: 70, left: 50 }}
+                  xScale={{ type: 'point' }}
+                  yScale={{ type: 'linear', min: 0, max: 'auto', stacked: false }}
+                  curve="monotoneX"
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={{
+                    tickSize: 0,
+                    tickPadding: 10,
+                    tickRotation: 0,
+                    legendOffset: 36,
+                  }}
+                  axisLeft={{
+                    tickSize: 0,
+                    tickPadding: 10,
+                    tickRotation: 0,
+                    legendOffset: -40,
+                  }}
+                  colors={['var(--color-border-hover)', 'var(--color-accent)']}
+                  lineWidth={2}
+                  pointSize={8}
+                  pointColor={{ theme: 'background' }}
+                  pointBorderWidth={2}
+                  pointBorderColor={{ from: 'serieColor' }}
+                  pointLabelYOffset={-12}
+                  enableArea={true}
+                  areaOpacity={0.15}
+                  useMesh={true}
+                  legends={[
+                    {
+                      anchor: 'bottom',
+                      direction: 'row',
+                      justify: false,
+                      translateX: 0,
+                      translateY: 48,
+                      itemsSpacing: 0,
+                      itemDirection: 'left-to-right',
+                      itemWidth: 100,
+                      itemHeight: 20,
+                      itemOpacity: 1,
+                      symbolSize: 10,
+                      symbolShape: 'circle',
+                    },
+                  ]}
+                  theme={{
+                    text: { fill: 'var(--color-text-muted)', fontSize: 12 },
+                    axis: { ticks: { text: { fill: 'var(--color-text-muted)' } } },
+                    grid: { line: { stroke: 'var(--color-border)', strokeWidth: 1 } },
+                    legends: { text: { fill: 'var(--color-text-muted)' } },
+                    crosshair: { line: { stroke: 'var(--color-accent)' } },
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -398,14 +397,22 @@ export function DashboardPage() {
                     />
                   </div>
                   <div className="dashboard__settings-field">
-                    <label htmlFor="settings-company">Company</label>
-                    <input
+                    <label htmlFor="settings-company">
+                      Company
+                      {settingsCompany === 'Reverion Technologies' && (
+                        <span className="dashboard__status-badge dashboard__status-badge--pending" style={{ marginLeft: '8px', fontSize: '0.6rem' }}>
+                          Pending Approval
+                        </span>
+                      )}
+                    </label>
+                    <select
                       id="settings-company"
-                      type="text"
                       value={settingsCompany}
                       onChange={(e) => setSettingsCompany(e.target.value)}
-                      placeholder="Your company"
-                    />
+                    >
+                      <option value="" disabled>Select your company</option>
+                      <option value="Reverion Technologies">Reverion Technologies</option>
+                    </select>
                   </div>
                   <div className="dashboard__settings-field">
                     <label htmlFor="settings-role">Job Title / Role</label>

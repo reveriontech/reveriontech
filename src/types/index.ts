@@ -43,6 +43,34 @@ export interface Deliverable {
   status: 'Delivered' | 'In Progress' | 'Pending';
 }
 
+/** SDLC phase for web/blockchain dev (client + developer) */
+export interface ProjectPhase {
+  id: number;
+  name: string;
+  description: string;
+  goal?: string;
+}
+
+/** Activity within a phase */
+export interface ProjectActivity {
+  id: string;
+  phaseId: number;
+  description: string;
+  plannedStart: string;
+  plannedFinish: string;
+  status: 'Not Started' | 'In Progress' | 'Completed';
+  comments?: string;
+}
+
+/** Daily update entry (client or developer) */
+export interface DailyUpdate {
+  id: string;
+  date: string;
+  phaseId: number;
+  content: string;
+  author: 'client' | 'developer';
+}
+
 export interface DashboardProject {
   id: string;
   name: string;
@@ -50,6 +78,8 @@ export interface DashboardProject {
   progress: number;
   milestones: Milestone[];
   deliverables: Deliverable[];
+  activities?: ProjectActivity[];
+  dailyUpdates?: DailyUpdate[];
 }
 
 export interface User {

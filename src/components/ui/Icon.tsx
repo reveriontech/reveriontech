@@ -70,6 +70,24 @@ export function Icon({ name, size = 24, className }: IconProps) {
           <polyline points="12 5 19 12 12 19" />
         </svg>
       );
+    case 'arrowLeft':
+      return (
+        <svg {...props}>
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+      );
+    case 'list':
+      return (
+        <svg {...props}>
+          <line x1="8" y1="6" x2="21" y2="6" />
+          <line x1="8" y1="12" x2="21" y2="12" />
+          <line x1="8" y1="18" x2="21" y2="18" />
+          <line x1="3" y1="6" x2="3.01" y2="6" />
+          <line x1="3" y1="12" x2="3.01" y2="12" />
+          <line x1="3" y1="18" x2="3.01" y2="18" />
+        </svg>
+      );
     case 'check':
       return (
         <svg {...props}>

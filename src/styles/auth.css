@@ -75,6 +75,38 @@
   gap: 0.4rem;
 }
 
+.auth__hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #6b7280);
+  margin: 0;
+}
+
+.auth__hint--success {
+  color: var(--color-success, #059669);
+}
+
+.auth__hint--error {
+  color: var(--color-error);
+}
+
+.auth__checks {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.auth__check--pass {
+  color: var(--color-success, #059669);
+}
+
+.auth__check--fail {
+  color: var(--color-text-muted, #6b7280);
+}
+
 .auth__label {
   font-size: 0.8rem;
   font-weight: 600;
@@ -177,4 +209,30 @@
 
 .auth__footer button:hover {
   text-decoration: underline;
+}
+
+.auth__otp-message {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 0.75rem;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  margin: 0;
+}
+
+.auth__otp-message strong {
+  color: var(--color-text);
+}
+
+.auth__resend {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.auth__or {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 1rem 0 0;
 }
