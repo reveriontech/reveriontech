@@ -116,44 +116,41 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="dashboard__nav-scroll">
-          <nav className="dashboard__nav">
-            <button
-              className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
-              onClick={() => { setActiveTab('projects'); closeSidebar(); }}
-            >
-              <Icon name="dashboard" size={18} />
-              Projects
-            </button>
-            <button
-              className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
-              onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
-            >
-              <Icon name="chart" size={18} />
-              Analytics
-            </button>
-            <button
-              className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
-              onClick={() => { setActiveTab('settings'); closeSidebar(); }}
-            >
-              <Icon name="settings" size={18} />
-              Settings
-            </button>
-          </nav>
-        </div>
-
-        <button
-          type="button"
-          className="dashboard__nav-btn dashboard__nav-btn--logout"
-          onClick={() => {
-            logout();
-            navigate('/');
-            closeSidebar();
-          }}
-        >
-          <Icon name="logout" size={18} />
-          <span className="dashboard__nav-btn-text">Log out</span>
-        </button>
+        <nav className="dashboard__nav">
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('projects'); closeSidebar(); }}
+          >
+            <Icon name="dashboard" size={18} />
+            Projects
+          </button>
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
+          >
+            <Icon name="chart" size={18} />
+            Analytics
+          </button>
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('settings'); closeSidebar(); }}
+          >
+            <Icon name="settings" size={18} />
+            Settings
+          </button>
+          <button
+            type="button"
+            className="dashboard__nav-btn dashboard__nav-btn--logout"
+            onClick={() => {
+              logout();
+              navigate('/');
+              closeSidebar();
+            }}
+          >
+            <Icon name="logout" size={18} />
+            Log out
+          </button>
+        </nav>
       </aside>
 
       {/* Main */}
@@ -218,58 +215,58 @@ export function DashboardPage() {
               </div>
             </div>
             <div className="dashboard__projects">
-            {dashboardProjects.map((project) => (
-              <div key={project.id} className="dashboard__project">
-                <div className="dashboard__project-header">
-                  <h3>{project.name}</h3>
-                  <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
-                    {project.status}
-                  </span>
-                </div>
-
-                <div className="dashboard__progress">
-                  <div className="dashboard__progress-header">
-                    <span>Progress</span>
-                    <span>{project.progress}%</span>
+              {dashboardProjects.map((project) => (
+                <div key={project.id} className="dashboard__project">
+                  <div className="dashboard__project-header">
+                    <h3>{project.name}</h3>
+                    <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
+                      {project.status}
+                    </span>
                   </div>
-                  <div className="dashboard__progress-bar">
-                    <div
-                      className="dashboard__progress-fill"
-                      style={{ width: `${project.progress}%` }}
-                    />
-                  </div>
-                </div>
 
-                <div className="dashboard__milestones">
-                  <h4>Milestones</h4>
-                  <div className="dashboard__timeline">
-                    {project.milestones.map((ms) => (
+                  <div className="dashboard__progress">
+                    <div className="dashboard__progress-header">
+                      <span>Progress</span>
+                      <span>{project.progress}%</span>
+                    </div>
+                    <div className="dashboard__progress-bar">
                       <div
-                        key={ms.label}
-                        className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
-                      >
-                        <span className="dashboard__milestone-label">{ms.label}</span>
-                        <span className="dashboard__milestone-date">{ms.date}</span>
+                        className="dashboard__progress-fill"
+                        style={{ width: `${project.progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="dashboard__milestones">
+                    <h4>Milestones</h4>
+                    <div className="dashboard__timeline">
+                      {project.milestones.map((ms) => (
+                        <div
+                          key={ms.label}
+                          className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
+                        >
+                          <span className="dashboard__milestone-label">{ms.label}</span>
+                          <span className="dashboard__milestone-date">{ms.date}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="dashboard__deliverables">
+                    <h4>Deliverables</h4>
+                    {project.deliverables.map((d) => (
+                      <div key={d.name} className="dashboard__deliverable">
+                        <span>{d.name}</span>
+                        <span
+                          className={`dashboard__deliverable-status dashboard__deliverable-status--${d.status.toLowerCase().replace(' ', '-')}`}
+                        >
+                          {d.status}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                <div className="dashboard__deliverables">
-                  <h4>Deliverables</h4>
-                  {project.deliverables.map((d) => (
-                    <div key={d.name} className="dashboard__deliverable">
-                      <span>{d.name}</span>
-                      <span
-                        className={`dashboard__deliverable-status dashboard__deliverable-status--${d.status.toLowerCase().replace(' ', '-')}`}
-                      >
-                        {d.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+              ))}
             </div>
           </div>
         )}
@@ -293,62 +290,62 @@ export function DashboardPage() {
             </div>
             <div className="dashboard__analytics">
               <h3 className="dashboard__section-title">Monthly Overview</h3>
-            <div className="dashboard__chart-line">
-              <ResponsiveLine
-                data={lineChartData}
-                margin={{ top: 20, right: 20, bottom: 70, left: 50 }}
-                xScale={{ type: 'point' }}
-                yScale={{ type: 'linear', min: 0, max: 'auto', stacked: false }}
-                curve="monotoneX"
-                axisTop={null}
-                axisRight={null}
-                axisBottom={{
-                  tickSize: 0,
-                  tickPadding: 10,
-                  tickRotation: 0,
-                  legendOffset: 36,
-                }}
-                axisLeft={{
-                  tickSize: 0,
-                  tickPadding: 10,
-                  tickRotation: 0,
-                  legendOffset: -40,
-                }}
-                colors={['var(--color-border-hover)', 'var(--color-accent)']}
-                lineWidth={2}
-                pointSize={8}
-                pointColor={{ theme: 'background' }}
-                pointBorderWidth={2}
-                pointBorderColor={{ from: 'serieColor' }}
-                pointLabelYOffset={-12}
-                enableArea={true}
-                areaOpacity={0.15}
-                useMesh={true}
-                legends={[
-                  {
-                    anchor: 'bottom',
-                    direction: 'row',
-                    justify: false,
-                    translateX: 0,
-                    translateY: 48,
-                    itemsSpacing: 0,
-                    itemDirection: 'left-to-right',
-                    itemWidth: 100,
-                    itemHeight: 20,
-                    itemOpacity: 1,
-                    symbolSize: 10,
-                    symbolShape: 'circle',
-                  },
-                ]}
-                theme={{
-                  text: { fill: 'var(--color-text-muted)', fontSize: 12 },
-                  axis: { ticks: { text: { fill: 'var(--color-text-muted)' } } },
-                  grid: { line: { stroke: 'var(--color-border)', strokeWidth: 1 } },
-                  legends: { text: { fill: 'var(--color-text-muted)' } },
-                  crosshair: { line: { stroke: 'var(--color-accent)' } },
-                }}
-              />
-            </div>
+              <div className="dashboard__chart-line">
+                <ResponsiveLine
+                  data={lineChartData}
+                  margin={{ top: 20, right: 20, bottom: 70, left: 50 }}
+                  xScale={{ type: 'point' }}
+                  yScale={{ type: 'linear', min: 0, max: 'auto', stacked: false }}
+                  curve="monotoneX"
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={{
+                    tickSize: 0,
+                    tickPadding: 10,
+                    tickRotation: 0,
+                    legendOffset: 36,
+                  }}
+                  axisLeft={{
+                    tickSize: 0,
+                    tickPadding: 10,
+                    tickRotation: 0,
+                    legendOffset: -40,
+                  }}
+                  colors={['var(--color-border-hover)', 'var(--color-accent)']}
+                  lineWidth={2}
+                  pointSize={8}
+                  pointColor={{ theme: 'background' }}
+                  pointBorderWidth={2}
+                  pointBorderColor={{ from: 'serieColor' }}
+                  pointLabelYOffset={-12}
+                  enableArea={true}
+                  areaOpacity={0.15}
+                  useMesh={true}
+                  legends={[
+                    {
+                      anchor: 'bottom',
+                      direction: 'row',
+                      justify: false,
+                      translateX: 0,
+                      translateY: 48,
+                      itemsSpacing: 0,
+                      itemDirection: 'left-to-right',
+                      itemWidth: 100,
+                      itemHeight: 20,
+                      itemOpacity: 1,
+                      symbolSize: 10,
+                      symbolShape: 'circle',
+                    },
+                  ]}
+                  theme={{
+                    text: { fill: 'var(--color-text-muted)', fontSize: 12 },
+                    axis: { ticks: { text: { fill: 'var(--color-text-muted)' } } },
+                    grid: { line: { stroke: 'var(--color-border)', strokeWidth: 1 } },
+                    legends: { text: { fill: 'var(--color-text-muted)' } },
+                    crosshair: { line: { stroke: 'var(--color-accent)' } },
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
