@@ -11,6 +11,7 @@ import { DashboardPage } from '../pages/DashboardPage';
 import { ContactPage } from '../pages/ContactPage';
 import { CaseStudiesPage } from '../pages/CaseStudiesPage';
 import { PortfolioPage } from '../pages/PortfolioPage';
+import { OurTeamPage } from '../pages/OurTeamPage';
 import { AboutPage } from '../pages/AboutPage';
 import { PartnershipPage } from '../pages/PartnershipPage';
 import { SolutionsPage } from '../pages/SolutionsPage';
@@ -43,6 +44,7 @@ function AppRoutes() {
                         <Route path="/portfolio" element={<PortfolioPage />} />
                         <Route path="/solutions" element={<SolutionsPage />} />
                         <Route path="/about" element={<AboutPage />} />
+                        <Route path="/our-team" element={<OurTeamPage />} />
                         <Route path="/partners" element={<PartnershipPage />} />
                         <Route path="/terms" element={<TermsPage />} />
                         <Route path="/privacy" element={<PrivacyPage />} />
