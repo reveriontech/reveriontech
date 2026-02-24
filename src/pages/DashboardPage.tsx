@@ -1,14 +1,21 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
-import { dashboardProjects, onboardingChecklist, analyticsData } from '../data/dashboardData';
+import { dashboardProjects as initialProjects, analyticsData } from '../data/dashboardData';
+import type { DashboardProject } from '../types';
+import {
+  fetchContactRequests,
+  updateRequestStatus,
+  clearAllContactRequests,
+} from '../lib/contactRequests';
+import type { ContactRequest } from '../types';
 import '../styles/dashboard.css';
 
-type Tab = 'projects' | 'analytics' | 'settings';
+type Tab = 'projects' | 'analytics' | 'settings' | 'contact-requests';
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -17,6 +24,141 @@ export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState('Settings saved successfully!');
+  const [contactRequests, setContactRequests] = useState<ContactRequest[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [requestsError, setRequestsError] = useState('');
+
+  // Project data (local mutable copy)
+  const [projects, setProjects] = useState<DashboardProject[]>(initialProjects);
+
+  // Edit modal
+  const [editingProject, setEditingProject] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editStatus, setEditStatus] = useState<DashboardProject['status']>('active');
+
+  // Update modal
+  const [updatingProject, setUpdatingProject] = useState<string | null>(null);
+  const [updateText, setUpdateText] = useState('');
+  const [updateMilestones, setUpdateMilestones] = useState<{ label: string; date: string; done: boolean }[]>([]);
+  const [updateDeliverables, setUpdateDeliverables] = useState<{ name: string; status: 'Delivered' | 'In Progress' | 'Pending' }[]>([]);
+  const updateTextRef = useRef<HTMLTextAreaElement>(null);
+
+  // Activity Center: selected project
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id || '');
+  const selectedProject = projects.find((p) => p.id === selectedProjectId) || null;
+
+  // New project modal
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+
+  const openEditModal = (p: DashboardProject) => {
+    setEditName(p.name);
+    setEditStatus(p.status);
+    setEditingProject(p.id);
+  };
+
+  const saveEdit = () => {
+    if (!editingProject) return;
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.id === editingProject ? { ...p, name: editName, status: editStatus } : p
+      )
+    );
+    setEditingProject(null);
+    setToastMsg('Project updated successfully!');
+    showToast();
+  };
+
+  const openUpdateModal = (p: DashboardProject) => {
+    setUpdateText('');
+    setUpdateMilestones(p.milestones.map((m) => ({ ...m })));
+    setUpdateDeliverables(p.deliverables.map((d) => ({ ...d })));
+    setUpdatingProject(p.id);
+    setTimeout(() => updateTextRef.current?.focus(), 50);
+  };
+
+  const saveUpdate = () => {
+    if (!updatingProject || !updateText.trim()) return;
+    // Auto-calculate progress from milestones + deliverables
+    const msDone = updateMilestones.filter((m) => m.done).length;
+    const msTotal = updateMilestones.length || 1;
+    const dlDone = updateDeliverables.filter((d) => d.status === 'Delivered').length;
+    const dlInProgress = updateDeliverables.filter((d) => d.status === 'In Progress').length;
+    const dlTotal = updateDeliverables.length || 1;
+    const autoProgress = Math.round(
+      ((msDone / msTotal) * 50) + (((dlDone + dlInProgress * 0.5) / dlTotal) * 50)
+    );
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.id === updatingProject
+          ? {
+            ...p,
+            progress: autoProgress,
+            milestones: updateMilestones,
+            deliverables: updateDeliverables,
+            dailyUpdates: [
+              ...(p.dailyUpdates || []),
+              {
+                id: `upd-${Date.now()}`,
+                date: new Date().toISOString().slice(0, 10),
+                phaseId: 1,
+                content: updateText.trim(),
+                author: 'developer' as const,
+              },
+            ],
+          }
+          : p
+      )
+    );
+    setUpdatingProject(null);
+    setToastMsg('Status update posted!');
+    showToast();
+  };
+
+  const closeModals = () => {
+    setEditingProject(null);
+    setUpdatingProject(null);
+    setShowNewProject(false);
+  };
+
+  const handleAddProject = () => {
+    if (!newProjectName.trim()) return;
+    const newId = `proj-${Date.now()}`;
+    const newProject: DashboardProject = {
+      id: newId,
+      name: newProjectName.trim(),
+      status: 'active',
+      progress: 0,
+      milestones: [
+        { label: 'Discovery & Planning', date: '', done: false },
+        { label: 'Design', date: '', done: false },
+        { label: 'Development', date: '', done: false },
+        { label: 'Testing & Launch', date: '', done: false },
+      ],
+      deliverables: [
+        { name: 'Requirements Doc', status: 'Pending' },
+        { name: 'Design Mockups', status: 'Pending' },
+        { name: 'Working Build', status: 'Pending' },
+      ],
+      dailyUpdates: [],
+    };
+    setProjects((prev) => [...prev, newProject]);
+    setSelectedProjectId(newId);
+    setNewProjectName('');
+    setShowNewProject(false);
+    setToastMsg('New project created!');
+    showToast();
+  };
+
+  const handleProjectSelectChange = (value: string) => {
+    if (value === '__new__') {
+      setNewProjectName('');
+      setShowNewProject(true);
+    } else {
+      setSelectedProjectId(value);
+    }
+  };
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -32,6 +174,46 @@ export function DashboardPage() {
     };
   }, [sidebarOpen]);
 
+  const loadRequests = useCallback(async () => {
+    setRequestsLoading(true);
+    setRequestsError('');
+    try {
+      const data = await fetchContactRequests();
+      setContactRequests(data);
+    } catch (err) {
+      setRequestsError(err instanceof Error ? err.message : 'Failed to load requests.');
+    } finally {
+      setRequestsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'contact-requests') {
+      loadRequests();
+    }
+  }, [activeTab, loadRequests]);
+
+  const handleClearRequests = async () => {
+    if (!confirm('Are you sure you want to clear all requests?')) return;
+    try {
+      await clearAllContactRequests();
+      setContactRequests([]);
+    } catch (err) {
+      setRequestsError(err instanceof Error ? err.message : 'Failed to clear requests.');
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: ContactRequest['status']) => {
+    try {
+      await updateRequestStatus(id, status);
+      setContactRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status } : r))
+      );
+    } catch (err) {
+      setRequestsError(err instanceof Error ? err.message : 'Failed to update status.');
+    }
+  };
+
   const [settingsName, setSettingsName] = useState(user?.name || '');
   const [settingsEmail, setSettingsEmail] = useState(user?.email || '');
   const [settingsCompany, setSettingsCompany] = useState(user?.company || '');
@@ -40,12 +222,23 @@ export function DashboardPage() {
   const [notifyEmail, setNotifyEmail] = useState(true);
   const [notifyProjects, setNotifyProjects] = useState(true);
 
-  const showToast = () => {
+  const showToast = useCallback(() => {
     setToast(true);
     setTimeout(() => setToast(false), 3000);
-  };
+  }, []);
 
-  const hasIncomplete = onboardingChecklist.some((item) => !item.done);
+
+
+  // Close modals on Escape
+  useEffect(() => {
+    const handleModalEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeModals();
+    };
+    if (editingProject || updatingProject) {
+      document.addEventListener('keydown', handleModalEsc);
+    }
+    return () => document.removeEventListener('keydown', handleModalEsc);
+  }, [editingProject, updatingProject]);
 
   const lineChartData = useMemo(
     () => [
@@ -63,7 +256,9 @@ export function DashboardPage() {
 
   const totalTasks = analyticsData.reduce((a, d) => a + d.tasks, 0);
   const totalCompleted = analyticsData.reduce((a, d) => a + d.completed, 0);
-  const avgProgress = dashboardProjects.reduce((a, p) => a + p.progress, 0) / dashboardProjects.length;
+  const avgProgress = projects.length
+    ? projects.reduce((a, p) => a + p.progress, 0) / projects.length
+    : 0;
 
   const initials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -73,6 +268,7 @@ export function DashboardPage() {
     projects: 'Projects',
     analytics: 'Analytics',
     settings: 'Settings',
+    'contact-requests': 'Contact Requests',
   };
 
   return (
@@ -116,93 +312,82 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <nav className="dashboard__nav">
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('projects'); closeSidebar(); }}
-          >
-            <Icon name="dashboard" size={18} />
-            Projects
-          </button>
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
-          >
-            <Icon name="chart" size={18} />
-            Analytics
-          </button>
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('settings'); closeSidebar(); }}
-          >
-            <Icon name="settings" size={18} />
-            Settings
-          </button>
-          <button
-            type="button"
-            className="dashboard__nav-btn dashboard__nav-btn--logout"
-            onClick={() => {
-              logout();
-              navigate('/');
-              closeSidebar();
-            }}
-          >
-            <Icon name="logout" size={18} />
-            Log out
-          </button>
-        </nav>
+        <div className="dashboard__nav-scroll">
+          <nav className="dashboard__nav">
+            <button
+              className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
+              onClick={() => { setActiveTab('projects'); closeSidebar(); }}
+            >
+              <Icon name="dashboard" size={18} />
+              Projects
+            </button>
+            <button
+              className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
+              onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
+            >
+              <Icon name="chart" size={18} />
+              Analytics
+            </button>
+            <button
+              className={`dashboard__nav-btn ${activeTab === 'contact-requests' ? 'dashboard__nav-btn--active' : ''}`}
+              onClick={() => { setActiveTab('contact-requests'); closeSidebar(); }}
+            >
+              <Icon name="file" size={18} />
+              Requests
+            </button>
+            <button
+              className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
+              onClick={() => { setActiveTab('settings'); closeSidebar(); }}
+            >
+              <Icon name="settings" size={18} />
+              Settings
+            </button>
+          </nav>
+        </div>
+
+        <button
+          type="button"
+          className="dashboard__nav-btn dashboard__nav-btn--logout"
+          onClick={() => {
+            logout();
+            navigate('/');
+            closeSidebar();
+          }}
+        >
+          <Icon name="logout" size={18} />
+          <span className="dashboard__nav-btn-text">Log out</span>
+        </button>
       </aside>
 
       {/* Main */}
       <main className="dashboard__main">
         <header className="dashboard__page-header">
-          <div>
-            <h1 className="dashboard__page-title">{tabTitles[activeTab]}</h1>
-            <p className="dashboard__page-subtitle">
-              {activeTab === 'projects' && 'Track and manage your active projects'}
-              {activeTab === 'analytics' && 'View performance metrics and trends'}
-              {activeTab === 'settings' && 'Update your profile and preferences'}
-            </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div>
+              <h1 className="dashboard__page-title">{tabTitles[activeTab]}</h1>
+              <p className="dashboard__page-subtitle">
+                {activeTab === 'projects' && 'Track and manage your active projects'}
+                {activeTab === 'analytics' && 'View performance metrics and trends'}
+                {activeTab === 'settings' && 'Update your profile and preferences'}
+                {activeTab === 'contact-requests' && 'View submitted contact forms'}
+              </p>
+            </div>
+            {activeTab === 'contact-requests' && contactRequests.length > 0 && (
+              <Button variant="outline" size="sm" onClick={handleClearRequests}>
+                Clear All
+              </Button>
+            )}
           </div>
         </header>
 
-        {/* Onboarding */}
-        {hasIncomplete && activeTab === 'projects' && (
-          <div className="dashboard__onboarding">
-            <div className="dashboard__onboarding-header">
-              <h3>Onboarding Checklist</h3>
-              <span className="dashboard__onboarding-progress">
-                {onboardingChecklist.filter((i) => i.done).length}/{onboardingChecklist.length} complete
-              </span>
-            </div>
-            <div className="dashboard__onboarding-bar">
-              <div
-                className="dashboard__onboarding-bar-fill"
-                style={{ width: `${(onboardingChecklist.filter((i) => i.done).length / onboardingChecklist.length) * 100}%` }}
-              />
-            </div>
-            <ul className="dashboard__checklist">
-              {onboardingChecklist.map((item) => (
-                <li
-                  key={item.step}
-                  className={`dashboard__checklist-item ${item.done ? 'dashboard__checklist-item--done' : ''}`}
-                >
-                  <div className={`dashboard__check-box ${item.done ? 'dashboard__check-box--done' : ''}`}>
-                    {item.done && <Icon name="check" size={12} />}
-                  </div>
-                  {item.step}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+
 
         {/* Projects Tab */}
         {activeTab === 'projects' && (
           <div className="dashboard__content">
             <div className="dashboard__kpi-grid">
               <div className="dashboard__kpi">
-                <span className="dashboard__kpi-value">{dashboardProjects.length}</span>
+                <span className="dashboard__kpi-value">{projects.length}</span>
                 <span className="dashboard__kpi-label">Active Projects</span>
               </div>
               <div className="dashboard__kpi">
@@ -210,37 +395,53 @@ export function DashboardPage() {
                 <span className="dashboard__kpi-label">Avg. Progress</span>
               </div>
               <div className="dashboard__kpi">
-                <span className="dashboard__kpi-value">{dashboardProjects.filter((p) => p.status === 'review').length}</span>
+                <span className="dashboard__kpi-value">{projects.filter((p) => p.status === 'review').length}</span>
                 <span className="dashboard__kpi-label">In Review</span>
               </div>
             </div>
-            <div className="dashboard__projects">
-              {dashboardProjects.map((project) => (
-                <div key={project.id} className="dashboard__project">
+
+            {/* Project Selector */}
+            <div className="dashboard__project-selector">
+              <label htmlFor="project-select" className="dashboard__project-selector-label">Select Project</label>
+              <select
+                id="project-select"
+                className="dashboard__activity-select"
+                value={selectedProjectId}
+                onChange={(e) => handleProjectSelectChange(e.target.value)}
+              >
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+                <option value="__new__">+ Add New Project</option>
+              </select>
+            </div>
+
+            {/* Selected Project Details */}
+            {selectedProject && (
+              <>
+                <div className="dashboard__project">
                   <div className="dashboard__project-header">
-                    <h3>{project.name}</h3>
-                    <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
-                      {project.status}
+                    <h3>{selectedProject.name}</h3>
+                    <span className={`dashboard__status-badge dashboard__status-badge--${selectedProject.status}`}>
+                      {selectedProject.status}
                     </span>
                   </div>
-
                   <div className="dashboard__progress">
                     <div className="dashboard__progress-header">
                       <span>Progress</span>
-                      <span>{project.progress}%</span>
+                      <span>{selectedProject.progress}%</span>
                     </div>
                     <div className="dashboard__progress-bar">
                       <div
                         className="dashboard__progress-fill"
-                        style={{ width: `${project.progress}%` }}
+                        style={{ width: `${selectedProject.progress}%` }}
                       />
                     </div>
                   </div>
-
                   <div className="dashboard__milestones">
                     <h4>Milestones</h4>
                     <div className="dashboard__timeline">
-                      {project.milestones.map((ms) => (
+                      {selectedProject.milestones.map((ms) => (
                         <div
                           key={ms.label}
                           className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
@@ -251,10 +452,9 @@ export function DashboardPage() {
                       ))}
                     </div>
                   </div>
-
                   <div className="dashboard__deliverables">
                     <h4>Deliverables</h4>
-                    {project.deliverables.map((d) => (
+                    {selectedProject.deliverables.map((d) => (
                       <div key={d.name} className="dashboard__deliverable">
                         <span>{d.name}</span>
                         <span
@@ -266,7 +466,135 @@ export function DashboardPage() {
                     ))}
                   </div>
                 </div>
-              ))}
+
+                {/* Actions & Activity */}
+                <div className="dashboard__activity-center">
+                  <div className="dashboard__activity-header">
+                    <h3 className="dashboard__section-title">Activity</h3>
+                    <div className="dashboard__activity-actions">
+                      <button
+                        type="button"
+                        className="dashboard__activity-action-btn"
+                        onClick={() => openUpdateModal(selectedProject)}
+                      >
+                        <Icon name="refresh" size={16} />
+                        Post Update
+                      </button>
+                      <button
+                        type="button"
+                        className="dashboard__activity-action-btn"
+                        onClick={() => openEditModal(selectedProject)}
+                      >
+                        <Icon name="edit" size={16} />
+                        Edit Project
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="dashboard__activity-feed">
+                    {selectedProject.dailyUpdates && selectedProject.dailyUpdates.length > 0 ? (
+                      selectedProject.dailyUpdates
+                        .slice()
+                        .sort((a, b) => b.date.localeCompare(a.date))
+                        .map((update) => (
+                          <div key={update.id} className="dashboard__activity-item">
+                            <div className="dashboard__activity-item-header">
+                              <span className={`dashboard__activity-author dashboard__activity-author--${update.author}`}>
+                                {update.author}
+                              </span>
+                              <span className="dashboard__activity-date">
+                                {new Date(update.date).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
+                              </span>
+                            </div>
+                            <p className="dashboard__activity-content">{update.content}</p>
+                          </div>
+                        ))
+                    ) : (
+                      <p className="dashboard__empty">No activity yet for this project.</p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Contact Requests Tab */}
+        {activeTab === 'contact-requests' && (
+          <div className="dashboard__content">
+            <div className="dashboard__section">
+              {requestsLoading ? (
+                <p className="dashboard__empty">Loading requests…</p>
+              ) : requestsError ? (
+                <p className="dashboard__empty dashboard__empty--error">{requestsError}</p>
+              ) : contactRequests.length === 0 ? (
+                <p className="dashboard__empty">No contact requests yet.</p>
+              ) : (
+                <div className="dashboard__table-wrapper">
+                  <table className="dashboard__table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Company</th>
+                        <th>Service Interest</th>
+                        <th>Budget Range</th>
+                        <th>Timeline</th>
+                        <th>Project Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {contactRequests.map((req) => (
+                        <tr key={req.id}>
+                          <td>
+                            <strong>{req.name}</strong>
+                          </td>
+                          <td>{req.email}</td>
+                          <td>
+                            <span className={`dashboard__table-company ${!req.company ? 'empty' : ''}`}>
+                              {req.company || '-'}
+                            </span>
+                          </td>
+                          <td>{req.service}</td>
+                          <td>{req.budget}</td>
+                          <td>{req.timeline}</td>
+                          <td>
+                            <p className="dashboard__table-desc">
+                              {req.description}
+                            </p>
+                          </td>
+                          <td className="dashboard__table-date">
+                            {new Date(req.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </td>
+                          <td>
+                            <select
+                              className={`dashboard__status-select dashboard__status-select--${req.status}`}
+                              value={req.status}
+                              onChange={(e) =>
+                                handleStatusChange(req.id, e.target.value as ContactRequest['status'])
+                              }
+                            >
+                              <option value="new">New</option>
+                              <option value="read">Read</option>
+                              <option value="contacted">Contacted</option>
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -395,14 +723,22 @@ export function DashboardPage() {
                     />
                   </div>
                   <div className="dashboard__settings-field">
-                    <label htmlFor="settings-company">Company</label>
-                    <input
+                    <label htmlFor="settings-company">
+                      Company
+                      {settingsCompany === 'Reverion Technologies' && (
+                        <span className="dashboard__status-badge dashboard__status-badge--pending" style={{ marginLeft: '8px', fontSize: '0.6rem' }}>
+                          Pending Approval
+                        </span>
+                      )}
+                    </label>
+                    <select
                       id="settings-company"
-                      type="text"
                       value={settingsCompany}
                       onChange={(e) => setSettingsCompany(e.target.value)}
-                      placeholder="Your company"
-                    />
+                    >
+                      <option value="" disabled>Select your company</option>
+                      <option value="Reverion Technologies">Reverion Technologies</option>
+                    </select>
                   </div>
                   <div className="dashboard__settings-field">
                     <label htmlFor="settings-role">Job Title / Role</label>
@@ -481,16 +817,172 @@ export function DashboardPage() {
                 </div>
               </div>
 
+              {/* Submit */}
               <Button type="submit">Save Changes</Button>
             </form>
           </div>
         )}
       </main>
 
+      {/* Edit Modal */}
+      {editingProject && (
+        <>
+          <div className="dashboard__modal-backdrop" onClick={closeModals} />
+          <div className="dashboard__modal" role="dialog" aria-label="Edit project">
+            <div className="dashboard__modal-header">
+              <h3>Edit Project</h3>
+              <button type="button" className="dashboard__modal-close" onClick={closeModals}>
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            <div className="dashboard__modal-body">
+              <div className="dashboard__settings-field">
+                <label htmlFor="edit-name">Project Name</label>
+                <input
+                  id="edit-name"
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+              </div>
+              <div className="dashboard__settings-field">
+                <label htmlFor="edit-status">Status</label>
+                <select
+                  id="edit-status"
+                  value={editStatus}
+                  onChange={(e) => setEditStatus(e.target.value as DashboardProject['status'])}
+                >
+                  <option value="active">Active</option>
+                  <option value="review">Review</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+            </div>
+            <div className="dashboard__modal-footer">
+              <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
+              <Button size="sm" onClick={saveEdit}>Save Changes</Button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Update Modal */}
+      {updatingProject && (
+        <>
+          <div className="dashboard__modal-backdrop" onClick={closeModals} />
+          <div className="dashboard__modal dashboard__modal--wide" role="dialog" aria-label="Post update">
+            <div className="dashboard__modal-header">
+              <h3>Post Status Update</h3>
+              <button type="button" className="dashboard__modal-close" onClick={closeModals}>
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            <div className="dashboard__modal-body">
+              {/* Activity note */}
+              <div className="dashboard__settings-field">
+                <label htmlFor="update-text">What's the latest?</label>
+                <textarea
+                  ref={updateTextRef}
+                  id="update-text"
+                  rows={3}
+                  value={updateText}
+                  onChange={(e) => setUpdateText(e.target.value)}
+                  placeholder="e.g. Completed homepage build. Moving to product pages…"
+                />
+              </div>
+
+              {/* Milestones */}
+              <div className="dashboard__update-section">
+                <h4 className="dashboard__update-section-title">Milestones</h4>
+                <div className="dashboard__update-checklist">
+                  {updateMilestones.map((ms, i) => (
+                    <label key={ms.label} className="dashboard__update-check-row">
+                      <input
+                        type="checkbox"
+                        checked={ms.done}
+                        onChange={() =>
+                          setUpdateMilestones((prev) =>
+                            prev.map((m, idx) => (idx === i ? { ...m, done: !m.done } : m))
+                          )
+                        }
+                      />
+                      <span className={ms.done ? 'dashboard__update-check-done' : ''}>{ms.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Deliverables */}
+              <div className="dashboard__update-section">
+                <h4 className="dashboard__update-section-title">Deliverables</h4>
+                <div className="dashboard__update-deliverables">
+                  {updateDeliverables.map((d, i) => (
+                    <div key={d.name} className="dashboard__update-deliverable-row">
+                      <span>{d.name}</span>
+                      <select
+                        value={d.status}
+                        onChange={(e) =>
+                          setUpdateDeliverables((prev) =>
+                            prev.map((item, idx) =>
+                              idx === i ? { ...item, status: e.target.value as typeof d.status } : item
+                            )
+                          )
+                        }
+                        className="dashboard__update-deliverable-select"
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Delivered">Delivered</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="dashboard__modal-footer">
+              <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
+              <Button size="sm" onClick={saveUpdate} disabled={!updateText.trim()}>Post Update</Button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* New Project Modal */}
+      {showNewProject && (
+        <>
+          <div className="dashboard__modal-backdrop" onClick={closeModals} />
+          <div className="dashboard__modal" role="dialog" aria-label="Add new project">
+            <div className="dashboard__modal-header">
+              <h3>Add New Project</h3>
+              <button type="button" className="dashboard__modal-close" onClick={closeModals}>
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            <div className="dashboard__modal-body">
+              <div className="dashboard__settings-field">
+                <label htmlFor="new-project-name">Project Name</label>
+                <input
+                  id="new-project-name"
+                  type="text"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  placeholder="e.g. Website Redesign"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="dashboard__modal-footer">
+              <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
+              <Button size="sm" onClick={handleAddProject} disabled={!newProjectName.trim()}>Create Project</Button>
+            </div>
+          </div>
+        </>
+      )}
+
       {toast && (
         <div className="dashboard__toast" role="status">
           <Icon name="check" size={18} />
-          Settings saved successfully!
+          {toastMsg}
         </div>
       )}
     </div>

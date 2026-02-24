@@ -7,6 +7,7 @@ import { ScrollToTop } from '../components/layout/ScrollToTop';
 import { ProtectedRoute } from '../components/layout/ProtectedRoute';
 import { LandingPage } from '../pages/LandingPage';
 import { AuthPage } from '../pages/AuthPage';
+import { AuthCallbackPage } from '../pages/AuthCallbackPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { ContactPage } from '../pages/ContactPage';
 import { CaseStudiesPage } from '../pages/CaseStudiesPage';
@@ -20,16 +21,18 @@ import { PrivacyPage } from '../pages/PrivacyPage';
 function AppRoutes() {
     const location = useLocation();
     const isDashboard = location.pathname === '/dashboard';
+    const isAuthCallback = location.pathname === '/auth/callback';
 
     return (
         <ThemeProvider>
             <AuthProvider>
                 <ScrollToTop />
-                {!isDashboard && <Header />}
+                {!isDashboard && !isAuthCallback && <Header />}
                 <main>
                     <Routes>
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/auth" element={<AuthPage />} />
+                        <Route path="/auth/callback" element={<AuthCallbackPage />} />
                         <Route
                             path="/dashboard"
                             element={
@@ -48,9 +51,9 @@ function AppRoutes() {
                         <Route path="/privacy" element={<PrivacyPage />} />
                     </Routes>
                 </main>
-                {!isDashboard && <Footer />}
+                {!isDashboard && !isAuthCallback && <Footer />}
             </AuthProvider>
-        </ThemeProvider>
+        </ThemeProvider >
     );
 }
 

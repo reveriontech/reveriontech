@@ -70,6 +70,24 @@ export function Icon({ name, size = 24, className }: IconProps) {
           <polyline points="12 5 19 12 12 19" />
         </svg>
       );
+    case 'arrowLeft':
+      return (
+        <svg {...props}>
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+      );
+    case 'list':
+      return (
+        <svg {...props}>
+          <line x1="8" y1="6" x2="21" y2="6" />
+          <line x1="8" y1="12" x2="21" y2="12" />
+          <line x1="8" y1="18" x2="21" y2="18" />
+          <line x1="3" y1="6" x2="3.01" y2="6" />
+          <line x1="3" y1="12" x2="3.01" y2="12" />
+          <line x1="3" y1="18" x2="3.01" y2="18" />
+        </svg>
+      );
     case 'check':
       return (
         <svg {...props}>
@@ -235,6 +253,20 @@ export function Icon({ name, size = 24, className }: IconProps) {
       return (
         <svg {...props}>
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      );
+    case 'edit':
+      return (
+        <svg {...props}>
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      );
+    case 'refresh':
+      return (
+        <svg {...props}>
+          <polyline points="23 4 23 10 17 10" />
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
         </svg>
       );
     default:
