@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { Reveal } from '../components/ui/Reveal';
 import { services } from '../data/services';
+import { submitContactRequest } from '../lib/contactRequests';
 import '../styles/contact.css';
 
 interface FormData {
@@ -34,6 +35,7 @@ export function ContactPage() {
   }));
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, boolean>>>({});
 
   const handleChange = (field: keyof FormData, value: string) => {
@@ -45,6 +47,7 @@ export function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError('');
 
     const newErrors: Partial<Record<keyof FormData, boolean>> = {};
     if (!form.name) newErrors.name = true;
@@ -58,21 +61,11 @@ export function ContactPage() {
 
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((r) => setTimeout(r, 800));
-
-      // Save to localStorage (MOCK BACKEND)
-      const newRequest = {
-        id: crypto.randomUUID(),
-        ...form,
-        status: 'new',
-        createdAt: new Date().toISOString(),
-      };
-
-      const existingRequests = JSON.parse(localStorage.getItem('contact_requests') || '[]');
-      localStorage.setItem('contact_requests', JSON.stringify([newRequest, ...existingRequests]));
-
+      await submitContactRequest(form);
       setSubmitted(true);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to submit your inquiry. Please try again.';
+      setSubmitError(message);
     } finally {
       setIsLoading(false);
     }
@@ -234,6 +227,9 @@ export function ContactPage() {
               </div>
 
               <div className="contact__submit">
+                {submitError && (
+                  <p className="contact__error" role="alert">{submitError}</p>
+                )}
                 <button
                   type="submit"
                   className="contact__submit-btn"

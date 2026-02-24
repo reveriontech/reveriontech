@@ -15,7 +15,10 @@ export function AuthCallbackPage() {
       if (cancelled) return;
       if (error) {
         setStatus('error');
-        navigate('/auth', { replace: true, state: { error: error.message } });
+        const friendlyMessage = (error.message?.toLowerCase().includes('expired') || error.message?.toLowerCase().includes('invalid'))
+          ? 'This link has expired. Please request a new sign-in link or use the 6-digit code from your latest email.'
+          : error.message;
+        navigate('/auth', { replace: true, state: { error: friendlyMessage } });
         return;
       }
       if (session) {
@@ -31,7 +34,7 @@ export function AuthCallbackPage() {
           navigate('/dashboard', { replace: true });
         } else {
           setStatus('error');
-          navigate('/auth', { replace: true, state: { error: 'Invalid or expired link' } });
+          navigate('/auth', { replace: true, state: { error: 'This link has expired or was already used. Please request a new sign-in link or use the 6-digit code from your email.' } });
         }
       }, 500);
     };

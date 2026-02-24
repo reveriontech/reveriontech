@@ -1,11 +1,17 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
-import { dashboardProjects, onboardingChecklist, analyticsData } from '../data/dashboardData';
+import { dashboardProjects as initialProjects, onboardingChecklist, analyticsData } from '../data/dashboardData';
+import type { DashboardProject } from '../types';
+import {
+  fetchContactRequests,
+  updateRequestStatus,
+  clearAllContactRequests,
+} from '../lib/contactRequests';
 import type { ContactRequest } from '../types';
 import '../styles/dashboard.css';
 
@@ -18,7 +24,82 @@ export function DashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toast, setToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState('Settings saved successfully!');
   const [contactRequests, setContactRequests] = useState<ContactRequest[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [requestsError, setRequestsError] = useState('');
+
+  // Project data (local mutable copy)
+  const [projects, setProjects] = useState<DashboardProject[]>(initialProjects);
+
+  // Edit modal
+  const [editingProject, setEditingProject] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editStatus, setEditStatus] = useState<DashboardProject['status']>('active');
+
+  // Update modal
+  const [updatingProject, setUpdatingProject] = useState<string | null>(null);
+  const [updateText, setUpdateText] = useState('');
+  const updateTextRef = useRef<HTMLTextAreaElement>(null);
+
+  // Activity Center: selected project
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id || '');
+  const selectedProject = projects.find((p) => p.id === selectedProjectId) || null;
+
+  const openEditModal = (p: DashboardProject) => {
+    setEditName(p.name);
+    setEditStatus(p.status);
+    setEditingProject(p.id);
+  };
+
+  const saveEdit = () => {
+    if (!editingProject) return;
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.id === editingProject ? { ...p, name: editName, status: editStatus } : p
+      )
+    );
+    setEditingProject(null);
+    setToastMsg('Project updated successfully!');
+    showToast();
+  };
+
+  const openUpdateModal = (p: DashboardProject) => {
+    setUpdateText('');
+    setUpdatingProject(p.id);
+    setTimeout(() => updateTextRef.current?.focus(), 50);
+  };
+
+  const saveUpdate = () => {
+    if (!updatingProject || !updateText.trim()) return;
+    setProjects((prev) =>
+      prev.map((p) =>
+        p.id === updatingProject
+          ? {
+            ...p,
+            dailyUpdates: [
+              ...(p.dailyUpdates || []),
+              {
+                id: `upd-${Date.now()}`,
+                date: new Date().toISOString().slice(0, 10),
+                phaseId: 1,
+                content: updateText.trim(),
+                author: 'developer' as const,
+              },
+            ],
+          }
+          : p
+      )
+    );
+    setUpdatingProject(null);
+    setToastMsg('Status update posted!');
+    showToast();
+  };
+
+  const closeModals = () => {
+    setEditingProject(null);
+    setUpdatingProject(null);
+  };
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -34,23 +115,43 @@ export function DashboardPage() {
     };
   }, [sidebarOpen]);
 
+  const loadRequests = useCallback(async () => {
+    setRequestsLoading(true);
+    setRequestsError('');
+    try {
+      const data = await fetchContactRequests();
+      setContactRequests(data);
+    } catch (err) {
+      setRequestsError(err instanceof Error ? err.message : 'Failed to load requests.');
+    } finally {
+      setRequestsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (activeTab === 'contact-requests') {
-      const stored = localStorage.getItem('contact_requests');
-      if (stored) {
-        try {
-          setContactRequests(JSON.parse(stored));
-        } catch (e) {
-          console.error('Failed to parse requests', e);
-        }
-      }
+      loadRequests();
     }
-  }, [activeTab]);
+  }, [activeTab, loadRequests]);
 
-  const clearContactRequests = () => {
-    if (confirm('Are you sure you want to clear all requests?')) {
-      localStorage.removeItem('contact_requests');
+  const handleClearRequests = async () => {
+    if (!confirm('Are you sure you want to clear all requests?')) return;
+    try {
+      await clearAllContactRequests();
       setContactRequests([]);
+    } catch (err) {
+      setRequestsError(err instanceof Error ? err.message : 'Failed to clear requests.');
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: ContactRequest['status']) => {
+    try {
+      await updateRequestStatus(id, status);
+      setContactRequests((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status } : r))
+      );
+    } catch (err) {
+      setRequestsError(err instanceof Error ? err.message : 'Failed to update status.');
     }
   };
 
@@ -62,12 +163,23 @@ export function DashboardPage() {
   const [notifyEmail, setNotifyEmail] = useState(true);
   const [notifyProjects, setNotifyProjects] = useState(true);
 
-  const showToast = () => {
+  const showToast = useCallback(() => {
     setToast(true);
     setTimeout(() => setToast(false), 3000);
-  };
+  }, []);
 
   const hasIncomplete = onboardingChecklist.some((item) => !item.done);
+
+  // Close modals on Escape
+  useEffect(() => {
+    const handleModalEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeModals();
+    };
+    if (editingProject || updatingProject) {
+      document.addEventListener('keydown', handleModalEsc);
+    }
+    return () => document.removeEventListener('keydown', handleModalEsc);
+  }, [editingProject, updatingProject]);
 
   const lineChartData = useMemo(
     () => [
@@ -85,8 +197,8 @@ export function DashboardPage() {
 
   const totalTasks = analyticsData.reduce((a, d) => a + d.tasks, 0);
   const totalCompleted = analyticsData.reduce((a, d) => a + d.completed, 0);
-  const avgProgress = dashboardProjects.length
-    ? dashboardProjects.reduce((a, p) => a + p.progress, 0) / dashboardProjects.length
+  const avgProgress = projects.length
+    ? projects.reduce((a, p) => a + p.progress, 0) / projects.length
     : 0;
 
   const initials = user?.name
@@ -202,7 +314,7 @@ export function DashboardPage() {
               </p>
             </div>
             {activeTab === 'contact-requests' && contactRequests.length > 0 && (
-              <Button variant="outline" size="sm" onClick={clearContactRequests}>
+              <Button variant="outline" size="sm" onClick={handleClearRequests}>
                 Clear All
               </Button>
             )}
@@ -245,7 +357,7 @@ export function DashboardPage() {
           <div className="dashboard__content">
             <div className="dashboard__kpi-grid">
               <div className="dashboard__kpi">
-                <span className="dashboard__kpi-value">{dashboardProjects.length}</span>
+                <span className="dashboard__kpi-value">{projects.length}</span>
                 <span className="dashboard__kpi-label">Active Projects</span>
               </div>
               <div className="dashboard__kpi">
@@ -253,12 +365,12 @@ export function DashboardPage() {
                 <span className="dashboard__kpi-label">Avg. Progress</span>
               </div>
               <div className="dashboard__kpi">
-                <span className="dashboard__kpi-value">{dashboardProjects.filter((p) => p.status === 'review').length}</span>
+                <span className="dashboard__kpi-value">{projects.filter((p) => p.status === 'review').length}</span>
                 <span className="dashboard__kpi-label">In Review</span>
               </div>
             </div>
             <div className="dashboard__projects">
-              {dashboardProjects.map((project) => (
+              {projects.map((project) => (
                 <div key={project.id} className="dashboard__project">
                   <div className="dashboard__project-header">
                     <h3>{project.name}</h3>
@@ -308,6 +420,72 @@ export function DashboardPage() {
                 </div>
               ))}
             </div>
+
+            {/* Activity Center */}
+            <div className="dashboard__activity-center">
+              <div className="dashboard__activity-header">
+                <h3 className="dashboard__section-title">Activity Center</h3>
+                <select
+                  className="dashboard__activity-select"
+                  value={selectedProjectId}
+                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                >
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedProject && (
+                <>
+                  <div className="dashboard__activity-actions">
+                    <button
+                      type="button"
+                      className="dashboard__activity-action-btn"
+                      onClick={() => openUpdateModal(selectedProject)}
+                    >
+                      <Icon name="refresh" size={16} />
+                      Post Update
+                    </button>
+                    <button
+                      type="button"
+                      className="dashboard__activity-action-btn"
+                      onClick={() => openEditModal(selectedProject)}
+                    >
+                      <Icon name="edit" size={16} />
+                      Edit Project
+                    </button>
+                  </div>
+
+                  <div className="dashboard__activity-feed">
+                    {selectedProject.dailyUpdates && selectedProject.dailyUpdates.length > 0 ? (
+                      selectedProject.dailyUpdates
+                        .slice()
+                        .sort((a, b) => b.date.localeCompare(a.date))
+                        .map((update) => (
+                          <div key={update.id} className="dashboard__activity-item">
+                            <div className="dashboard__activity-item-header">
+                              <span className={`dashboard__activity-author dashboard__activity-author--${update.author}`}>
+                                {update.author}
+                              </span>
+                              <span className="dashboard__activity-date">
+                                {new Date(update.date).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
+                              </span>
+                            </div>
+                            <p className="dashboard__activity-content">{update.content}</p>
+                          </div>
+                        ))
+                    ) : (
+                      <p className="dashboard__empty">No activity yet for this project.</p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
 
@@ -315,7 +493,11 @@ export function DashboardPage() {
         {activeTab === 'contact-requests' && (
           <div className="dashboard__content">
             <div className="dashboard__section">
-              {contactRequests.length === 0 ? (
+              {requestsLoading ? (
+                <p className="dashboard__empty">Loading requests…</p>
+              ) : requestsError ? (
+                <p className="dashboard__empty dashboard__empty--error">{requestsError}</p>
+              ) : contactRequests.length === 0 ? (
                 <p className="dashboard__empty">No contact requests yet.</p>
               ) : (
                 <div className="dashboard__table-wrapper">
@@ -329,6 +511,8 @@ export function DashboardPage() {
                         <th>Budget Range</th>
                         <th>Timeline</th>
                         <th>Project Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -350,6 +534,26 @@ export function DashboardPage() {
                             <p className="dashboard__table-desc">
                               {req.description}
                             </p>
+                          </td>
+                          <td className="dashboard__table-date">
+                            {new Date(req.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </td>
+                          <td>
+                            <select
+                              className={`dashboard__status-select dashboard__status-select--${req.status}`}
+                              value={req.status}
+                              onChange={(e) =>
+                                handleStatusChange(req.id, e.target.value as ContactRequest['status'])
+                              }
+                            >
+                              <option value="new">New</option>
+                              <option value="read">Read</option>
+                              <option value="contacted">Contacted</option>
+                            </select>
                           </td>
                         </tr>
                       ))}
@@ -586,10 +790,84 @@ export function DashboardPage() {
         )}
       </main>
 
+      {/* Edit Modal */}
+      {editingProject && (
+        <>
+          <div className="dashboard__modal-backdrop" onClick={closeModals} />
+          <div className="dashboard__modal" role="dialog" aria-label="Edit project">
+            <div className="dashboard__modal-header">
+              <h3>Edit Project</h3>
+              <button type="button" className="dashboard__modal-close" onClick={closeModals}>
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            <div className="dashboard__modal-body">
+              <div className="dashboard__settings-field">
+                <label htmlFor="edit-name">Project Name</label>
+                <input
+                  id="edit-name"
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+              </div>
+              <div className="dashboard__settings-field">
+                <label htmlFor="edit-status">Status</label>
+                <select
+                  id="edit-status"
+                  value={editStatus}
+                  onChange={(e) => setEditStatus(e.target.value as DashboardProject['status'])}
+                >
+                  <option value="active">Active</option>
+                  <option value="review">Review</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+            </div>
+            <div className="dashboard__modal-footer">
+              <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
+              <Button size="sm" onClick={saveEdit}>Save Changes</Button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Update Modal */}
+      {updatingProject && (
+        <>
+          <div className="dashboard__modal-backdrop" onClick={closeModals} />
+          <div className="dashboard__modal" role="dialog" aria-label="Post update">
+            <div className="dashboard__modal-header">
+              <h3>Post Status Update</h3>
+              <button type="button" className="dashboard__modal-close" onClick={closeModals}>
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            <div className="dashboard__modal-body">
+              <div className="dashboard__settings-field">
+                <label htmlFor="update-text">What's the latest?</label>
+                <textarea
+                  ref={updateTextRef}
+                  id="update-text"
+                  rows={4}
+                  value={updateText}
+                  onChange={(e) => setUpdateText(e.target.value)}
+                  placeholder="e.g. Completed homepage build. Moving to product pages…"
+                />
+              </div>
+            </div>
+            <div className="dashboard__modal-footer">
+              <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
+              <Button size="sm" onClick={saveUpdate} disabled={!updateText.trim()}>Post Update</Button>
+            </div>
+          </div>
+        </>
+      )}
+
       {toast && (
         <div className="dashboard__toast" role="status">
           <Icon name="check" size={18} />
-          Settings saved successfully!
+          {toastMsg}
         </div>
       )}
     </div>

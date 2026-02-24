@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Reveal } from '../components/ui/Reveal';
@@ -28,9 +28,11 @@ function getPasswordChecks(password: string) {
   };
 }
 
+
 export function AuthPage() {
   const { isAuthenticated, login, register, resendConfirmationEmail, verifyOtp } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [name, setName] = useState('');
@@ -53,6 +55,15 @@ export function AuthPage() {
       navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const stateError = (location.state as { error?: string } | null)?.error;
+    if (stateError) {
+      setError(stateError);
+      setMode('login');
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, location.pathname, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +111,7 @@ export function AuthPage() {
     }
 
     setIsLoading(true);
+    setError('');
     try {
       const result = await register(name, email, password);
       if (result?.needsEmailConfirmation) {
@@ -110,7 +122,8 @@ export function AuthPage() {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -258,6 +271,9 @@ export function AuthPage() {
                 disabled={confirmLoading}
                 autoFocus
               />
+              <p className="auth__hint" style={{ marginTop: '0.35rem' }}>
+                Enter the code soon — it expires in about 1 hour. If you see &quot;code expired&quot;, click Resend below.
+              </p>
             </div>
             <div className="auth__submit">
               <Button type="submit" disabled={confirmLoading || confirmToken.length !== 6}>
@@ -366,7 +382,7 @@ export function AuthPage() {
                   I agree to the{' '}
                   <button type="button" onClick={() => setLegalModal('terms')} className="auth__link">Terms of Service</button>
                   {' '}and{' '}
-                  <button type="button" onClick={() => setLegalModal('privacy')} className="auth__link">Privacy Policy</button>.
+                  <button type="button" onClick={() => setLegalModal('privacy')} className="auth__link">Privacy Policy</button>
                 </span>
               </label>
             </div>

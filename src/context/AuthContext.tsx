@@ -4,6 +4,8 @@ import type { User } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8080';
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -28,6 +30,15 @@ function supabaseUserToAppUser(supabaseUser: SupabaseUser | null): User | null {
   };
 }
 
+/** Fire-and-forget: POST login attempt to Rust backend for IP tracking */
+function trackLoginAttempt(email: string, method: string, success: boolean, errorMessage?: string) {
+  fetch(`${BACKEND_URL}/login-attempts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, method, success, error_message: errorMessage ?? null }),
+  }).catch(() => { /* silent — tracking should never block auth */ });
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
@@ -37,18 +48,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-      setUser(supabaseUserToAppUser(session?.user ?? null));
-    }).catch((err) => {
-      console.error('Error getting session:', err);
+    let mounted = true;
+
+    const initSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (!mounted) return;
+      if (error) {
+        if (error.status === 429) return;
+        if (error.message?.toLowerCase().includes('expired') || error.message?.toLowerCase().includes('invalid')) {
+          await supabase.auth.signOut();
+          setUser(null);
+        }
+        return;
+      }
+      if (session) {
+        setUser(supabaseUserToAppUser(session.user));
+      } else {
+        setUser(null);
+      }
+    };
+
+    initSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, session: Session | null) => {
+      if (!mounted) return;
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        setUser(supabaseUserToAppUser(session?.user ?? null));
+      } else {
+        setUser(supabaseUserToAppUser(session?.user ?? null));
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
-      setUser(supabaseUserToAppUser(session?.user ?? null));
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
+
+  const rateLimitMessage = 'Too many requests. Please wait a moment and try again.';
 
   const login = useCallback(async (email: string, password: string) => {
     if (!isSupabaseConfigured()) {
@@ -60,8 +97,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
     });
 
-    if (error) throw error;
+    if (error) {
+      trackLoginAttempt(email, 'password', false, error.message);
+      if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
+        throw new Error(rateLimitMessage);
+      }
+      throw error;
+    }
     if (!data.user) throw new Error('Login failed');
+    trackLoginAttempt(email, 'password', true);
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
@@ -75,26 +119,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Password must include at least one special character (e.g. !@#$%^&*).');
     }
 
-    // Sign up with password - Supabase sends confirmation email with OTP code
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { name },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { data: { name } },
     });
 
     if (signUpError) {
-      // Handle 429 rate limit errors gracefully
-      if (signUpError.status === 429 || signUpError.message?.includes('rate limit')) {
-        throw new Error('Too many requests. Please wait a moment and try again, or check your email inbox for the confirmation code.');
-      }
+      trackLoginAttempt(email, 'register', false, signUpError.message);
       throw signUpError;
     }
     if (!signUpData.user) throw new Error('Registration failed');
 
-    // Supabase sent confirmation email; session is null until user confirms
+    trackLoginAttempt(email, 'register', true);
+
     const needsEmailConfirmation = !signUpData.session;
     return { needsEmailConfirmation };
   }, []);
@@ -113,8 +151,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (error) {
-      if (error.status === 429 || error.message?.includes('rate limit')) {
-        throw new Error('Too many requests. Please wait a moment and try again, or check your email inbox for the confirmation code.');
+      if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
+        throw new Error(rateLimitMessage);
       }
       throw error;
     }
@@ -134,7 +172,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    if (error) throw error;
+    if (error) {
+      if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
+        throw new Error(rateLimitMessage);
+      }
+      throw error;
+    }
   }, []);
 
   const verifyOtp = useCallback(async (email: string, token: string, name: string) => {
@@ -148,13 +191,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       type: 'email',
     });
 
-    if (error) throw error;
+    if (error) {
+      trackLoginAttempt(email, 'otp', false, error.message);
+      const msg = error.message?.toLowerCase() ?? '';
+      if (error.status === 429 || msg.includes('rate limit')) {
+        throw new Error(rateLimitMessage);
+      }
+      if (msg.includes('expired') || msg.includes('invalid')) {
+        throw new Error('This code has expired. Please click Resend to get a new code.');
+      }
+      throw error;
+    }
     if (!data.user) throw new Error('OTP verification failed');
+
+    trackLoginAttempt(email, 'otp', true);
 
     if (data.user.user_metadata?.name !== name) {
       await supabase.auth.updateUser({
         data: { name },
       });
+    }
+    try {
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      if (refreshed?.session) setUser(supabaseUserToAppUser(refreshed.session.user));
+    } catch {
+      // keep session from verifyOtp
     }
   }, []);
 
@@ -180,3 +241,4 @@ export function useAuth(): AuthContextType {
   }
   return context;
 }
+
