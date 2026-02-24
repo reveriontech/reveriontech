@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
-import { dashboardProjects as initialProjects, onboardingChecklist, analyticsData } from '../data/dashboardData';
+import { dashboardProjects as initialProjects, analyticsData } from '../data/dashboardData';
 import type { DashboardProject } from '../types';
 import {
   fetchContactRequests,
@@ -40,11 +40,17 @@ export function DashboardPage() {
   // Update modal
   const [updatingProject, setUpdatingProject] = useState<string | null>(null);
   const [updateText, setUpdateText] = useState('');
+  const [updateMilestones, setUpdateMilestones] = useState<{ label: string; date: string; done: boolean }[]>([]);
+  const [updateDeliverables, setUpdateDeliverables] = useState<{ name: string; status: 'Delivered' | 'In Progress' | 'Pending' }[]>([]);
   const updateTextRef = useRef<HTMLTextAreaElement>(null);
 
   // Activity Center: selected project
   const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id || '');
   const selectedProject = projects.find((p) => p.id === selectedProjectId) || null;
+
+  // New project modal
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
 
   const openEditModal = (p: DashboardProject) => {
     setEditName(p.name);
@@ -66,17 +72,31 @@ export function DashboardPage() {
 
   const openUpdateModal = (p: DashboardProject) => {
     setUpdateText('');
+    setUpdateMilestones(p.milestones.map((m) => ({ ...m })));
+    setUpdateDeliverables(p.deliverables.map((d) => ({ ...d })));
     setUpdatingProject(p.id);
     setTimeout(() => updateTextRef.current?.focus(), 50);
   };
 
   const saveUpdate = () => {
     if (!updatingProject || !updateText.trim()) return;
+    // Auto-calculate progress from milestones + deliverables
+    const msDone = updateMilestones.filter((m) => m.done).length;
+    const msTotal = updateMilestones.length || 1;
+    const dlDone = updateDeliverables.filter((d) => d.status === 'Delivered').length;
+    const dlInProgress = updateDeliverables.filter((d) => d.status === 'In Progress').length;
+    const dlTotal = updateDeliverables.length || 1;
+    const autoProgress = Math.round(
+      ((msDone / msTotal) * 50) + (((dlDone + dlInProgress * 0.5) / dlTotal) * 50)
+    );
     setProjects((prev) =>
       prev.map((p) =>
         p.id === updatingProject
           ? {
             ...p,
+            progress: autoProgress,
+            milestones: updateMilestones,
+            deliverables: updateDeliverables,
             dailyUpdates: [
               ...(p.dailyUpdates || []),
               {
@@ -99,6 +119,45 @@ export function DashboardPage() {
   const closeModals = () => {
     setEditingProject(null);
     setUpdatingProject(null);
+    setShowNewProject(false);
+  };
+
+  const handleAddProject = () => {
+    if (!newProjectName.trim()) return;
+    const newId = `proj-${Date.now()}`;
+    const newProject: DashboardProject = {
+      id: newId,
+      name: newProjectName.trim(),
+      status: 'active',
+      progress: 0,
+      milestones: [
+        { label: 'Discovery & Planning', date: '', done: false },
+        { label: 'Design', date: '', done: false },
+        { label: 'Development', date: '', done: false },
+        { label: 'Testing & Launch', date: '', done: false },
+      ],
+      deliverables: [
+        { name: 'Requirements Doc', status: 'Pending' },
+        { name: 'Design Mockups', status: 'Pending' },
+        { name: 'Working Build', status: 'Pending' },
+      ],
+      dailyUpdates: [],
+    };
+    setProjects((prev) => [...prev, newProject]);
+    setSelectedProjectId(newId);
+    setNewProjectName('');
+    setShowNewProject(false);
+    setToastMsg('New project created!');
+    showToast();
+  };
+
+  const handleProjectSelectChange = (value: string) => {
+    if (value === '__new__') {
+      setNewProjectName('');
+      setShowNewProject(true);
+    } else {
+      setSelectedProjectId(value);
+    }
   };
 
   const closeSidebar = () => setSidebarOpen(false);
@@ -168,7 +227,7 @@ export function DashboardPage() {
     setTimeout(() => setToast(false), 3000);
   }, []);
 
-  const hasIncomplete = onboardingChecklist.some((item) => !item.done);
+
 
   // Close modals on Escape
   useEffect(() => {
@@ -321,36 +380,7 @@ export function DashboardPage() {
           </div>
         </header>
 
-        {/* Onboarding */}
-        {hasIncomplete && activeTab === 'projects' && (
-          <div className="dashboard__onboarding">
-            <div className="dashboard__onboarding-header">
-              <h3>Onboarding Checklist</h3>
-              <span className="dashboard__onboarding-progress">
-                {onboardingChecklist.filter((i) => i.done).length}/{onboardingChecklist.length} complete
-              </span>
-            </div>
-            <div className="dashboard__onboarding-bar">
-              <div
-                className="dashboard__onboarding-bar-fill"
-                style={{ width: `${(onboardingChecklist.filter((i) => i.done).length / onboardingChecklist.length) * 100}%` }}
-              />
-            </div>
-            <ul className="dashboard__checklist">
-              {onboardingChecklist.map((item) => (
-                <li
-                  key={item.step}
-                  className={`dashboard__checklist-item ${item.done ? 'dashboard__checklist-item--done' : ''}`}
-                >
-                  <div className={`dashboard__check-box ${item.done ? 'dashboard__check-box--done' : ''}`}>
-                    {item.done && <Icon name="check" size={12} />}
-                  </div>
-                  {item.step}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+
 
         {/* Projects Tab */}
         {activeTab === 'projects' && (
@@ -369,31 +399,49 @@ export function DashboardPage() {
                 <span className="dashboard__kpi-label">In Review</span>
               </div>
             </div>
-            <div className="dashboard__projects">
-              {projects.map((project) => (
-                <div key={project.id} className="dashboard__project">
+
+            {/* Project Selector */}
+            <div className="dashboard__project-selector">
+              <label htmlFor="project-select" className="dashboard__project-selector-label">Select Project</label>
+              <select
+                id="project-select"
+                className="dashboard__activity-select"
+                value={selectedProjectId}
+                onChange={(e) => handleProjectSelectChange(e.target.value)}
+              >
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+                <option value="__new__">+ Add New Project</option>
+              </select>
+            </div>
+
+            {/* Selected Project Details */}
+            {selectedProject && (
+              <>
+                <div className="dashboard__project">
                   <div className="dashboard__project-header">
-                    <h3>{project.name}</h3>
-                    <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
-                      {project.status}
+                    <h3>{selectedProject.name}</h3>
+                    <span className={`dashboard__status-badge dashboard__status-badge--${selectedProject.status}`}>
+                      {selectedProject.status}
                     </span>
                   </div>
                   <div className="dashboard__progress">
                     <div className="dashboard__progress-header">
                       <span>Progress</span>
-                      <span>{project.progress}%</span>
+                      <span>{selectedProject.progress}%</span>
                     </div>
                     <div className="dashboard__progress-bar">
                       <div
                         className="dashboard__progress-fill"
-                        style={{ width: `${project.progress}%` }}
+                        style={{ width: `${selectedProject.progress}%` }}
                       />
                     </div>
                   </div>
                   <div className="dashboard__milestones">
                     <h4>Milestones</h4>
                     <div className="dashboard__timeline">
-                      {project.milestones.map((ms) => (
+                      {selectedProject.milestones.map((ms) => (
                         <div
                           key={ms.label}
                           className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
@@ -406,7 +454,7 @@ export function DashboardPage() {
                   </div>
                   <div className="dashboard__deliverables">
                     <h4>Deliverables</h4>
-                    {project.deliverables.map((d) => (
+                    {selectedProject.deliverables.map((d) => (
                       <div key={d.name} className="dashboard__deliverable">
                         <span>{d.name}</span>
                         <span
@@ -418,43 +466,29 @@ export function DashboardPage() {
                     ))}
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Activity Center */}
-            <div className="dashboard__activity-center">
-              <div className="dashboard__activity-header">
-                <h3 className="dashboard__section-title">Activity Center</h3>
-                <select
-                  className="dashboard__activity-select"
-                  value={selectedProjectId}
-                  onChange={(e) => setSelectedProjectId(e.target.value)}
-                >
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {selectedProject && (
-                <>
-                  <div className="dashboard__activity-actions">
-                    <button
-                      type="button"
-                      className="dashboard__activity-action-btn"
-                      onClick={() => openUpdateModal(selectedProject)}
-                    >
-                      <Icon name="refresh" size={16} />
-                      Post Update
-                    </button>
-                    <button
-                      type="button"
-                      className="dashboard__activity-action-btn"
-                      onClick={() => openEditModal(selectedProject)}
-                    >
-                      <Icon name="edit" size={16} />
-                      Edit Project
-                    </button>
+                {/* Actions & Activity */}
+                <div className="dashboard__activity-center">
+                  <div className="dashboard__activity-header">
+                    <h3 className="dashboard__section-title">Activity</h3>
+                    <div className="dashboard__activity-actions">
+                      <button
+                        type="button"
+                        className="dashboard__activity-action-btn"
+                        onClick={() => openUpdateModal(selectedProject)}
+                      >
+                        <Icon name="refresh" size={16} />
+                        Post Update
+                      </button>
+                      <button
+                        type="button"
+                        className="dashboard__activity-action-btn"
+                        onClick={() => openEditModal(selectedProject)}
+                      >
+                        <Icon name="edit" size={16} />
+                        Edit Project
+                      </button>
+                    </div>
                   </div>
 
                   <div className="dashboard__activity-feed">
@@ -483,9 +517,9 @@ export function DashboardPage() {
                       <p className="dashboard__empty">No activity yet for this project.</p>
                     )}
                   </div>
-                </>
-              )}
-            </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -836,7 +870,7 @@ export function DashboardPage() {
       {updatingProject && (
         <>
           <div className="dashboard__modal-backdrop" onClick={closeModals} />
-          <div className="dashboard__modal" role="dialog" aria-label="Post update">
+          <div className="dashboard__modal dashboard__modal--wide" role="dialog" aria-label="Post update">
             <div className="dashboard__modal-header">
               <h3>Post Status Update</h3>
               <button type="button" className="dashboard__modal-close" onClick={closeModals}>
@@ -844,21 +878,102 @@ export function DashboardPage() {
               </button>
             </div>
             <div className="dashboard__modal-body">
+              {/* Activity note */}
               <div className="dashboard__settings-field">
                 <label htmlFor="update-text">What's the latest?</label>
                 <textarea
                   ref={updateTextRef}
                   id="update-text"
-                  rows={4}
+                  rows={3}
                   value={updateText}
                   onChange={(e) => setUpdateText(e.target.value)}
                   placeholder="e.g. Completed homepage build. Moving to product pages…"
                 />
               </div>
+
+              {/* Milestones */}
+              <div className="dashboard__update-section">
+                <h4 className="dashboard__update-section-title">Milestones</h4>
+                <div className="dashboard__update-checklist">
+                  {updateMilestones.map((ms, i) => (
+                    <label key={ms.label} className="dashboard__update-check-row">
+                      <input
+                        type="checkbox"
+                        checked={ms.done}
+                        onChange={() =>
+                          setUpdateMilestones((prev) =>
+                            prev.map((m, idx) => (idx === i ? { ...m, done: !m.done } : m))
+                          )
+                        }
+                      />
+                      <span className={ms.done ? 'dashboard__update-check-done' : ''}>{ms.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Deliverables */}
+              <div className="dashboard__update-section">
+                <h4 className="dashboard__update-section-title">Deliverables</h4>
+                <div className="dashboard__update-deliverables">
+                  {updateDeliverables.map((d, i) => (
+                    <div key={d.name} className="dashboard__update-deliverable-row">
+                      <span>{d.name}</span>
+                      <select
+                        value={d.status}
+                        onChange={(e) =>
+                          setUpdateDeliverables((prev) =>
+                            prev.map((item, idx) =>
+                              idx === i ? { ...item, status: e.target.value as typeof d.status } : item
+                            )
+                          )
+                        }
+                        className="dashboard__update-deliverable-select"
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Delivered">Delivered</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
             <div className="dashboard__modal-footer">
               <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
               <Button size="sm" onClick={saveUpdate} disabled={!updateText.trim()}>Post Update</Button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* New Project Modal */}
+      {showNewProject && (
+        <>
+          <div className="dashboard__modal-backdrop" onClick={closeModals} />
+          <div className="dashboard__modal" role="dialog" aria-label="Add new project">
+            <div className="dashboard__modal-header">
+              <h3>Add New Project</h3>
+              <button type="button" className="dashboard__modal-close" onClick={closeModals}>
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            <div className="dashboard__modal-body">
+              <div className="dashboard__settings-field">
+                <label htmlFor="new-project-name">Project Name</label>
+                <input
+                  id="new-project-name"
+                  type="text"
+                  value={newProjectName}
+                  onChange={(e) => setNewProjectName(e.target.value)}
+                  placeholder="e.g. Website Redesign"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className="dashboard__modal-footer">
+              <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
+              <Button size="sm" onClick={handleAddProject} disabled={!newProjectName.trim()}>Create Project</Button>
             </div>
           </div>
         </>
