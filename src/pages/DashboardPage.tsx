@@ -62,7 +62,7 @@ export function DashboardPage() {
       const data = await fetchProjects();
       setProjects(data);
       if (data.length > 0) {
-        setSelectedProjectId(data[0].id);
+        setSelectedProjectId((prev) => prev || data[0].id);
       }
     } catch (err) {
       console.error('Failed to load projects', err);
@@ -145,6 +145,7 @@ export function DashboardPage() {
         phase_id: 1,
         content: updateText.trim(),
         author: isTeam ? 'developer' : 'client',
+        author_name: user?.name || undefined,
         ...(isTeam && {
           milestones: updateMilestones,
           deliverables: updateDeliverables,
@@ -632,7 +633,9 @@ export function DashboardPage() {
                           <div key={update.id} className="dashboard__activity-item">
                             <div className="dashboard__activity-item-header">
                               <span className={`dashboard__activity-author dashboard__activity-author--${update.author}`}>
-                                {update.author}
+                                {update.author === 'developer'
+                                  ? `${update.authorName || 'Reverion Team'} (Dev)`
+                                  : `${update.authorName || 'Client'} (Client)`}
                               </span>
                               <span className="dashboard__activity-date">
                                 {new Date(update.date).toLocaleDateString('en-US', {

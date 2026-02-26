@@ -10,7 +10,10 @@ export async function fetchProjects(): Promise<DashboardProject[]> {
 
     const res = await fetch(`${API_BASE}/projects`, {
         headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
         }
     });
 
@@ -48,6 +51,7 @@ export interface PostUpdatePayload {
     phase_id: number;
     content: string;
     author: 'client' | 'developer';
+    author_name?: string;
     milestones?: { label: string; date: string; done: boolean }[];
     deliverables?: { name: string; status: string }[];
     progress?: number;

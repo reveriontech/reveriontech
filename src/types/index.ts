@@ -62,13 +62,13 @@ export interface ProjectActivity {
   comments?: string;
 }
 
-/** Daily update entry (client or developer) */
 export interface DailyUpdate {
   id: string;
   date: string;
   phaseId: number;
   content: string;
   author: 'client' | 'developer';
+  authorName?: string;
 }
 
 export interface DashboardProject {
