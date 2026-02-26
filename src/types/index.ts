@@ -113,3 +113,11 @@ export interface ContactRequest {
   status: 'new' | 'read' | 'contacted';
   createdAt: string;
 }
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  jobTitle: string;
+  status: 'active' | 'applicant' | 'inactive';
+}
