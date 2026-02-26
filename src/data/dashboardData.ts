@@ -1,4 +1,13 @@
-import type { DashboardProject, OnboardingStep, MonthlyData, ProjectPhase } from '../types';
+import type { DashboardProject, OnboardingStep, MonthlyData, ProjectPhase, TeamMember } from '../types';
+
+export const teamMembers: TeamMember[] = [
+  { id: 'tm-1', name: 'Dan Grey Concepcion', email: 'dan@reveriontech.com', jobTitle: 'CEO / Founder', status: 'active' },
+  { id: 'tm-2', name: 'Mark Rivera', email: 'mark@reveriontech.com', jobTitle: 'Lead Developer', status: 'active' },
+  { id: 'tm-3', name: 'Sofia Cruz', email: 'sofia@reveriontech.com', jobTitle: 'UI/UX Designer', status: 'active' },
+  { id: 'tm-4', name: 'James Reyes', email: 'james.reyes@gmail.com', jobTitle: 'Frontend Developer', status: 'applicant' },
+  { id: 'tm-5', name: 'Angela Santos', email: 'angela.santos@gmail.com', jobTitle: 'Backend Engineer', status: 'applicant' },
+  { id: 'tm-6', name: 'Carlos Mendoza', email: 'carlos.m@outlook.com', jobTitle: 'DevOps Engineer', status: 'applicant' },
+];
 
 /** SDLC phases for ReverionTech (web dev & blockchain dev) */
 export const PHASES: ProjectPhase[] = [

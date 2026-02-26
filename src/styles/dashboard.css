@@ -1880,3 +1880,66 @@
   margin: 0;
   line-height: 1.5;
 }
+
+/* ── Team Tab ── */
+.dashboard__team-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dashboard__team-status-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard__team-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+
+.dashboard__team-badge--active {
+  background: rgba(0, 200, 83, 0.12);
+  color: #00c853;
+}
+
+.dashboard__team-badge--applicant {
+  background: rgba(255, 171, 0, 0.12);
+  color: var(--color-warning);
+}
+
+.dashboard__team-badge--inactive {
+  background: rgba(120, 120, 120, 0.12);
+  color: var(--color-text-muted);
+}
+
+.dashboard__team-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dashboard__team-toggle:hover {
+  background: rgba(255, 82, 82, 0.1);
+  color: #ff5252;
+  border-color: #ff5252;
+}
+
+.dashboard__team-toggle--activate:hover {
+  background: rgba(0, 200, 83, 0.1);
+  color: #00c853;
+  border-color: #00c853;
+}

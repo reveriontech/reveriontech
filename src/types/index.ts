@@ -62,13 +62,13 @@ export interface ProjectActivity {
   comments?: string;
 }
 
-/** Daily update entry (client or developer) */
 export interface DailyUpdate {
   id: string;
   date: string;
   phaseId: number;
   content: string;
   author: 'client' | 'developer';
+  authorName?: string;
 }
 
 export interface DashboardProject {
@@ -112,4 +112,12 @@ export interface ContactRequest {
   timeline: string;
   status: 'new' | 'read' | 'contacted';
   createdAt: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  jobTitle: string;
+  status: 'active' | 'applicant' | 'inactive';
 }

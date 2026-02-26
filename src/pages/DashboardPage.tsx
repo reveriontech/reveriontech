@@ -5,17 +5,20 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
-import { dashboardProjects as initialProjects, analyticsData } from '../data/dashboardData';
-import type { DashboardProject } from '../types';
+import { analyticsData } from '../data/dashboardData';
+import type { DashboardProject, TeamMember } from '../types';
+import { fetchProjects, createProject, postProjectUpdate } from '../lib/project';
 import {
   fetchContactRequests,
   updateRequestStatus,
   clearAllContactRequests,
 } from '../lib/contactRequests';
+import { fetchTeamMembers, updateTeamMemberStatus, removeTeamMember } from '../lib/team';
 import type { ContactRequest } from '../types';
+import { updateProfile } from '../lib/profile';
 import '../styles/dashboard.css';
 
-type Tab = 'projects' | 'analytics' | 'settings' | 'contact-requests';
+type Tab = 'projects' | 'analytics' | 'settings' | 'contact-requests' | 'team';
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -29,8 +32,48 @@ export function DashboardPage() {
   const [requestsLoading, setRequestsLoading] = useState(false);
   const [requestsError, setRequestsError] = useState('');
 
-  // Project data (local mutable copy)
-  const [projects, setProjects] = useState<DashboardProject[]>(initialProjects);
+  // My Team Status
+  const [myTeamStatus, setMyTeamStatus] = useState<{ status: string | null; is_admin: boolean; job_title?: string | null } | null>(null);
+
+  useEffect(() => {
+    import('../lib/team').then(m => {
+      m.fetchMyTeamStatus().then((status) => {
+        setMyTeamStatus(status);
+        if (status.status) {
+          setSettingsCompany('Reverion Technologies');
+        }
+        if (status.job_title) {
+          setSettingsRole(status.job_title);
+        }
+      });
+    });
+  }, []);
+
+  // Team
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [teamError, setTeamError] = useState('');
+
+  // Project data
+  const [projects, setProjects] = useState<DashboardProject[]>([]);
+
+  const loadProjects = useCallback(async () => {
+    try {
+      const data = await fetchProjects();
+      setProjects(data);
+      if (data.length > 0) {
+        setSelectedProjectId((prev) => prev || data[0].id);
+      }
+    } catch (err) {
+      console.error('Failed to load projects', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'projects') {
+      loadProjects();
+    }
+  }, [activeTab, loadProjects]);
 
   // Edit modal
   const [editingProject, setEditingProject] = useState<string | null>(null);
@@ -39,6 +82,7 @@ export function DashboardPage() {
 
   // Update modal
   const [updatingProject, setUpdatingProject] = useState<string | null>(null);
+  const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
   const [updateText, setUpdateText] = useState('');
   const [updateMilestones, setUpdateMilestones] = useState<{ label: string; date: string; done: boolean }[]>([]);
   const [updateDeliverables, setUpdateDeliverables] = useState<{ name: string; status: 'Delivered' | 'In Progress' | 'Pending' }[]>([]);
@@ -51,6 +95,10 @@ export function DashboardPage() {
   // New project modal
   const [showNewProject, setShowNewProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectClientEmail, setNewProjectClientEmail] = useState('');
+
+  // Permissions: Reverion team vs client
+  const isTeam = user?.role === 'team' || myTeamStatus?.status === 'active' || !!myTeamStatus?.is_admin;
 
   const openEditModal = (p: DashboardProject) => {
     setEditName(p.name);
@@ -78,77 +126,69 @@ export function DashboardPage() {
     setTimeout(() => updateTextRef.current?.focus(), 50);
   };
 
-  const saveUpdate = () => {
-    if (!updatingProject || !updateText.trim()) return;
-    // Auto-calculate progress from milestones + deliverables
-    const msDone = updateMilestones.filter((m) => m.done).length;
-    const msTotal = updateMilestones.length || 1;
-    const dlDone = updateDeliverables.filter((d) => d.status === 'Delivered').length;
-    const dlInProgress = updateDeliverables.filter((d) => d.status === 'In Progress').length;
-    const dlTotal = updateDeliverables.length || 1;
-    const autoProgress = Math.round(
-      ((msDone / msTotal) * 50) + (((dlDone + dlInProgress * 0.5) / dlTotal) * 50)
-    );
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === updatingProject
-          ? {
-            ...p,
-            progress: autoProgress,
-            milestones: updateMilestones,
-            deliverables: updateDeliverables,
-            dailyUpdates: [
-              ...(p.dailyUpdates || []),
-              {
-                id: `upd-${Date.now()}`,
-                date: new Date().toISOString().slice(0, 10),
-                phaseId: 1,
-                content: updateText.trim(),
-                author: 'developer' as const,
-              },
-            ],
-          }
-          : p
-      )
-    );
-    setUpdatingProject(null);
-    setToastMsg('Status update posted!');
-    showToast();
+  const saveUpdate = async () => {
+    if (!updatingProject || !updateText.trim() || isSubmittingUpdate) return;
+    setIsSubmittingUpdate(true);
+
+    try {
+      const msDone = updateMilestones.filter((m) => m.done).length;
+      const msTotal = updateMilestones.length || 1;
+      const dlDone = updateDeliverables.filter((d) => d.status === 'Delivered').length;
+      const dlInProgress = updateDeliverables.filter((d) => d.status === 'In Progress').length;
+      const dlTotal = updateDeliverables.length || 1;
+      const autoProgress = Math.round(
+        ((msDone / msTotal) * 50) + (((dlDone + dlInProgress * 0.5) / dlTotal) * 50)
+      );
+
+      await postProjectUpdate(updatingProject, {
+        date: new Date().toISOString().slice(0, 10),
+        phase_id: 1,
+        content: updateText.trim(),
+        author: isTeam ? 'developer' : 'client',
+        author_name: user?.name || undefined,
+        ...(isTeam && {
+          milestones: updateMilestones,
+          deliverables: updateDeliverables,
+          progress: autoProgress
+        })
+      });
+
+      // Reload projects to get the hydrated list from backend
+      await loadProjects();
+
+      setUpdatingProject(null);
+      setToastMsg('Status update posted!');
+      showToast();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to post update');
+    } finally {
+      setIsSubmittingUpdate(false);
+    }
   };
 
   const closeModals = () => {
     setEditingProject(null);
     setUpdatingProject(null);
+    setIsSubmittingUpdate(false);
     setShowNewProject(false);
   };
 
-  const handleAddProject = () => {
-    if (!newProjectName.trim()) return;
-    const newId = `proj-${Date.now()}`;
-    const newProject: DashboardProject = {
-      id: newId,
-      name: newProjectName.trim(),
-      status: 'active',
-      progress: 0,
-      milestones: [
-        { label: 'Discovery & Planning', date: '', done: false },
-        { label: 'Design', date: '', done: false },
-        { label: 'Development', date: '', done: false },
-        { label: 'Testing & Launch', date: '', done: false },
-      ],
-      deliverables: [
-        { name: 'Requirements Doc', status: 'Pending' },
-        { name: 'Design Mockups', status: 'Pending' },
-        { name: 'Working Build', status: 'Pending' },
-      ],
-      dailyUpdates: [],
-    };
-    setProjects((prev) => [...prev, newProject]);
-    setSelectedProjectId(newId);
-    setNewProjectName('');
-    setShowNewProject(false);
-    setToastMsg('New project created!');
-    showToast();
+  const handleAddProject = async () => {
+    if (!newProjectName.trim() || !newProjectClientEmail.trim()) return;
+    try {
+      const created = await createProject(newProjectName.trim(), newProjectClientEmail.trim());
+      setProjects((prev) => [...prev, created]);
+      setSelectedProjectId(created.id);
+
+      setNewProjectName('');
+      setNewProjectClientEmail('');
+      setShowNewProject(false);
+
+      setToastMsg('New project created!');
+      showToast();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to create project. Ensure email exists.');
+    }
   };
 
   const handleProjectSelectChange = (value: string) => {
@@ -157,6 +197,69 @@ export function DashboardPage() {
       setShowNewProject(true);
     } else {
       setSelectedProjectId(value);
+    }
+  };
+
+  const loadTeam = useCallback(async () => {
+    setTeamLoading(true);
+    setTeamError('');
+    try {
+      const data = await fetchTeamMembers();
+      setTeam(data);
+    } catch (err) {
+      setTeamError(err instanceof Error ? err.message : 'Failed to load team data.');
+    } finally {
+      setTeamLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'team') {
+      loadTeam();
+    }
+  }, [activeTab, loadTeam]);
+
+  const approveApplicant = async (id: string) => {
+    try {
+      await updateTeamMemberStatus(id, 'active');
+      setTeam((prev) => prev.map((m) => m.id === id ? { ...m, status: 'active' as const } : m));
+      setToastMsg('Applicant approved!');
+      showToast();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to approve');
+    }
+  };
+
+  const rejectApplicant = async (id: string) => {
+    try {
+      await removeTeamMember(id);
+      setTeam((prev) => prev.filter((m) => m.id !== id));
+      setToastMsg('Applicant removed.');
+      showToast();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to reject applicant');
+    }
+  };
+
+  const deactivateMember = async (id: string) => {
+    try {
+      await updateTeamMemberStatus(id, 'inactive');
+      setTeam((prev) => prev.map((m) => m.id === id ? { ...m, status: 'inactive' as const } : m));
+      setToastMsg('Member deactivated.');
+      showToast();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to deactivate member');
+    }
+  };
+
+  const activateMember = async (id: string) => {
+    try {
+      await updateTeamMemberStatus(id, 'active');
+      setTeam((prev) => prev.map((m) => m.id === id ? { ...m, status: 'active' as const } : m));
+      setToastMsg('Member activated!');
+      showToast();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to activate member');
     }
   };
 
@@ -269,6 +372,7 @@ export function DashboardPage() {
     analytics: 'Analytics',
     settings: 'Settings',
     'contact-requests': 'Contact Requests',
+    team: 'Team',
   };
 
   return (
@@ -312,6 +416,7 @@ export function DashboardPage() {
           </div>
         </div>
 
+<<<<<<< HEAD
         <div className="dashboard__nav-scroll">
           <nav className="dashboard__nav">
             <button
@@ -321,20 +426,33 @@ export function DashboardPage() {
               <Icon name="dashboard" size={18} />
               Projects
             </button>
-            <button
-              className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
-              onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
-            >
-              <Icon name="chart" size={18} />
-              Analytics
-            </button>
-            <button
-              className={`dashboard__nav-btn ${activeTab === 'contact-requests' ? 'dashboard__nav-btn--active' : ''}`}
-              onClick={() => { setActiveTab('contact-requests'); closeSidebar(); }}
-            >
-              <Icon name="file" size={18} />
-              Requests
-            </button>
+            {isTeam && (
+              <>
+                <button
+                  className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
+                  onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
+                >
+                  <Icon name="chart" size={18} />
+                  Analytics
+                </button>
+                <button
+                  className={`dashboard__nav-btn ${activeTab === 'contact-requests' ? 'dashboard__nav-btn--active' : ''}`}
+                  onClick={() => { setActiveTab('contact-requests'); closeSidebar(); }}
+                >
+                  <Icon name="file" size={18} />
+                  Requests
+                </button>
+              </>
+            )}
+            {(myTeamStatus?.is_admin || myTeamStatus?.status === 'active') && (
+              <button
+                className={`dashboard__nav-btn ${activeTab === 'team' ? 'dashboard__nav-btn--active' : ''}`}
+                onClick={() => { setActiveTab('team'); closeSidebar(); }}
+              >
+                <Icon name="users" size={18} />
+                Team
+              </button>
+            )}
             <button
               className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
               onClick={() => { setActiveTab('settings'); closeSidebar(); }}
@@ -357,6 +475,43 @@ export function DashboardPage() {
           <Icon name="logout" size={18} />
           <span className="dashboard__nav-btn-text">Log out</span>
         </button>
+=======
+        <nav className="dashboard__nav">
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('projects'); closeSidebar(); }}
+          >
+            <Icon name="dashboard" size={18} />
+            Projects
+          </button>
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
+          >
+            <Icon name="chart" size={18} />
+            Analytics
+          </button>
+          <button
+            className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
+            onClick={() => { setActiveTab('settings'); closeSidebar(); }}
+          >
+            <Icon name="settings" size={18} />
+            Settings
+          </button>
+          <button
+            type="button"
+            className="dashboard__nav-btn dashboard__nav-btn--logout"
+            onClick={() => {
+              logout();
+              navigate('/');
+              closeSidebar();
+            }}
+          >
+            <Icon name="logout" size={18} />
+            Log out
+          </button>
+        </nav>
+>>>>>>> 1a1ea13 (search bar update)
       </aside>
 
       {/* Main */}
@@ -370,9 +525,10 @@ export function DashboardPage() {
                 {activeTab === 'analytics' && 'View performance metrics and trends'}
                 {activeTab === 'settings' && 'Update your profile and preferences'}
                 {activeTab === 'contact-requests' && 'View submitted contact forms'}
+                {activeTab === 'team' && 'Manage your team and review applicants'}
               </p>
             </div>
-            {activeTab === 'contact-requests' && contactRequests.length > 0 && (
+            {activeTab === 'contact-requests' && contactRequests.length > 0 && myTeamStatus?.is_admin && (
               <Button variant="outline" size="sm" onClick={handleClearRequests}>
                 Clear All
               </Button>
@@ -399,22 +555,25 @@ export function DashboardPage() {
                 <span className="dashboard__kpi-label">In Review</span>
               </div>
             </div>
+<<<<<<< HEAD
 
-            {/* Project Selector */}
-            <div className="dashboard__project-selector">
-              <label htmlFor="project-select" className="dashboard__project-selector-label">Select Project</label>
-              <select
-                id="project-select"
-                className="dashboard__activity-select"
-                value={selectedProjectId}
-                onChange={(e) => handleProjectSelectChange(e.target.value)}
-              >
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-                <option value="__new__">+ Add New Project</option>
-              </select>
-            </div>
+            {/* Project Selector – team only */}
+            {isTeam && (
+              <div className="dashboard__project-selector">
+                <label htmlFor="project-select" className="dashboard__project-selector-label">Select Project</label>
+                <select
+                  id="project-select"
+                  className="dashboard__activity-select"
+                  value={selectedProjectId}
+                  onChange={(e) => handleProjectSelectChange(e.target.value)}
+                >
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                  <option value="__new__">+ Add New Project</option>
+                </select>
+              </div>
+            )}
 
             {/* Selected Project Details */}
             {selectedProject && (
@@ -430,10 +589,27 @@ export function DashboardPage() {
                     <div className="dashboard__progress-header">
                       <span>Progress</span>
                       <span>{selectedProject.progress}%</span>
+=======
+            <div className="dashboard__projects">
+              {dashboardProjects.map((project) => (
+                <div key={project.id} className="dashboard__project">
+                  <div className="dashboard__project-header">
+                    <h3>{project.name}</h3>
+                    <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
+                      {project.status}
+                    </span>
+                  </div>
+
+                  <div className="dashboard__progress">
+                    <div className="dashboard__progress-header">
+                      <span>Progress</span>
+                      <span>{project.progress}%</span>
+>>>>>>> 1a1ea13 (search bar update)
                     </div>
                     <div className="dashboard__progress-bar">
                       <div
                         className="dashboard__progress-fill"
+<<<<<<< HEAD
                         style={{ width: `${selectedProject.progress}%` }}
                       />
                     </div>
@@ -442,6 +618,17 @@ export function DashboardPage() {
                     <h4>Milestones</h4>
                     <div className="dashboard__timeline">
                       {selectedProject.milestones.map((ms) => (
+=======
+                        style={{ width: `${project.progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="dashboard__milestones">
+                    <h4>Milestones</h4>
+                    <div className="dashboard__timeline">
+                      {project.milestones.map((ms) => (
+>>>>>>> 1a1ea13 (search bar update)
                         <div
                           key={ms.label}
                           className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
@@ -452,9 +639,16 @@ export function DashboardPage() {
                       ))}
                     </div>
                   </div>
+<<<<<<< HEAD
                   <div className="dashboard__deliverables">
                     <h4>Deliverables</h4>
                     {selectedProject.deliverables.map((d) => (
+=======
+
+                  <div className="dashboard__deliverables">
+                    <h4>Deliverables</h4>
+                    {project.deliverables.map((d) => (
+>>>>>>> 1a1ea13 (search bar update)
                       <div key={d.name} className="dashboard__deliverable">
                         <span>{d.name}</span>
                         <span
@@ -466,28 +660,42 @@ export function DashboardPage() {
                     ))}
                   </div>
                 </div>
+<<<<<<< HEAD
 
                 {/* Actions & Activity */}
                 <div className="dashboard__activity-center">
                   <div className="dashboard__activity-header">
                     <h3 className="dashboard__section-title">Activity</h3>
                     <div className="dashboard__activity-actions">
-                      <button
-                        type="button"
-                        className="dashboard__activity-action-btn"
-                        onClick={() => openUpdateModal(selectedProject)}
-                      >
-                        <Icon name="refresh" size={16} />
-                        Post Update
-                      </button>
-                      <button
-                        type="button"
-                        className="dashboard__activity-action-btn"
-                        onClick={() => openEditModal(selectedProject)}
-                      >
-                        <Icon name="edit" size={16} />
-                        Edit Project
-                      </button>
+                      {isTeam ? (
+                        <>
+                          <button
+                            type="button"
+                            className="dashboard__activity-action-btn"
+                            onClick={() => openUpdateModal(selectedProject)}
+                          >
+                            <Icon name="refresh" size={16} />
+                            Post Update
+                          </button>
+                          <button
+                            type="button"
+                            className="dashboard__activity-action-btn"
+                            onClick={() => openEditModal(selectedProject)}
+                          >
+                            <Icon name="edit" size={16} />
+                            Edit Project
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          className="dashboard__activity-action-btn"
+                          onClick={() => openUpdateModal(selectedProject)}
+                        >
+                          <Icon name="refresh" size={16} />
+                          Send Feedback
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -500,7 +708,9 @@ export function DashboardPage() {
                           <div key={update.id} className="dashboard__activity-item">
                             <div className="dashboard__activity-item-header">
                               <span className={`dashboard__activity-author dashboard__activity-author--${update.author}`}>
-                                {update.author}
+                                {update.author === 'developer'
+                                  ? `${update.authorName || 'Reverion Team'} (Dev)`
+                                  : `${update.authorName || 'Client'} (Client)`}
                               </span>
                               <span className="dashboard__activity-date">
                                 {new Date(update.date).toLocaleDateString('en-US', {
@@ -595,7 +805,134 @@ export function DashboardPage() {
                   </table>
                 </div>
               )}
+=======
+              ))}
+>>>>>>> 1a1ea13 (search bar update)
             </div>
+          </div>
+        )}
+
+        {/* Team Tab */}
+        {activeTab === 'team' && (
+          <div className="dashboard__content">
+            <div className="dashboard__kpi-grid">
+              <div className="dashboard__kpi">
+                <span className="dashboard__kpi-value">{team.filter((m) => m.status === 'active').length}</span>
+                <span className="dashboard__kpi-label">Active Members</span>
+              </div>
+              <div className="dashboard__kpi">
+                <span className="dashboard__kpi-value">{team.filter((m) => m.status === 'applicant').length}</span>
+                <span className="dashboard__kpi-label">Pending Applicants</span>
+              </div>
+              <div className="dashboard__kpi">
+                <span className="dashboard__kpi-value">{team.length}</span>
+                <span className="dashboard__kpi-label">Total</span>
+              </div>
+            </div>
+
+            {teamLoading ? (
+              <div className="dashboard__section">
+                <p className="dashboard__empty">Loading team members…</p>
+              </div>
+            ) : teamError ? (
+              <div className="dashboard__section">
+                <p className="dashboard__empty dashboard__empty--error">{teamError}</p>
+              </div>
+            ) : (
+              <>
+                {/* Applicants */}
+                {myTeamStatus?.is_admin && team.filter((m) => m.status === 'applicant').length > 0 && (
+                  <div className="dashboard__section">
+                    <h3 className="dashboard__section-title">Pending Applicants</h3>
+                    <div className="dashboard__table-wrapper">
+                      <table className="dashboard__table">
+                        <thead>
+                          <tr>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Job Title</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {team.filter((m) => m.status === 'applicant').map((member) => (
+                            <tr key={member.id}>
+                              <td><strong>{member.name}</strong></td>
+                              <td>{member.email}</td>
+                              <td>{member.jobTitle}</td>
+                              <td>
+                                <div className="dashboard__team-actions">
+                                  <Button size="sm" onClick={() => approveApplicant(member.id)}>Approve</Button>
+                                  <Button variant="ghost" size="sm" onClick={() => rejectApplicant(member.id)}>Reject</Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Employees */}
+                <div className="dashboard__section">
+                  <h3 className="dashboard__section-title">Employees</h3>
+                  <div className="dashboard__table-wrapper">
+                    <table className="dashboard__table">
+                      <thead>
+                        <tr>
+                          <th>Full Name</th>
+                          <th>Email</th>
+                          <th>Job Title</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {team.filter((m) => m.status !== 'applicant').map((member) => (
+                          <tr key={member.id}>
+                            <td><strong>{member.name}</strong></td>
+                            <td>{member.email}</td>
+                            <td>{member.jobTitle}</td>
+                            <td>
+                              {myTeamStatus?.is_admin ? (
+                                <div className="dashboard__team-status-cell">
+                                  <span className={`dashboard__team-badge dashboard__team-badge--${member.status}`}>
+                                    {member.status}
+                                  </span>
+                                  {member.status === 'active' ? (
+                                    <button
+                                      type="button"
+                                      className="dashboard__team-toggle"
+                                      title="Deactivate"
+                                      onClick={() => deactivateMember(member.id)}
+                                    >
+                                      <Icon name="close" size={14} />
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      className="dashboard__team-toggle dashboard__team-toggle--activate"
+                                      title="Activate"
+                                      onClick={() => activateMember(member.id)}
+                                    >
+                                      <Icon name="check" size={14} />
+                                    </button>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className={`dashboard__team-badge dashboard__team-badge--${member.status}`}>
+                                  {member.status}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -683,9 +1020,22 @@ export function DashboardPage() {
           <div className="dashboard__content dashboard__content--settings">
             <form
               className="dashboard__settings-form"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                showToast();
+                try {
+                  await updateProfile({
+                    name: settingsName,
+                    email: settingsEmail,
+                    company: settingsCompany,
+                    phone: settingsPhone,
+                    role: settingsRole,
+                  });
+                  setToastMsg('Profile updated successfully!');
+                  showToast();
+                } catch (err) {
+                  setToastMsg(err instanceof Error ? err.message : 'Failed to update profile');
+                  showToast();
+                }
               }}
             >
               {/* Profile */}
@@ -725,9 +1075,9 @@ export function DashboardPage() {
                   <div className="dashboard__settings-field">
                     <label htmlFor="settings-company">
                       Company
-                      {settingsCompany === 'Reverion Technologies' && (
-                        <span className="dashboard__status-badge dashboard__status-badge--pending" style={{ marginLeft: '8px', fontSize: '0.6rem' }}>
-                          Pending Approval
+                      {myTeamStatus?.status && (
+                        <span className={`dashboard__team-badge dashboard__team-badge--${myTeamStatus.status}`} style={{ marginLeft: '8px', fontSize: '0.6rem' }}>
+                          {myTeamStatus.status === 'active' ? 'Approved' : myTeamStatus.status === 'applicant' ? 'Pending Approval' : 'Inactive'}
                         </span>
                       )}
                     </label>
@@ -872,7 +1222,7 @@ export function DashboardPage() {
           <div className="dashboard__modal-backdrop" onClick={closeModals} />
           <div className="dashboard__modal dashboard__modal--wide" role="dialog" aria-label="Post update">
             <div className="dashboard__modal-header">
-              <h3>Post Status Update</h3>
+              <h3>{isTeam ? 'Post Status Update' : 'Send Feedback'}</h3>
               <button type="button" className="dashboard__modal-close" onClick={closeModals}>
                 <Icon name="close" size={18} />
               </button>
@@ -880,75 +1230,86 @@ export function DashboardPage() {
             <div className="dashboard__modal-body">
               {/* Activity note */}
               <div className="dashboard__settings-field">
-                <label htmlFor="update-text">What's the latest?</label>
+                <label htmlFor="update-text">{isTeam ? "What's the latest?" : 'Share your feedback'}</label>
                 <textarea
                   ref={updateTextRef}
                   id="update-text"
                   rows={3}
                   value={updateText}
                   onChange={(e) => setUpdateText(e.target.value)}
-                  placeholder="e.g. Completed homepage build. Moving to product pages…"
+                  placeholder={
+                    isTeam
+                      ? 'e.g. Completed homepage build. Moving to product pages…'
+                      : 'e.g. Homepage looks great. Please adjust the hero text and CTA spacing.'
+                  }
                 />
               </div>
 
-              {/* Milestones */}
-              <div className="dashboard__update-section">
-                <h4 className="dashboard__update-section-title">Milestones</h4>
-                <div className="dashboard__update-checklist">
-                  {updateMilestones.map((ms, i) => (
-                    <label key={ms.label} className="dashboard__update-check-row">
-                      <input
-                        type="checkbox"
-                        checked={ms.done}
-                        onChange={() =>
-                          setUpdateMilestones((prev) =>
-                            prev.map((m, idx) => (idx === i ? { ...m, done: !m.done } : m))
-                          )
-                        }
-                      />
-                      <span className={ms.done ? 'dashboard__update-check-done' : ''}>{ms.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Deliverables */}
-              <div className="dashboard__update-section">
-                <h4 className="dashboard__update-section-title">Deliverables</h4>
-                <div className="dashboard__update-deliverables">
-                  {updateDeliverables.map((d, i) => (
-                    <div key={d.name} className="dashboard__update-deliverable-row">
-                      <span>{d.name}</span>
-                      <select
-                        value={d.status}
-                        onChange={(e) =>
-                          setUpdateDeliverables((prev) =>
-                            prev.map((item, idx) =>
-                              idx === i ? { ...item, status: e.target.value as typeof d.status } : item
-                            )
-                          )
-                        }
-                        className="dashboard__update-deliverable-select"
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Delivered">Delivered</option>
-                      </select>
+              {/* Milestones & Deliverables – only editable by team */}
+              {isTeam && (
+                <>
+                  {/* Milestones */}
+                  <div className="dashboard__update-section">
+                    <h4 className="dashboard__update-section-title">Milestones</h4>
+                    <div className="dashboard__update-checklist">
+                      {updateMilestones.map((ms, i) => (
+                        <label key={ms.label} className="dashboard__update-check-row">
+                          <input
+                            type="checkbox"
+                            checked={ms.done}
+                            onChange={() =>
+                              setUpdateMilestones((prev) =>
+                                prev.map((m, idx) => (idx === i ? { ...m, done: !m.done } : m))
+                              )
+                            }
+                          />
+                          <span className={ms.done ? 'dashboard__update-check-done' : ''}>{ms.label}</span>
+                        </label>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+
+                  {/* Deliverables */}
+                  <div className="dashboard__update-section">
+                    <h4 className="dashboard__update-section-title">Deliverables</h4>
+                    <div className="dashboard__update-deliverables">
+                      {updateDeliverables.map((d, i) => (
+                        <div key={d.name} className="dashboard__update-deliverable-row">
+                          <span>{d.name}</span>
+                          <select
+                            value={d.status}
+                            onChange={(e) =>
+                              setUpdateDeliverables((prev) =>
+                                prev.map((item, idx) =>
+                                  idx === i ? { ...item, status: e.target.value as typeof d.status } : item
+                                )
+                              )
+                            }
+                            className="dashboard__update-deliverable-select"
+                          >
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Delivered">Delivered</option>
+                          </select>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
             <div className="dashboard__modal-footer">
-              <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
-              <Button size="sm" onClick={saveUpdate} disabled={!updateText.trim()}>Post Update</Button>
+              <Button variant="ghost" size="sm" onClick={closeModals} disabled={isSubmittingUpdate}>Cancel</Button>
+              <Button size="sm" onClick={saveUpdate} disabled={!updateText.trim() || isSubmittingUpdate}>
+                {isSubmittingUpdate ? 'Sending...' : (isTeam ? 'Post Update' : 'Send Feedback')}
+              </Button>
             </div>
           </div>
         </>
       )}
 
-      {/* New Project Modal */}
-      {showNewProject && (
+      {/* New Project Modal – only for team users */}
+      {isTeam && showNewProject && (
         <>
           <div className="dashboard__modal-backdrop" onClick={closeModals} />
           <div className="dashboard__modal" role="dialog" aria-label="Add new project">
@@ -970,10 +1331,21 @@ export function DashboardPage() {
                   autoFocus
                 />
               </div>
+              <div className="dashboard__settings-field" style={{ marginTop: '1rem' }}>
+                <label htmlFor="new-project-client-email">Client Email Address</label>
+                <input
+                  id="new-project-client-email"
+                  type="email"
+                  value={newProjectClientEmail}
+                  onChange={(e) => setNewProjectClientEmail(e.target.value)}
+                  placeholder="client@client.com"
+                />
+                <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>The exact email address the client uses to log into ReverionTech.</p>
+              </div>
             </div>
             <div className="dashboard__modal-footer">
               <Button variant="ghost" size="sm" onClick={closeModals}>Cancel</Button>
-              <Button size="sm" onClick={handleAddProject} disabled={!newProjectName.trim()}>Create Project</Button>
+              <Button size="sm" onClick={handleAddProject} disabled={!newProjectName.trim() || !newProjectClientEmail.trim()}>Create Project</Button>
             </div>
           </div>
         </>
