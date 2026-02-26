@@ -21,6 +21,7 @@ const navLinks = [
     children: [
       { label: 'About Us', to: '/about' },
       { label: 'Partners', to: '/partners' },
+      { label: 'Our Team', to: '/our-team' },
     ],
   },
   { label: 'Contact Us', to: '/contact' },
