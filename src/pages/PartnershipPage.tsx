@@ -1,6 +1,9 @@
+'use client';
+
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
+import { CardBody, CardContainer, CardItem } from '../components/ui/3d-card';
 import '../styles/partners.css';
 
 const partners = [
@@ -23,14 +26,14 @@ const partners = [
     fullName: 'NFT Davao',
     description: 'NFT and digital collectibles ecosystem in Davao.',
     logo: '/partnership/NFTDAVAO_logo.png',
-    url: '#',
+    url: 'https://www.facebook.com/nftdavao',
   },
   {
     name: 'RERDAO',
     fullName: 'RERDAO',
     description: 'Regional blockchain and Web3 innovation hub.',
     logo: '/partnership/REDDAO_logo.jpg',
-    url: '#',
+    url: 'https://www.facebook.com/reveriondao',
   },
 ];
 
@@ -153,34 +156,78 @@ export function PartnershipPage() {
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
           >
-            {partners.map((partner) => (
-              <motion.a
-                key={partner.name}
-                href={partner.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="partner-card"
-                variants={itemVariants}
-                aria-label={`Visit ${partner.fullName} website`}
-              >
-                <div className="partner-card__logo-wrap">
-                  <img
-                    src={partner.logo}
-                    alt={`${partner.fullName} logo`}
-                    className="partner-logo"
-                    loading="lazy"
-                  />
-                </div>
-                <p className="partner-name">{partner.fullName}</p>
-                <p className="partner-desc">{partner.description}</p>
-                {partner.url !== '#' && (
-                  <span className="partner-link">
-                    Visit website
-                    <Icon name="arrow-right" size={14} />
-                  </span>
-                )}
-              </motion.a>
-            ))}
+            {partners.map((partner) => {
+              const cardContent = (
+                <CardContainer
+                  containerClassName="partner-3d-container"
+                  className="partner-3d-inner"
+                >
+                  <CardBody className="partner-card-3d">
+                    <CardItem
+                      translateZ={100}
+                      className="partner-card-3d__logo-wrap"
+                    >
+                      <img
+                        src={partner.logo}
+                        alt={`${partner.fullName} logo`}
+                        className="partner-card-3d__logo"
+                        loading="lazy"
+                      />
+                    </CardItem>
+                    <CardItem
+                      translateZ={50}
+                      as="p"
+                      className="partner-card-3d__name"
+                    >
+                      {partner.fullName}
+                    </CardItem>
+                    <CardItem
+                      translateZ={60}
+                      as="p"
+                      className="partner-card-3d__desc"
+                    >
+                      {partner.description}
+                    </CardItem>
+                    <CardItem
+                      translateZ={20}
+                      as="span"
+                      className={`partner-card-3d__link ${partner.url === '#' ? 'partner-card-3d__link--disabled' : ''}`}
+                    >
+                      {partner.url !== '#' ? (
+                        <>
+                          Visit website
+                          <Icon name="arrow-right" size={14} />
+                        </>
+                      ) : (
+                        'Coming soon'
+                      )}
+                    </CardItem>
+                  </CardBody>
+                </CardContainer>
+              );
+
+              return partner.url !== '#' ? (
+                <motion.a
+                  key={partner.name}
+                  href={partner.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="partner-card-3d-wrapper"
+                  variants={itemVariants}
+                  aria-label={`Visit ${partner.fullName} website`}
+                >
+                  {cardContent}
+                </motion.a>
+              ) : (
+                <motion.div
+                  key={partner.name}
+                  className="partner-card-3d-wrapper partner-card-3d-wrapper--no-link"
+                  variants={itemVariants}
+                >
+                  {cardContent}
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </section>

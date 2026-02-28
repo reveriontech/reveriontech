@@ -68,6 +68,7 @@
 
 .solutions-card-wrapper {
   display: flex;
+  isolation: isolate;
 }
 
 .solutions-card-wrapper--featured {

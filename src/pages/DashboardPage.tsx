@@ -367,6 +367,26 @@ export function DashboardPage() {
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : '?';
 
+  const teamImages = ['/team/team11.jpg', '/team/team22.jpg', '/team/team33.jpg', '/team/team44.jpg', '/team/team55.jpg', '/team/team66.jpg'];
+  const getTeamImage = (index: number) => teamImages[index % teamImages.length];
+
+  const [teamSliderIndex, setTeamSliderIndex] = useState(0);
+  const teamSliderRef = useRef<HTMLDivElement>(null);
+  const teamEmployees = team.filter((m) => m.status !== 'applicant');
+  const teamSliderPrev = () => setTeamSliderIndex((i) => (i - 1 + teamEmployees.length) % Math.max(1, teamEmployees.length));
+  const teamSliderNext = () => setTeamSliderIndex((i) => (i + 1) % Math.max(1, teamEmployees.length));
+
+  useEffect(() => {
+    setTeamSliderIndex((i) => (teamEmployees.length > 0 ? Math.min(i, teamEmployees.length - 1) : 0));
+  }, [teamEmployees.length]);
+
+  useEffect(() => {
+    const el = teamSliderRef.current;
+    if (!el || teamEmployees.length === 0) return;
+    const card = el.children[teamSliderIndex] as HTMLElement;
+    if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [teamSliderIndex, teamEmployees.length]);
+
   const tabTitles: Record<Tab, string> = {
     projects: 'Projects',
     analytics: 'Analytics',
@@ -416,7 +436,6 @@ export function DashboardPage() {
           </div>
         </div>
 
-<<<<<<< HEAD
         <div className="dashboard__nav-scroll">
           <nav className="dashboard__nav">
             <button
@@ -475,43 +494,6 @@ export function DashboardPage() {
           <Icon name="logout" size={18} />
           <span className="dashboard__nav-btn-text">Log out</span>
         </button>
-=======
-        <nav className="dashboard__nav">
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'projects' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('projects'); closeSidebar(); }}
-          >
-            <Icon name="dashboard" size={18} />
-            Projects
-          </button>
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'analytics' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('analytics'); closeSidebar(); }}
-          >
-            <Icon name="chart" size={18} />
-            Analytics
-          </button>
-          <button
-            className={`dashboard__nav-btn ${activeTab === 'settings' ? 'dashboard__nav-btn--active' : ''}`}
-            onClick={() => { setActiveTab('settings'); closeSidebar(); }}
-          >
-            <Icon name="settings" size={18} />
-            Settings
-          </button>
-          <button
-            type="button"
-            className="dashboard__nav-btn dashboard__nav-btn--logout"
-            onClick={() => {
-              logout();
-              navigate('/');
-              closeSidebar();
-            }}
-          >
-            <Icon name="logout" size={18} />
-            Log out
-          </button>
-        </nav>
->>>>>>> 1a1ea13 (search bar update)
       </aside>
 
       {/* Main */}
@@ -555,7 +537,6 @@ export function DashboardPage() {
                 <span className="dashboard__kpi-label">In Review</span>
               </div>
             </div>
-<<<<<<< HEAD
 
             {/* Project Selector – team only */}
             {isTeam && (
@@ -589,27 +570,10 @@ export function DashboardPage() {
                     <div className="dashboard__progress-header">
                       <span>Progress</span>
                       <span>{selectedProject.progress}%</span>
-=======
-            <div className="dashboard__projects">
-              {dashboardProjects.map((project) => (
-                <div key={project.id} className="dashboard__project">
-                  <div className="dashboard__project-header">
-                    <h3>{project.name}</h3>
-                    <span className={`dashboard__status-badge dashboard__status-badge--${project.status}`}>
-                      {project.status}
-                    </span>
-                  </div>
-
-                  <div className="dashboard__progress">
-                    <div className="dashboard__progress-header">
-                      <span>Progress</span>
-                      <span>{project.progress}%</span>
->>>>>>> 1a1ea13 (search bar update)
                     </div>
                     <div className="dashboard__progress-bar">
                       <div
                         className="dashboard__progress-fill"
-<<<<<<< HEAD
                         style={{ width: `${selectedProject.progress}%` }}
                       />
                     </div>
@@ -618,17 +582,6 @@ export function DashboardPage() {
                     <h4>Milestones</h4>
                     <div className="dashboard__timeline">
                       {selectedProject.milestones.map((ms) => (
-=======
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="dashboard__milestones">
-                    <h4>Milestones</h4>
-                    <div className="dashboard__timeline">
-                      {project.milestones.map((ms) => (
->>>>>>> 1a1ea13 (search bar update)
                         <div
                           key={ms.label}
                           className={`dashboard__milestone ${ms.done ? 'dashboard__milestone--done' : ''}`}
@@ -639,16 +592,9 @@ export function DashboardPage() {
                       ))}
                     </div>
                   </div>
-<<<<<<< HEAD
                   <div className="dashboard__deliverables">
                     <h4>Deliverables</h4>
                     {selectedProject.deliverables.map((d) => (
-=======
-
-                  <div className="dashboard__deliverables">
-                    <h4>Deliverables</h4>
-                    {project.deliverables.map((d) => (
->>>>>>> 1a1ea13 (search bar update)
                       <div key={d.name} className="dashboard__deliverable">
                         <span>{d.name}</span>
                         <span
@@ -660,7 +606,6 @@ export function DashboardPage() {
                     ))}
                   </div>
                 </div>
-<<<<<<< HEAD
 
                 {/* Actions & Activity */}
                 <div className="dashboard__activity-center">
@@ -805,9 +750,6 @@ export function DashboardPage() {
                   </table>
                 </div>
               )}
-=======
-              ))}
->>>>>>> 1a1ea13 (search bar update)
             </div>
           </div>
         )}
@@ -874,62 +816,78 @@ export function DashboardPage() {
                   </div>
                 )}
 
-                {/* Employees */}
+                {/* Employees – Modern Card Slider */}
                 <div className="dashboard__section">
-                  <h3 className="dashboard__section-title">Employees</h3>
-                  <div className="dashboard__table-wrapper">
-                    <table className="dashboard__table">
-                      <thead>
-                        <tr>
-                          <th>Full Name</th>
-                          <th>Email</th>
-                          <th>Job Title</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {team.filter((m) => m.status !== 'applicant').map((member) => (
-                          <tr key={member.id}>
-                            <td><strong>{member.name}</strong></td>
-                            <td>{member.email}</td>
-                            <td>{member.jobTitle}</td>
-                            <td>
-                              {myTeamStatus?.is_admin ? (
-                                <div className="dashboard__team-status-cell">
+                  <h3 className="dashboard__section-title">Our Team</h3>
+                  {teamEmployees.length === 0 ? (
+                    <p className="dashboard__empty">No team members yet.</p>
+                  ) : (
+                    <div className="dashboard__team-slider-wrap">
+                      <button
+                        type="button"
+                        className="dashboard__team-slider-arrow dashboard__team-slider-arrow--left"
+                        onClick={teamSliderPrev}
+                        aria-label="Previous team member"
+                      >
+                        <Icon name="arrowLeft" size={20} />
+                      </button>
+                      <div className="dashboard__team-slider" ref={teamSliderRef}>
+                        {teamEmployees.map((member, index) => (
+                          <article
+                            key={member.id}
+                            className={`dashboard__team-card ${index === teamSliderIndex ? 'dashboard__team-card--active' : ''}`}
+                          >
+                            <div className="dashboard__team-card-frame">
+                              <div className="dashboard__team-card-inner">
+                                <div className="dashboard__team-card-image-wrap">
+                                  <img src={getTeamImage(index)} alt={member.name} className="dashboard__team-card-image" />
+                                </div>
+                                <div className="dashboard__team-card-content">
+                                  <h4 className="dashboard__team-card-name">{member.name}</h4>
+                                  <p className="dashboard__team-card-role">{member.jobTitle}</p>
                                   <span className={`dashboard__team-badge dashboard__team-badge--${member.status}`}>
                                     {member.status}
                                   </span>
-                                  {member.status === 'active' ? (
-                                    <button
-                                      type="button"
-                                      className="dashboard__team-toggle"
-                                      title="Deactivate"
-                                      onClick={() => deactivateMember(member.id)}
-                                    >
-                                      <Icon name="close" size={14} />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      className="dashboard__team-toggle dashboard__team-toggle--activate"
-                                      title="Activate"
-                                      onClick={() => activateMember(member.id)}
-                                    >
-                                      <Icon name="check" size={14} />
-                                    </button>
+                                  {myTeamStatus?.is_admin && (
+                                    <div className="dashboard__team-card-actions">
+                                      {member.status === 'active' ? (
+                                        <Button variant="ghost" size="sm" onClick={() => deactivateMember(member.id)}>
+                                          Deactivate
+                                        </Button>
+                                      ) : (
+                                        <Button variant="ghost" size="sm" onClick={() => activateMember(member.id)}>
+                                          Activate
+                                        </Button>
+                                      )}
+                                    </div>
                                   )}
                                 </div>
-                              ) : (
-                                <span className={`dashboard__team-badge dashboard__team-badge--${member.status}`}>
-                                  {member.status}
-                                </span>
-                              )}
-                            </td>
-                          </tr>
+                              </div>
+                            </div>
+                          </article>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="dashboard__team-slider-arrow dashboard__team-slider-arrow--right"
+                        onClick={teamSliderNext}
+                        aria-label="Next team member"
+                      >
+                        <Icon name="arrow-right" size={20} />
+                      </button>
+                      <div className="dashboard__team-slider-dots">
+                        {teamEmployees.map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            className={`dashboard__team-slider-dot ${i === teamSliderIndex ? 'dashboard__team-slider-dot--active' : ''}`}
+                            onClick={() => setTeamSliderIndex(i)}
+                            aria-label={`Show team member ${i + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             )}

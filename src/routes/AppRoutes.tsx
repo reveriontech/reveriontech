@@ -18,6 +18,7 @@ import { PartnershipPage } from '../pages/PartnershipPage';
 import { SolutionsPage } from '../pages/SolutionsPage';
 import { TermsPage } from '../pages/TermsPage';
 import { PrivacyPage } from '../pages/PrivacyPage';
+import { TeamPage } from '../pages/TeamPage';
 
 function AppRoutes() {
     const location = useLocation();
@@ -49,6 +50,7 @@ function AppRoutes() {
                         <Route path="/about" element={<AboutPage />} />
                         <Route path="/our-team" element={<OurTeamPage />} />
                         <Route path="/partners" element={<PartnershipPage />} />
+                        <Route path="/team" element={<TeamPage />} />
                         <Route path="/terms" element={<TermsPage />} />
                         <Route path="/privacy" element={<PrivacyPage />} />
                     </Routes>

@@ -87,10 +87,7 @@ export function PortfolioPage() {
         <div className="container">
           <div className="about-services__header">
             <h2 className="about-services__title">Selected capabilities</h2>
-            <p className="about-services__subtitle">
-              Explore the types of work we take on. Filter by focus area to see how we might plug into
-              your roadmap.
-            </p>
+           
           </div>
 
           <div className="portfolio-filters">
@@ -139,7 +136,8 @@ export function PortfolioPage() {
                       <ul className="service-card-new__tags">
                         {service.features.map((feature) => (
                           <li key={feature} className="service-card-new__tag">
-                            {feature}
+                            <Icon name="check" size={16} className="service-card-new__tag-check" />
+                            <span>{feature}</span>
                           </li>
                         ))}
                       </ul>

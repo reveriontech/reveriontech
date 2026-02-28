@@ -18,6 +18,60 @@ export function Icon({ name, size = 24, className }: IconProps) {
   };
 
   switch (name) {
+    case 'facebook':
+      return (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className={className}
+          aria-hidden="true"
+        >
+          <path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.5V12H18l-.4 3h-2.2v7A10 10 0 0 0 22 12z" />
+        </svg>
+      );
+    case 'linkedin':
+      return (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className={className}
+          aria-hidden="true"
+        >
+          <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5z" />
+          <path d="M0.5 8h4V23h-4V8z" />
+          <path d="M8 8h3.8v2.1h.1c.5-1 1.9-2.1 4-2.1 4.3 0 5.1 2.8 5.1 6.4V23h-4v-7.3c0-1.7 0-3.9-2.4-3.9s-2.7 1.9-2.7 3.8V23H8V8z" />
+        </svg>
+      );
+    case 'instagram':
+      return (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className={className}
+          aria-hidden="true"
+        >
+          <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 5.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zm6-1.75a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5z" />
+        </svg>
+      );
+    case 'youtube':
+      return (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className={className}
+          aria-hidden="true"
+        >
+          <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.7-.8-2.1-.9C15.9 5 12 5 12 5s-3.9 0-6.9.1c-.4.1-1.3.1-2.1.9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6C2 14.4 2.2 16 2.2 16s.2 1.4.8 2c.8.8 1.9.8 2.4.9C7.2 19 12 19 12 19s3.9 0 6.9-.1c.4-.1 1.3-.1 2.1-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6C22 9.6 21.8 8 21.8 8zM10 14.7V9.3l5.2 2.7-5.2 2.7z" />
+        </svg>
+      );
     case 'code':
       return (
         <svg {...props}>

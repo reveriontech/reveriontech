@@ -2,59 +2,95 @@ export interface TeamMember {
     id: string;
     name: string;
     role: string;
+        twitter?: string;
     bio: string;
     image: string;
     socials: {
-        twitter?: string;
         linkedin?: string;
-        github?: string;
+        facebook?: string;
+        instagram?: string;
+        youtube?: string;
     };
 }
 
 export const teamMembers: TeamMember[] = [
     {
         id: '1',
-        name: 'Alex Rivera',
-        role: 'Founder & Creative Director',
-        bio: 'Visionary architect behind ReverionTech. Specializes in disruptive digital narratives and technical brutalism.',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop',
-        socials: {
+        name: 'Rod Albores',
             twitter: '#',
+        role: 'CEO & Founder',
+        bio: 'Co Founder of ReverionTech. Specializes in disruptive digital narratives and technical brutalism.',
+        image: '/team/team11.jpg',
+        socials: {
             linkedin: '#',
-            github: '#'
+            facebook: '#',
+            instagram: '#',
+            youtube: '#'
         }
     },
     {
         id: '2',
-        name: 'Elena Vance',
-        role: 'Lead Systems Architect',
-        bio: 'Master of performance and scalable systems. Elena ensures our technical foundation is as solid as our vision.',
-        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop',
+        name: 'Kent Ryan Entice',
+        role: 'Back-end Developer',
+        bio: 'Back-end Developer of ReverionTech. Specializes in scalable systems and performance optimization.',
+        image: '/team/team22.jpg',
         socials: {
             linkedin: '#',
-            github: '#'
+            facebook: '#',
+            instagram: '#',
+            youtube: '#'
         }
     },
     {
         id: '3',
-        name: 'Marcus Chen',
-        role: 'Senior UI Engineer',
-        bio: 'Marcus turns pixels into experiences. Specialist in advanced animations and experimental layouts.',
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974&auto=format&fit=crop',
+        name: 'John Rexey Cabrera',
+        role: 'Front-end Developer',
+        bio: 'Front-end Developer of ReverionTech mobile applications and web applications.',
+        image: '/team/team33.jpg',
         socials: {
-            twitter: '#',
-            github: '#'
+            linkedin: '#',
+            facebook: '#',
+            instagram: '#',
+            youtube: '#'
         }
     },
     {
         id: '4',
-        name: 'Sarah Jenkins',
-        role: 'Strategy Lead',
-        bio: 'Defining the "Why" behind the "What". Sarah bridges the gap between technical execution and brand strategy.',
-        image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1974&auto=format&fit=crop',
+        name: 'Gigi Valdez',
+        role: 'Front-end Developer',
+        bio: 'Front-end Developer of ReverionTech With speciliese of 3d animations and web applications.',
+        image: '/team/team44.jpg',
         socials: {
             linkedin: '#',
-            twitter: '#'
+            facebook: '#',
+            instagram: '#',
+            youtube: '#'
+        }
+    },
+    {
+        id: '5',
+        name: 'Dangrey Concepcion',
+        role: 'Back-end Developer',
+        bio: 'Back-end Developer of ReverionTech With speciliese of scalable systems and performance optimization using Node.js and Rust.',
+        image: '/team/team55.jpg',
+        socials: {
+            linkedin: '#',
+            facebook: '#',
+            instagram: '#',
+            youtube: '#'
+        }
+    },
+    {
+        id: '6',
+        name: 'June Bation',
+        role: 'Front-end Developer',
+        bio: 'Front-end Developer of ReverionTech with specialisation in 3D animations and web applications.',
+        image: '/team/team66.jpg',
+        socials: {
+            linkedin: '#',
+            facebook: '#',
+            instagram: '#',
+            youtube: '#'
         }
     }
 ];
