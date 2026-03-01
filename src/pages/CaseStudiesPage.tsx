@@ -1,43 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { SectionHeading } from '../components/ui/SectionHeading';
 import { Modal } from '../components/ui/Modal';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { Reveal } from '../components/ui/Reveal';
-import { caseStudies } from '../data/projects';
+import { PinContainer } from '../components/ui/PinContainer';
+import { allProjects } from '../data/projects';
 import type { CaseStudy } from '../types';
 import '../styles/case-studies.css';
 
 export function CaseStudiesPage() {
-  const [industryFilter, setIndustryFilter] = useState<string | null>(null);
-  const [techFilter, setTechFilter] = useState<string | null>(null);
   const [selectedStudy, setSelectedStudy] = useState<CaseStudy | null>(null);
-
-  const industries = useMemo(
-    () => [...new Set(caseStudies.map((s) => s.industry))],
-    []
-  );
-
-  const technologies = useMemo(
-    () => [...new Set(caseStudies.flatMap((s) => s.technologies))],
-    []
-  );
-
-  const filtered = useMemo(() => {
-    return caseStudies.filter((study) => {
-      if (industryFilter && study.industry !== industryFilter) return false;
-      if (techFilter && !study.technologies.includes(techFilter)) return false;
-      return true;
-    });
-  }, [industryFilter, techFilter]);
-
-  const toggleIndustry = (industry: string) => {
-    setIndustryFilter((prev) => (prev === industry ? null : industry));
-  };
-
-  const toggleTech = (tech: string) => {
-    setTechFilter((prev) => (prev === tech ? null : tech));
-  };
 
   return (
     <div className="case-studies">
@@ -51,52 +24,32 @@ export function CaseStudiesPage() {
           />
         </Reveal>
 
-        {/* Filters */}
-        <Reveal delay={1} className="case-studies__filters">
-          <span className="case-studies__filter-label">Industry:</span>
-          {industries.map((ind) => (
-            <button
-              key={ind}
-              className={`case-studies__pill ${industryFilter === ind ? 'case-studies__pill--active' : ''}`}
-              onClick={() => toggleIndustry(ind)}
-            >
-              {ind}
-            </button>
-          ))}
-        </Reveal>
-
-        <Reveal delay={2} className="case-studies__filters">
-          <span className="case-studies__filter-label">Tech:</span>
-          {technologies.map((tech) => (
-            <button
-              key={tech}
-              className={`case-studies__pill ${techFilter === tech ? 'case-studies__pill--active' : ''}`}
-              onClick={() => toggleTech(tech)}
-            >
-              {tech}
-            </button>
-          ))}
-        </Reveal>
-
         {/* Grid */}
-        {filtered.length === 0 ? (
-          <div className="case-studies__empty">
-            <p>No case studies match your filters. Try adjusting your selection.</p>
-          </div>
-        ) : (
-          <div className="case-studies__grid">
-            {filtered.map((study, i) => (
-              <Reveal key={study.id} direction="scale" delay={Math.min(i + 1, 4) as 1 | 2 | 3 | 4}>
-                <div
-                  className="case-study-card"
-                  onClick={() => setSelectedStudy(study)}
-                >
-                  <div
-                    className="case-study-card__thumbnail"
-                    style={{
-                      background: `linear-gradient(135deg, ${study.gradientFrom} 0%, ${study.gradientTo} 100%)`,
-                    }}
-                  >
+        <div className="case-studies__grid">
+          {allProjects.map((study, i) => (
+            <Reveal key={study.id} direction="scale" delay={Math.min(i + 1, 4) as 1 | 2 | 3 | 4}>
+              <PinContainer
+                title={study.title}
+                href={study.href}
+                containerClassName="case-study-pin"
+                onClick={() => setSelectedStudy(study)}
+              >
+                <div className="case-study-card">
+                  <div className="case-study-card__thumbnail">
+                    {study.image ? (
+                      <img
+                        src={study.image}
+                        alt={`${study.title} preview`}
+                        className="case-study-card__screenshot"
+                      />
+                    ) : (
+                      <div
+                        className="case-study-card__gradient"
+                        style={{
+                          background: `linear-gradient(135deg, ${study.gradientFrom} 0%, ${study.gradientTo} 100%)`,
+                        }}
+                      />
+                    )}
                     <div className="case-study-card__overlay">
                       <span className="case-study-card__overlay-text">
                         View Details <Icon name="arrow-right" size={16} />
@@ -114,10 +67,10 @@ export function CaseStudiesPage() {
                     </div>
                   </div>
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        )}
+              </PinContainer>
+            </Reveal>
+          ))}
+        </div>
 
         {/* Detail Modal */}
         <Modal

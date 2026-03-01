@@ -56,7 +56,23 @@
 .case-studies__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-auto-rows: 1fr;
   gap: 1.5rem;
+  align-items: stretch;
+}
+
+/* Make every wrapper in the Reveal → PinContainer → card chain full height */
+.case-studies__grid>* {
+  height: 100%;
+}
+
+.case-study-pin {
+  height: 100%;
+}
+
+.case-study-pin .pin-card,
+.case-study-pin .pin-content {
+  height: 100%;
 }
 
 /* Card */
@@ -67,6 +83,13 @@
   overflow: hidden;
   cursor: pointer;
   transition: all var(--transition-normal);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.case-study-card__body {
+  flex: 1;
 }
 
 .case-study-card:hover {
@@ -79,6 +102,26 @@
   height: 200px;
   position: relative;
   overflow: hidden;
+}
+
+/* Real screenshot image */
+.case-study-card__screenshot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  transition: transform var(--transition-slow);
+}
+
+.case-study-card:hover .case-study-card__screenshot {
+  transform: scale(1.04);
+}
+
+/* Gradient fallback */
+.case-study-card__gradient {
+  width: 100%;
+  height: 100%;
 }
 
 .case-study-card__overlay {

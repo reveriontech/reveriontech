@@ -11,6 +11,8 @@ export interface CaseStudy {
   title: string;
   client: string;
   industry: string;
+  href?: string;
+  image?: string;
   technologies: string[];
   gradientFrom: string;
   gradientTo: string;
