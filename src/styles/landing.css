@@ -808,7 +808,6 @@
 /* CTA Banner */
 .cta-banner {
   padding: 6rem 0;
-  text-align: center;
   will-change: transform;
   transform: translate3d(
     0,
@@ -819,9 +818,17 @@
 }
 
 .cta-banner__inner {
-  max-width: 600px;
+  max-width: var(--container-max);
   margin: 0 auto;
   padding: 0 var(--container-padding);
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.cta-banner__left {
+  max-width: 520px;
 }
 
 .cta-banner__title {
@@ -837,11 +844,48 @@
   line-height: 1.6;
 }
 
+.cta-banner__right {
+  position: relative;
+  min-height: 380px;
+}
+
+.cta-banner__spline {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 4 / 3;
+  margin-left: auto;
+  border-radius: 24px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
+}
+
+.cta-banner__spline canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .hero__inner {
     grid-template-columns: 1fr;
     gap: 3rem;
+  }
+
+  .cta-banner__inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .cta-banner__left {
+    margin: 0 auto;
+  }
+
+  .cta-banner__right {
+    max-width: 420px;
+    margin: 2.5rem auto 0;
   }
 
   .hero__image {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useLocation } from 'react-router-dom';
+import Spline from '@splinetool/react-spline';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { Reveal } from '../components/ui/Reveal';
@@ -306,15 +307,22 @@ export function LandingPage() {
       {/* CTA Banner */}
       <Reveal as="section" direction="scale" className="cta-banner">
         <div className="cta-banner__inner">
-          <h2 className="cta-banner__title">
-            Ready to <span className="accent">Transform</span> Your Business?
-          </h2>
-          <p className="cta-banner__text">
-            Let's discuss your project and find the perfect solution for your needs.
-          </p>
-          <Button to="/contact" size="lg">
-            Book Consultation
-          </Button>
+          <div className="cta-banner__left">
+            <h2 className="cta-banner__title">
+              Ready to <span className="accent">Transform</span> Your Business?
+            </h2>
+            <p className="cta-banner__text">
+              Let's discuss your project and find the perfect solution for your needs.
+            </p>
+            <Button to="/contact" size="lg">
+              Book Consultation
+            </Button>
+          </div>
+          <div className="cta-banner__right" aria-hidden>
+            <div className="cta-banner__spline">
+              <Spline scene="https://prod.spline.design/brh4nk75sWlRfJme/scene.splinecode" />
+            </div>
+          </div>
         </div>
       </Reveal>
     </>

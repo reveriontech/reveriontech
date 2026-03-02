@@ -118,9 +118,9 @@ export function PortfolioPage() {
                   speed={0.35}
                   chaos={0.08}
                   thickness={1.5}
-                  displacement={10}
-                  outwardOffset={28}
-                  borderRadius={16}
+                  displacement={14}
+                  outwardOffset={18}
+                  borderRadius={20}
                   className="service-card-new-electric"
                 >
                   <article className="service-card-new service-card-new--portfolio">
