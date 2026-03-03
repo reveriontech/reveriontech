@@ -110,6 +110,50 @@ export function LandingPage() {
   const typedLines = typedCode.split('\n');
 
   useEffect(() => {
+    const el = heroOrbitsRef.current;
+    if (!el) return;
+
+    const isTouchDevice =
+      typeof window !== 'undefined' &&
+      ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
+    if (!isTouchDevice || typeof window.DeviceOrientationEvent === 'undefined') {
+      return;
+    }
+
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      const target = heroOrbitsRef.current;
+      if (!target) return;
+
+      const { beta, gamma } = event;
+      if (beta == null || gamma == null) return;
+
+      const maxTilt = 22;
+
+      const clampedGamma = Math.max(-45, Math.min(45, gamma));
+      const clampedBeta = Math.max(0, Math.min(90, beta));
+
+      const x = clampedGamma / 45 - 0.5;
+      const y = clampedBeta / 90 - 0.5;
+
+      const rotateX = y * -maxTilt * 2;
+      const rotateY = x * maxTilt * 2;
+
+      target.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    };
+
+    window.addEventListener('deviceorientation', handleOrientation);
+
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+      const target = heroOrbitsRef.current;
+      if (target) {
+        target.style.transform = '';
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (hash) {
       const el = document.getElementById(hash.slice(1));
       if (el) {
