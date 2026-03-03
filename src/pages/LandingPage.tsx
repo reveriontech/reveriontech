@@ -318,6 +318,7 @@ export function LandingPage() {
               Book Consultation
             </Button>
           </div>
+          {/*This area is chatbot area with the separated file chatbot so that can easily add backend */}
           <div className="cta-banner__right" aria-hidden>
             <div className="cta-banner__spline">
               <Spline scene="https://prod.spline.design/brh4nk75sWlRfJme/scene.splinecode" />

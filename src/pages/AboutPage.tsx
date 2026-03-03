@@ -1,6 +1,62 @@
-import { motion } from 'framer-motion';
+import { animate, motion, useInView, useReducedMotion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import '../styles/about.css';
+
+type CountUpStatProps = {
+    value: number;
+    suffix?: string;
+    delay?: number;
+    className?: string;
+};
+
+function CountUpStatNumber({ value, suffix = '', delay = 0, className }: CountUpStatProps) {
+    const reduceMotion = useReducedMotion();
+    const ref = useRef<HTMLSpanElement | null>(null);
+    const isInView = useInView(ref, { once: true, margin: '-10% 0px' });
+    const formatter = useMemo(() => new Intl.NumberFormat(), []);
+
+    const [display, setDisplay] = useState(() => (reduceMotion ? formatter.format(value) : '0'));
+
+    useEffect(() => {
+        if (reduceMotion) {
+            setDisplay(formatter.format(value));
+            return;
+        }
+        if (!isInView) return;
+
+        const controls = animate(0, value, {
+            duration: 1.6,
+            delay,
+            ease: [0.16, 1, 0.3, 1],
+            onUpdate: (latest) => setDisplay(formatter.format(Math.round(latest))),
+        });
+
+        return () => controls.stop();
+    }, [delay, formatter, isInView, reduceMotion, value]);
+
+    if (reduceMotion) {
+        return (
+            <span ref={ref} className={className}>
+                {display}
+                {suffix}
+            </span>
+        );
+    }
+
+    return (
+        <motion.span
+            ref={ref}
+            className={className}
+            initial={{ opacity: 0, y: 10, scale: 0.98, filter: 'brightness(1)' }}
+            animate={isInView ? { opacity: 1, y: 0, scale: [1, 1.08, 1], filter: ['brightness(1)', 'brightness(1.35)', 'brightness(1)'] } : undefined}
+            transition={{ duration: 0.9, delay, times: [0, 0.45, 1], ease: [0.16, 1, 0.3, 1] }}
+        >
+            {display}
+            {suffix}
+        </motion.span>
+    );
+}
 
 export function AboutPage() {
     const containerVariants = {
@@ -122,10 +178,10 @@ export function AboutPage() {
 
                         <div className="about-stats-grid">
                             {[
-                                { label: 'Years Active', num: '12+' },
-                                { label: 'Artifacts Built', num: '500+' },
-                                { label: 'Core Partners', num: '34' },
-                                { label: 'Design Awards', num: '12' }
+                                { label: 'Years Active', value: 12, suffix: '+' },
+                                { label: 'Artifacts Built', value: 500, suffix: '+' },
+                                { label: 'Core Partners', value: 34 },
+                                { label: 'Design Awards', value: 12 }
                             ].map((stat, idx) => (
                                 <motion.div
                                     key={idx}
@@ -135,7 +191,12 @@ export function AboutPage() {
                                     viewport={{ once: true }}
                                     transition={{ delay: idx * 0.1 }}
                                 >
-                                    <span className="about-stat-number">{stat.num}</span>
+                                    <CountUpStatNumber
+                                        className="about-stat-number"
+                                        value={stat.value}
+                                        suffix={stat.suffix}
+                                        delay={0.15 + idx * 0.1}
+                                    />
                                     <span className="about-stat-label">{stat.label}</span>
                                 </motion.div>
                             ))}
