@@ -2,7 +2,7 @@ export interface TeamMember {
     id: string;
     name: string;
     role: string;
-        twitter?: string;
+    twitter?: string;
     bio: string;
     image: string;
     socials: {
@@ -17,7 +17,7 @@ export const teamMembers: TeamMember[] = [
     {
         id: '1',
         name: 'Rod Albores',
-            twitter: '#',
+        twitter: '#',
         role: 'CEO & Founder',
         bio: 'Co Founder of ReverionTech. Specializes in disruptive digital narratives and technical brutalism.',
         image: '/team/team11.jpg',
@@ -86,6 +86,19 @@ export const teamMembers: TeamMember[] = [
         role: 'Front-end Developer',
         bio: 'Front-end Developer of ReverionTech with specialisation in 3D animations and web applications.',
         image: '/team/team66.jpg',
+        socials: {
+            linkedin: '#',
+            facebook: '#',
+            instagram: '#',
+            youtube: '#'
+        }
+    },
+    {
+        id: '7',
+        name: 'Urian Buenconsejo',
+        role: 'Researcher',
+        bio: 'Researcher of ReverionTech with specialisation in AI and web applications.',
+        image: '/team/team 7.jpg',
         socials: {
             linkedin: '#',
             facebook: '#',

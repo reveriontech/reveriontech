@@ -5,6 +5,8 @@ import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { ScrollToTop } from '../components/layout/ScrollToTop';
 import { ProtectedRoute } from '../components/layout/ProtectedRoute';
+import { ChatProvider } from '../context/ChatContext';
+import { GlobalChatOverlay } from '../components/Chatbot/GlobalChatOverlay';
 import { LandingPage } from '../pages/LandingPage';
 import { AuthPage } from '../pages/AuthPage';
 import { AuthCallbackPage } from '../pages/AuthCallbackPage';
@@ -28,34 +30,37 @@ function AppRoutes() {
     return (
         <ThemeProvider>
             <AuthProvider>
-                <ScrollToTop />
-                {!isDashboard && !isAuthCallback && <Header />}
-                <main>
-                    <Routes>
-                        <Route path="/" element={<LandingPage />} />
-                        <Route path="/auth" element={<AuthPage />} />
-                        <Route path="/auth/callback" element={<AuthCallbackPage />} />
-                        <Route
-                            path="/dashboard"
-                            element={
-                                <ProtectedRoute>
-                                    <DashboardPage />
-                                </ProtectedRoute>
-                            }
-                        />
-                        <Route path="/contact" element={<ContactPage />} />
-                        <Route path="/case-studies" element={<CaseStudiesPage />} />
-                        <Route path="/portfolio" element={<PortfolioPage />} />
-                        <Route path="/solutions" element={<SolutionsPage />} />
-                        <Route path="/about" element={<AboutPage />} />
-                        <Route path="/our-team" element={<OurTeamPage />} />
-                        <Route path="/partners" element={<PartnershipPage />} />
-                        <Route path="/team" element={<TeamPage />} />
-                        <Route path="/terms" element={<TermsPage />} />
-                        <Route path="/privacy" element={<PrivacyPage />} />
-                    </Routes>
-                </main>
-                {!isDashboard && !isAuthCallback && <Footer />}
+                <ChatProvider>
+                    <ScrollToTop />
+                    {!isDashboard && !isAuthCallback && <Header />}
+                    <main>
+                        <Routes>
+                            <Route path="/" element={<LandingPage />} />
+                            <Route path="/auth" element={<AuthPage />} />
+                            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                            <Route
+                                path="/dashboard"
+                                element={
+                                    <ProtectedRoute>
+                                        <DashboardPage />
+                                    </ProtectedRoute>
+                                }
+                            />
+                            <Route path="/contact" element={<ContactPage />} />
+                            <Route path="/case-studies" element={<CaseStudiesPage />} />
+                            <Route path="/portfolio" element={<PortfolioPage />} />
+                            <Route path="/solutions" element={<SolutionsPage />} />
+                            <Route path="/about" element={<AboutPage />} />
+                            <Route path="/our-team" element={<OurTeamPage />} />
+                            <Route path="/partners" element={<PartnershipPage />} />
+                            <Route path="/team" element={<TeamPage />} />
+                            <Route path="/terms" element={<TermsPage />} />
+                            <Route path="/privacy" element={<PrivacyPage />} />
+                        </Routes>
+                    </main>
+                    <GlobalChatOverlay />
+                    {!isDashboard && !isAuthCallback && <Footer />}
+                </ChatProvider>
             </AuthProvider>
         </ThemeProvider >
     );

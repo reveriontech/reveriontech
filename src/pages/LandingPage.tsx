@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useLocation } from 'react-router-dom';
-import Spline from '@splinetool/react-spline';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { Reveal } from '../components/ui/Reveal';
 import { SectionHeading } from '../components/ui/SectionHeading';
 import { StatCounter } from '../components/ui/StatCounter';
+import { Chatbot } from '../components/Chatbot/Chatbot';
 import { services } from '../data/services';
 import { stats } from '../data/stats';
 import '../styles/landing.css';
@@ -365,7 +365,7 @@ export function LandingPage() {
           {/*This area is chatbot area with the separated file chatbot so that can easily add backend */}
           <div className="cta-banner__right" aria-hidden>
             <div className="cta-banner__spline">
-              <Spline scene="https://prod.spline.design/brh4nk75sWlRfJme/scene.splinecode" />
+              <Chatbot />
             </div>
           </div>
         </div>
