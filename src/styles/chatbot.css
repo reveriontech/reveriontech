@@ -203,13 +203,19 @@
         display: none;
     }
 
+    .chatbot__model-label {
+        gap: 0.2rem;
+    }
+
     .chatbot__model-label span:first-child {
         display: none;
     }
 
     .chatbot__model-select {
         font-size: 0.6rem;
-        padding-inline: 0.45rem 1.3rem;
+        padding: 0.25rem 1.4rem 0.25rem 0.4rem;
+        max-width: 140px;
+        text-overflow: ellipsis;
     }
 }
 

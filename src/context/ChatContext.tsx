@@ -32,7 +32,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export function ChatProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
-    const [model, setModel] = useState<string>('default');
+    const [model, setModel] = useState<string>('gemini-2.0-flash');
     const [messages, setMessages] = useState<ChatMessage[]>([
         { id: '1', text: 'SYSTEM INITIALIZED.', sender: 'ai', timestamp: new Date() },
         { id: '2', text: 'Awaiting input...', sender: 'ai', timestamp: new Date() }
