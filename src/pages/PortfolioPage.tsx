@@ -75,7 +75,7 @@ export function PortfolioPage() {
                 Start a project
               </Button>
               <Button size="lg" variant="outline" to="/case-studies">
-                View full case studies
+                Startup Projects
               </Button>
             </div>
           </Reveal>
