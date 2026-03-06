@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="footer">
       <div className="footer__inner">
         <div className="footer__brand">
-          <h3>REVERION</h3>
+          <h3>REVERIONTECH</h3>
           <p>
             We craft digital experiences that drive growth. From web development to AI integration,
             we bring your vision to life with clean code and modern design.
@@ -29,7 +29,7 @@ export function Footer() {
           <h4 className="footer__heading">Contact</h4>
           <div className="footer__contact-item">
             <Icon name="mail" size={16} />
-            <span>connect@reveriontech.com</span>
+            <span>hello@reveriontech.com</span>
           </div>
           <div className="footer__contact-item">
             <Icon name="phone" size={16} />
@@ -37,13 +37,13 @@ export function Footer() {
           </div>
           <div className="footer__contact-item">
             <Icon name="map-pin" size={16} />
-            <span>Deca Homes - Mintal , Davao City, Philippines, 8000</span>
+            <span>Davao City, Philippines, 8000</span>
           </div>
         </div>
       </div>
 
       <div className="footer__bottom">
-        <p>Design by <span>REVERION</span></p>
+        <p>Poweredby <span>REVERIONTECH</span></p>
       </div>
     </footer>
   );
