@@ -14,6 +14,7 @@ interface AuthContextType {
   resendConfirmationEmail: (email: string, name: string) => Promise<void>;
   sendOtp: (email: string, name: string) => Promise<void>;
   verifyOtp: (email: string, token: string, name: string) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -219,6 +220,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const requestPasswordReset = useCallback(async (email: string) => {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env');
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/update-password',
+    });
+
+    if (error) {
+      if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
+        throw new Error(rateLimitMessage);
+      }
+      throw error;
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     if (isSupabaseConfigured()) {
       await supabase.auth.signOut();
@@ -227,7 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, resendConfirmationEmail, sendOtp, verifyOtp, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, resendConfirmationEmail, sendOtp, verifyOtp, requestPasswordReset, logout }}>
       {children}
     </AuthContext.Provider>
   );

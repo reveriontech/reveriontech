@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
+import { Icon } from '../components/ui/Icon';
 import { Reveal } from '../components/ui/Reveal';
 import { Modal } from '../components/ui/Modal';
 import '../styles/auth.css';
 import '../styles/legal.css';
 
-type AuthMode = 'login' | 'register';
+type AuthMode = 'login' | 'register' | 'forgot_password';
 type LegalModal = 'terms' | 'privacy' | null;
 
 const PASSWORD_MIN_LENGTH = 8;
@@ -30,7 +31,7 @@ function getPasswordChecks(password: string) {
 
 
 export function AuthPage() {
-  const { isAuthenticated, login, register, resendConfirmationEmail, verifyOtp } = useAuth();
+  const { isAuthenticated, login, register, resendConfirmationEmail, verifyOtp, requestPasswordReset } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,7 +49,10 @@ export function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const passwordChecks = mode === 'register' ? getPasswordChecks(password) : { length: false, capitalFirst: false, special: false };
+  const [showPassword, setShowPassword] = useState(false);
+  const [resetSuccessMsg, setResetSuccessMsg] = useState('');
+
+  const passwordChecks = mode === 'register' || mode === 'forgot_password' ? getPasswordChecks(password) : { length: false, capitalFirst: false, special: false };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -163,12 +167,43 @@ export function AuthPage() {
     }
   };
 
+  const handleRequestReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email) {
+      setError('Please enter your email.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await requestPasswordReset(email);
+      setResetSuccessMsg('A password reset link has been sent to your email.');
+      setEmail('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send reset link.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+
   return (
     <div className="auth">
       <Reveal direction="scale" className="auth__card">
         <div className="auth__header">
-          <h2>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
-          <p>{mode === 'login' ? 'Sign in to access your dashboard' : 'Get started with your projects'}</p>
+          <h2>
+            {mode === 'login' && 'Welcome Back'}
+            {mode === 'register' && 'Create Account'}
+            {mode === 'forgot_password' && 'Reset Password'}
+          </h2>
+          <p>
+            {mode === 'login' && 'Sign in to access your dashboard'}
+            {mode === 'register' && 'Get started with your projects'}
+            {mode === 'forgot_password' && 'Enter your details to recover your account'}
+          </p>
         </div>
 
         <div className="auth__tabs">
@@ -177,9 +212,11 @@ export function AuthPage() {
             onClick={() => {
               setMode('login');
               setError('');
+              setResetSuccessMsg('');
               setEmail('');
               setPassword('');
               setConfirmPassword('');
+              setShowPassword(false);
             }}
           >
             Login
@@ -189,9 +226,11 @@ export function AuthPage() {
             onClick={() => {
               setMode('register');
               setError('');
+              setResetSuccessMsg('');
               setEmail('');
               setPassword('');
               setConfirmPassword('');
+              setShowPassword(false);
               setAgreedToTerms(false);
               setNeedsEmailConfirm(false);
               setConfirmToken('');
@@ -201,9 +240,30 @@ export function AuthPage() {
           </button>
         </div>
 
+        {resetSuccessMsg && <p className="auth__hint auth__hint--success" style={{ marginBottom: '1rem', textAlign: 'center' }}>{resetSuccessMsg}</p>}
         {error && <p className="auth__error">{error}</p>}
 
-        {mode === 'login' ? (
+        {mode === 'forgot_password' ? (
+          <form className="auth__form" onSubmit={handleRequestReset}>
+            <div className="auth__field">
+              <label className="auth__label" htmlFor="reset-email">Email Address</label>
+              <input
+                id="reset-email"
+                type="email"
+                className="auth__input"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div className="auth__submit">
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Sending...' : 'Send Reset Link'}
+              </Button>
+            </div>
+          </form>
+        ) : mode === 'login' ? (
           <form className="auth__form" onSubmit={handleLogin}>
             <div className="auth__field">
               <label className="auth__label" htmlFor="email">Email</label>
@@ -222,17 +282,29 @@ export function AuthPage() {
 
             <div className="auth__field">
               <label className="auth__label" htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                className="auth__input"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete="current-password"
+                  className="auth__input"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  style={{ paddingRight: '3rem' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="auth__show-password-btn"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.25rem' }}
+                >
+                  <Icon name={showPassword ? 'eye-off' : 'eye'} size={18} />
+                </button>
+              </div>
             </div>
 
             <div className="auth__submit">
@@ -325,17 +397,29 @@ export function AuthPage() {
 
             <div className="auth__field">
               <label className="auth__label" htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                autoComplete="new-password"
-                className="auth__input"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete="new-password"
+                  className="auth__input"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  style={{ paddingRight: '3rem' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="auth__show-password-btn"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.25rem' }}
+                >
+                  <Icon name={showPassword ? 'eye-off' : 'eye'} size={18} />
+                </button>
+              </div>
               <ul className="auth__checks" aria-live="polite">
                 <li className={passwordChecks.length ? 'auth__check--pass' : 'auth__check--fail'}>
                   {passwordChecks.length ? '✓' : '○'} At least 8 characters
@@ -351,17 +435,29 @@ export function AuthPage() {
 
             <div className="auth__field">
               <label className="auth__label" htmlFor="confirmPassword">Confirm Password</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-                autoComplete="new-password"
-                className={`auth__input ${confirmPassword.length > 0 && password !== confirmPassword ? 'auth__input--error' : ''}`}
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={isLoading}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="confirmPassword"
+                  type={showPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  className={`auth__input ${confirmPassword.length > 0 && password !== confirmPassword ? 'auth__input--error' : ''}`}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
+                  style={{ paddingRight: '3rem' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="auth__show-password-btn"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.25rem' }}
+                >
+                  <Icon name={showPassword ? 'eye-off' : 'eye'} size={18} />
+                </button>
+              </div>
               {confirmPassword.length > 0 && (
                 <p className={password === confirmPassword ? 'auth__hint auth__hint--success' : 'auth__hint auth__hint--error'}>
                   {password === confirmPassword ? '✓ Passwords match' : 'Passwords do not match'}
@@ -396,10 +492,15 @@ export function AuthPage() {
         )}
 
         <div className="auth__footer">
-          {mode === 'login' ? (
-            <p>Don't have an account? <button onClick={() => setMode('register')}>Sign up</button></p>
+          {mode === 'forgot_password' ? (
+            <p>Remember your password? <button type="button" onClick={() => { setMode('login'); setError(''); setResetSuccessMsg(''); }} className="auth__link">Sign in</button></p>
+          ) : mode === 'login' ? (
+            <>
+              <p>Don't have an account? <button type="button" onClick={() => { setMode('register'); setError(''); }} className="auth__link">Sign up</button></p>
+              <p style={{ marginTop: '0.75rem' }}>Forgot your password? <button type="button" onClick={() => { setMode('forgot_password'); setError(''); setResetSuccessMsg(''); }} className="auth__link">Reset here</button></p>
+            </>
           ) : (
-            <p>Already have an account? <button onClick={() => setMode('login')}>Sign in</button></p>
+            <p>Already have an account? <button type="button" onClick={() => { setMode('login'); setError(''); }} className="auth__link">Sign in</button></p>
           )}
         </div>
       </Reveal>
@@ -442,6 +543,6 @@ export function AuthPage() {
         </div>
       </Modal>
 
-    </div>
+    </div >
   );
 }
