@@ -26,10 +26,46 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     return res.json();
 }
 
+async function encryptPayload(data: unknown): Promise<string> {
+    const enc = new TextEncoder();
+    // Using the same 32-byte secret key expected by the backend
+    const keyBytes = enc.encode("super_secure_key_32_bytes_length");
+
+    const cryptoKey = await crypto.subtle.importKey(
+        'raw',
+        keyBytes,
+        { name: 'AES-GCM' },
+        false,
+        ['encrypt']
+    );
+
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encodedData = enc.encode(JSON.stringify(data));
+
+    const encryptedBuf = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        cryptoKey,
+        encodedData
+    );
+
+    const encryptedBytes = new Uint8Array(encryptedBuf);
+    const combined = new Uint8Array(iv.length + encryptedBytes.length);
+    combined.set(iv);
+    combined.set(encryptedBytes, iv.length);
+
+    let binary = '';
+    for (let i = 0; i < combined.length; i++) {
+        binary += String.fromCharCode(combined[i]);
+    }
+    return btoa(binary);
+}
+
 export async function submitContactRequest(form: ContactRequestForm): Promise<ContactRequest> {
+    const encrypted = await encryptPayload(form);
+
     const row = await apiFetch<Record<string, unknown>>('/auth/contact', {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify({ payload: encrypted }),
     });
     return mapRow(row);
 }
