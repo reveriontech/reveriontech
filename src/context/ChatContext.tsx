@@ -20,6 +20,8 @@ interface ChatContextType {
     toggleChat: () => void;
     openChat: () => void;
     closeChat: () => void;
+    model: string;
+    setModel: (model: string) => void;
     messages: ChatMessage[];
     addMessage: (message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
     messageCount: number;
@@ -30,6 +32,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export function ChatProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
+    const [model, setModel] = useState<string>('gemini-2.0-flash');
     const [messages, setMessages] = useState<ChatMessage[]>([
         { id: '1', text: 'SYSTEM INITIALIZED.', sender: 'ai', timestamp: new Date() },
         { id: '2', text: 'Awaiting input...', sender: 'ai', timestamp: new Date() }
@@ -105,6 +108,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
+                        model,
                         messages: [
                             { role: "user", parts }
                         ]
@@ -138,7 +142,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
     return (
         <ChatContext.Provider
-            value={{ isOpen, toggleChat, openChat, closeChat, messages, addMessage, messageCount }}
+            value={{ isOpen, toggleChat, openChat, closeChat, model, setModel, messages, addMessage, messageCount }}
         >
             {children}
         </ChatContext.Provider>

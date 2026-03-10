@@ -10,6 +10,7 @@ import { GlobalChatOverlay } from '../components/Chatbot/GlobalChatOverlay';
 import { LandingPage } from '../pages/LandingPage';
 import { AuthPage } from '../pages/AuthPage';
 import { AuthCallbackPage } from '../pages/AuthCallbackPage';
+import { UpdatePasswordPage } from '../pages/UpdatePasswordPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { ContactPage } from '../pages/ContactPage';
 import { CaseStudiesPage } from '../pages/CaseStudiesPage';
@@ -38,6 +39,7 @@ function AppRoutes() {
                             <Route path="/" element={<LandingPage />} />
                             <Route path="/auth" element={<AuthPage />} />
                             <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                            <Route path="/update-password" element={<UpdatePasswordPage />} />
                             <Route
                                 path="/dashboard"
                                 element={

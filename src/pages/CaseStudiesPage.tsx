@@ -18,8 +18,8 @@ export function CaseStudiesPage() {
         <Reveal>
           <SectionHeading
             subtitle="Our Work"
-            title="Case"
-            highlight="Studies"
+            title="Startup"
+            highlight="Projects"
             align="center"
           />
         </Reveal>

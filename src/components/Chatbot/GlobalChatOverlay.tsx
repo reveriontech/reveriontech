@@ -7,7 +7,7 @@ import '../../styles/chatbot.css';
 import { useLocation } from 'react-router-dom';
 
 export function GlobalChatOverlay() {
-    const { isOpen, closeChat, messages, addMessage, toggleChat } = useChat();
+    const { isOpen, closeChat, messages, addMessage, toggleChat, model, setModel } = useChat();
     const [inputValue, setInputValue] = useState('');
     const [attachment, setAttachment] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,6 +74,21 @@ export function GlobalChatOverlay() {
                                 <div className="chatbot__header-status">
                                     <span className="chatbot__status-dot"></span>
                                     <span>SYS_READY</span>
+                                </div>
+                                <div className="chatbot__header-model">
+                                    <label className="chatbot__model-label">
+                                        MODEL
+                                        <select
+                                            className="chatbot__model-select"
+                                            value={model}
+                                            onChange={(e) => setModel(e.target.value)}
+                                        >
+                                            <option value="default">Auto</option>
+                                            <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+                                            <option value="gpt-4.1">GPT-4.1</option>
+                                            <option value="gemini-2.0-flash">Gemini Flash</option>
+                                        </select>
+                                    </label>
                                 </div>
                                 <button className="chatbot__close-btn" aria-label="Close chat window" onClick={closeChat}>
                                     <Icon name="x" size={16} />
