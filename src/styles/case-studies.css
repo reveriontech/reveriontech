@@ -52,30 +52,33 @@
   font-weight: 600;
 }
 
-/* Grid */
+/* Grid – uniform card size */
 .case-studies__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  grid-auto-rows: 1fr;
+  grid-auto-rows: 400px;
   gap: 1.5rem;
   align-items: stretch;
 }
 
 /* Make every wrapper in the Reveal → PinContainer → card chain full height */
-.case-studies__grid>* {
+.case-studies__grid > * {
   height: 100%;
+  min-height: 0;
 }
 
 .case-study-pin {
   height: 100%;
+  min-height: 0;
 }
 
 .case-study-pin .pin-card,
 .case-study-pin .pin-content {
   height: 100%;
+  min-height: 0;
 }
 
-/* Card */
+/* Card – fill cell, same size for all */
 .case-study-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -84,12 +87,17 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
 .case-study-card__body {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .case-study-card:hover {
@@ -159,6 +167,10 @@
   letter-spacing: 0.1em;
   color: var(--color-accent);
   margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .case-study-card__title {
@@ -166,18 +178,26 @@
   font-weight: 700;
   color: var(--color-white);
   margin-bottom: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .case-study-card__client {
   font-size: 0.85rem;
   color: var(--color-text-muted);
   margin-bottom: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .case-study-card__tech {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  margin-top: auto;
 }
 
 .case-study-card__badge {

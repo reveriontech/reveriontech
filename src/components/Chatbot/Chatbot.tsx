@@ -11,9 +11,12 @@ export function Chatbot() {
             <div
                 className={`chatbot__avatar ${isOpen ? 'chatbot__avatar--active' : ''}`}
                 onClick={toggleChat}
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'pointer' }}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', cursor: 'pointer' }}   
             >
-                <Spline scene="https://prod.spline.design/brh4nk75sWlRfJme/scene.splinecode" />
+                <Spline
+                    scene="https://prod.spline.design/brh4nk75sWlRfJme/scene.splinecode"
+                    style={{ background: 'transparent' }}
+                />
                 <div className="chatbot__avatar-overlay">
                     {!isOpen && <span className="chatbot__avatar-hint">[ CLICK TO INITIALIZE ]</span>}
                 </div>

@@ -184,15 +184,28 @@
   flex-direction: column;
 }
 
-@media (min-width: 900px) {
+/* Team media queries */
+
+@media (min-width: 768px) {
   .team-card {
-    flex-basis: 320px;
+    flex: 0 0 calc((100% - 1.5rem) / 2);
   }
 }
+
+@media (min-width: 1024px) {
+  .team-card {
+    flex: 0 0 calc((100% - 3rem) / 3);
+  }
+}
+
+
+/*You can also able to delete this media */
+
 
 .team-card {
   position: relative;
 }
+
 
 .team-card {
   opacity: 0.45;
@@ -209,9 +222,11 @@
   transform: scale(1);
 }
 
+
 .team-card:focus-visible {
   outline: 2px solid rgba(56, 189, 248, 0.85);
   outline-offset: 6px;
+
 /* Modal */
 
 .team-modal__backdrop {

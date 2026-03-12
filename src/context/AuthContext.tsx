@@ -10,7 +10,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, encryptedPayload?: string) => Promise<{ needsEmailConfirmation?: boolean }>;
+  register: (name: string, email: string, password: string) => Promise<{ needsEmailConfirmation?: boolean }>;
   resendConfirmationEmail: (email: string, name: string) => Promise<void>;
   sendOtp: (email: string, name: string) => Promise<void>;
   verifyOtp: (email: string, token: string, name: string) => Promise<void>;
@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     trackLoginAttempt(email, 'password', true);
   }, []);
 
-  const register = useCallback(async (name: string, email: string, password: string, encryptedPayload?: string) => {
+  const register = useCallback(async (name: string, email: string, password: string) => {
     if (!isSupabaseConfigured()) {
       throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env');
     }
@@ -123,12 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { 
-        data: { 
-          name,
-          ...(encryptedPayload ? { encrypted_payload: encryptedPayload } : {}) 
-        } 
-      },
+      options: { data: { name } },
     });
 
     if (signUpError) {
