@@ -173,7 +173,11 @@ export function GlobalChatOverlay() {
                     onClick={toggleChat}
                 >
                     {/* Render the Spline scene globally as a persistent toggle icon */}
-                    <Spline scene="https://prod.spline.design/brh4nk75sWlRfJme/scene.splinecode" />
+                    <Spline
+                        scene="https://prod.spline.design/brh4nk75sWlRfJme/scene.splinecode"
+                        style={{ background: 'transparent' }}
+                        className="global-chatbot__spline"
+                    />
                 </div>
             )}
         </>

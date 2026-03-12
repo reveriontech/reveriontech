@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Color, Scene, Fog, PerspectiveCamera, Vector3 } from "three";
+import { Color, Scene, Fog, PerspectiveCamera, Vector3, Group } from "three";
 import ThreeGlobe from "three-globe";
 import { useThree, Canvas, extend } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -62,7 +62,11 @@ interface WorldProps {
 
 export function Globe({ globeConfig, data }: WorldProps) {
   const globeRef = useRef<ThreeGlobe | null>(null);
+<<<<<<< HEAD
+  const groupRef = useRef<Group | null>(null);
+=======
   const groupRef = useRef(null);
+>>>>>>> eba36abfe95e4c80dee1960f7ee9ba58c60bf366
   const [isInitialized, setIsInitialized] = useState(false);
 
   const defaultProps = {
@@ -118,7 +122,13 @@ export function Globe({ globeConfig, data }: WorldProps) {
     if (!globeRef.current || !isInitialized || !data) return;
 
     const arcs = data;
-    let points = [];
+    const points: Array<{
+      size: number;
+      order: number;
+      color: string;
+      lat: number;
+      lng: number;
+    }> = [];
     for (let i = 0; i < arcs.length; i++) {
       const arc = arcs[i];
       points.push({
@@ -238,7 +248,7 @@ export function WebGLRendererConfig() {
     gl.setPixelRatio(window.devicePixelRatio);
     gl.setSize(size.width, size.height);
     gl.setClearColor(0xffaaff, 0);
-  }, []);
+  }, [gl, size.width, size.height]);
 
   return null;
 }
@@ -281,7 +291,16 @@ export function World(props: WorldProps) {
 
 export function hexToRgb(hex: string) {
   var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+<<<<<<< HEAD
+  hex = hex.replace(shorthandRegex, function (
+    _m: string,
+    r: string,
+    g: string,
+    b: string,
+  ) {
+=======
   hex = hex.replace(shorthandRegex, function (_m, r, g, b) {
+>>>>>>> eba36abfe95e4c80dee1960f7ee9ba58c60bf366
     return r + r + g + g + b + b;
   });
 
@@ -296,7 +315,7 @@ export function hexToRgb(hex: string) {
 }
 
 export function genRandomNumbers(min: number, max: number, count: number) {
-  const arr = [];
+  const arr: number[] = [];
   while (arr.length < count) {
     const r = Math.floor(Math.random() * (max - min)) + min;
     if (arr.indexOf(r) === -1) arr.push(r);

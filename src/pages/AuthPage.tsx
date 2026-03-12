@@ -373,7 +373,7 @@ export function AuthPage() {
                 name="name"
                 autoComplete="name"
                 className="auth__input"
-                placeholder="John Doe"
+                placeholder="exampe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={isLoading}
@@ -435,7 +435,7 @@ export function AuthPage() {
 
             <div className="auth__field">
               <label className="auth__label" htmlFor="confirmPassword">Confirm Password</label>
-              <div style={{ position: 'relative' }}>
+              <div className="auth__password-wrapper">
                 <input
                   id="confirmPassword"
                   type={showPassword ? 'text' : 'password'}
@@ -453,7 +453,6 @@ export function AuthPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="auth__show-password-btn"
                   title={showPassword ? 'Hide password' : 'Show password'}
-                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.25rem' }}
                 >
                   <Icon name={showPassword ? 'eye-off' : 'eye'} size={18} />
                 </button>
