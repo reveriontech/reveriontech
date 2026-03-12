@@ -23,7 +23,11 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
         throw new Error(body?.error ?? `Request failed (${res.status})`);
     }
 
-    return res.json();
+    const data = await res.json();
+    if (data && typeof data === 'object' && 'payload' in data && typeof data.payload === 'string') {
+        return (await decryptPayload(data.payload)) as T;
+    }
+    return data as T;
 }
 
 async function encryptPayload(data: unknown): Promise<string> {
@@ -58,6 +62,37 @@ async function encryptPayload(data: unknown): Promise<string> {
         binary += String.fromCharCode(combined[i]);
     }
     return btoa(binary);
+}
+
+async function decryptPayload(encryptedBase64: string): Promise<any> {
+    const enc = new TextEncoder();
+    const keyBytes = enc.encode("super_secure_key_32_bytes_length");
+
+    const cryptoKey = await crypto.subtle.importKey(
+        'raw',
+        keyBytes,
+        { name: 'AES-GCM' },
+        false,
+        ['decrypt']
+    );
+
+    const binary = atob(encryptedBase64);
+    const combined = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        combined[i] = binary.charCodeAt(i);
+    }
+
+    const iv = combined.slice(0, 12);
+    const ciphertext = combined.slice(12);
+
+    const decryptedBuf = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        cryptoKey,
+        ciphertext
+    );
+
+    const dec = new TextDecoder();
+    return JSON.parse(dec.decode(decryptedBuf));
 }
 
 export async function submitContactRequest(form: ContactRequestForm): Promise<ContactRequest> {
