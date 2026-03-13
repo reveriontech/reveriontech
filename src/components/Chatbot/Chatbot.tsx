@@ -15,7 +15,8 @@ export function Chatbot() {
             >
                 <Spline
                     scene="https://prod.spline.design/brh4nk75sWlRfJme/scene.splinecode"
-                    style={{ background: 'transparent' }}
+                    style={{ width: '100%', height: '100%', background: 'transparent' }}
+                    className="chatbot__spline"
                 />
                 <div className="chatbot__avatar-overlay">
                     {!isOpen && <span className="chatbot__avatar-hint">[ CLICK TO INITIALIZE ]</span>}

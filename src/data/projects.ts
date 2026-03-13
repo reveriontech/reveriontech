@@ -116,7 +116,7 @@ export const realProjects: CaseStudy[] = [
   client: "Prime Lendrow",
   industry: "Prime Lendrow Unleashing the power of AI",
   href: "https://primelendrow.com/",
-  image: "/projects/primelendrow.png",
+  image: "/projects/lendrow.png",
   technologies: ["React", "Node.js", "PostgreSQL", "AI"],
   gradientFrom: "#00e5ff",
   gradientTo: "#006064",

@@ -35,16 +35,13 @@ const partners = [
     logo: '/partnership/REDDAO_logo.jpg',
     url: 'https://www.facebook.com/reveriondao',
   },
-
-    {
-
-    name: 'DCT',
-    fullName: 'Lungsod ng Dabaw',
-    description: 'Ethical Outsourcing for Growing SMEs ',
+  {
+    name: 'CoWorq',
+    fullName: 'CoWorqCo',
+    description: 'Ethical Outsourcing for Growing SMEs',
     logo: '/partnership/coworq.png',
     url: 'https://coworq.co/#row-0yDhWM5bmo',
   },
-
 ];
 
 const designBuildSteps = [
