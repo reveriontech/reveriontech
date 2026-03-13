@@ -50,6 +50,7 @@ export function AuthPage() {
   const [confirmLoading, setConfirmLoading] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetSuccessMsg, setResetSuccessMsg] = useState('');
 
   const passwordChecks = mode === 'register' || mode === 'forgot_password' ? getPasswordChecks(password) : { length: false, capitalFirst: false, special: false };
@@ -217,6 +218,7 @@ export function AuthPage() {
               setPassword('');
               setConfirmPassword('');
               setShowPassword(false);
+              setShowConfirmPassword(false);
             }}
           >
             Login
@@ -231,6 +233,7 @@ export function AuthPage() {
               setPassword('');
               setConfirmPassword('');
               setShowPassword(false);
+              setShowConfirmPassword(false);
               setAgreedToTerms(false);
               setNeedsEmailConfirm(false);
               setConfirmToken('');
@@ -438,7 +441,7 @@ export function AuthPage() {
               <div className="auth__password-wrapper">
                 <input
                   id="confirmPassword"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   name="confirmPassword"
                   autoComplete="new-password"
                   className={`auth__input ${confirmPassword.length > 0 && password !== confirmPassword ? 'auth__input--error' : ''}`}
@@ -450,11 +453,11 @@ export function AuthPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="auth__show-password-btn"
-                  title={showPassword ? 'Hide password' : 'Show password'}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
-                  <Icon name={showPassword ? 'eye-off' : 'eye'} size={18} />
+                  <Icon name={showConfirmPassword ? 'eye-off' : 'eye'} size={18} />
                 </button>
               </div>
               {confirmPassword.length > 0 && (
