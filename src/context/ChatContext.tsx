@@ -102,7 +102,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
                 }
 
                 // Send request to Rust backend
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/chat`, {
+                const response = await fetch('http://localhost:8080/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -19,7 +19,6 @@ export function UpdatePasswordPage() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -127,7 +126,7 @@ export function UpdatePasswordPage() {
                         <div style={{ position: 'relative' }}>
                             <input
                                 id="confirmNewPassword"
-                                type={showConfirmPassword ? 'text' : 'password'}
+                                type={showPassword ? 'text' : 'password'}
                                 className="auth__input"
                                 placeholder="••••••••"
                                 value={confirmPassword}
@@ -137,11 +136,11 @@ export function UpdatePasswordPage() {
                             />
                             <button
                                 type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                                onClick={() => setShowPassword(!showPassword)}
+                                title={showPassword ? 'Hide password' : 'Show password'}
                                 style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.25rem' }}
                             >
-                                <Icon name={showConfirmPassword ? 'eye-off' : 'eye'} size={18} />
+                                <Icon name={showPassword ? 'eye-off' : 'eye'} size={18} />
                             </button>
                         </div>
                     </div>
