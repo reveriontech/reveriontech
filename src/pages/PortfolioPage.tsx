@@ -8,17 +8,14 @@ import ElectricBorder from '../components/ui/ElectricBorder';
 import { services } from '../data/services';
 import '../styles/about.css';
 
-const FILTERS = ['All', 'Web & UI', 'Apps & Products', 'AI & Automation'] as const;
-type Filter = (typeof FILTERS)[number];
+const FILTERS = [
+  { label: 'All', serviceIds: null },
+  { label: 'Web & UI', serviceIds: ['web-development', 'ui-ux-design'] },
+  { label: 'Apps & Products', serviceIds: ['mobile-apps', 'editing-photo'] },
+  { label: 'AI & Automation', serviceIds: ['cloud-architecture', 'ai-integration'] },
+] as const;
 
-const serviceCategory: Record<string, Filter> = {
-  'web-development': 'Web & UI',
-  'ui-ux-design': 'Web & UI',
-  'mobile-apps': 'Apps & Products',
-  'editing-photo': 'Apps & Products',
-  'cloud-architecture': 'AI & Automation',
-  'ai-integration': 'AI & Automation',
-};
+type Filter = (typeof FILTERS)[number]['label'];
 
 const PROCESS_STEPS = [
   {
@@ -52,11 +49,12 @@ export function PortfolioPage() {
   const activeStep = step3InView ? 2 : step2InView ? 1 : step1InView ? 0 : -1;
   const lineProgress = activeStep < 0 ? 0 : (activeStep + 1) / 3;
 
-  const filteredServices = services.filter((service) => {
-    if (activeFilter === 'All') return true;
-    const category = serviceCategory[service.id] ?? 'Web & UI';
-    return category === activeFilter;
-  });
+  const selectedFilter = FILTERS.find((filter) => filter.label === activeFilter);
+  const selectedServiceIds = selectedFilter?.serviceIds as readonly string[] | null | undefined;
+  const filteredServices =
+    selectedServiceIds == null
+      ? services
+      : services.filter((service) => selectedServiceIds.includes(service.id));
 
   return (
     <div className="about-page">
@@ -93,25 +91,30 @@ export function PortfolioPage() {
           <div className="portfolio-filters">
             {FILTERS.map((filter) => (
               <button
-                key={filter}
+                key={filter.label}
                 type="button"
                 className={`portfolio-filter-chip ${
-                  activeFilter === filter ? 'portfolio-filter-chip--active' : ''
+                  activeFilter === filter.label ? 'portfolio-filter-chip--active' : ''
                 }`}
-                onClick={() => setActiveFilter(filter)}
+                onClick={() => setActiveFilter(filter.label)}
               >
-                {filter}
+                {filter.label}
               </button>
             ))}
           </div>
 
           <div className="about-services__grid">
             {filteredServices.map((service, i) => (
-              <Reveal
-                key={service.id}
-                direction="scale"
-                delay={((i % 3) + 1) as 1 | 2 | 3}
+              <motion.div
+                key={`${activeFilter}-${service.id}`}
                 className="service-card-new-wrapper"
+                initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.28,
+                  ease: [0.16, 1, 0.3, 1],
+                  delay: i * 0.04,
+                }}
               >
                 <ElectricBorder
                   color="#7df9ff"
@@ -151,7 +154,7 @@ export function PortfolioPage() {
                     </footer>
                   </article>
                 </ElectricBorder>
-              </Reveal>
+              </motion.div>
             ))}
           </div>
         </div>

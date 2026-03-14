@@ -8,9 +8,22 @@
 }
 
 .about-page {
-    background: var(--color-brutalist-black);
-    /* Force high-contrast text regardless of global theme */
-    color: #ffffff;
+    --about-bg: var(--color-bg);
+    --about-surface: var(--color-surface);
+    --about-text: var(--color-text);
+    --about-heading: var(--color-text-heading);
+    --about-muted: var(--color-text-muted);
+    --about-ghost: rgba(255, 255, 255, 0.05);
+    --about-skill-track: rgba(0, 229, 255, 0.12);
+    --about-stat-grid-bg: rgba(0, 229, 255, 0.8);
+    background: var(--about-bg);
+    color: var(--about-text);
+}
+
+[data-theme="light"] .about-page {
+    --about-ghost: rgba(29, 29, 31, 0.08);
+    --about-skill-track: rgba(0, 151, 167, 0.18);
+    --about-stat-grid-bg: rgba(0, 151, 167, 0.28);
 }
 
 /* Hero Section - Massive Typographic */
@@ -18,7 +31,7 @@
     position: relative;
     padding: 12rem 0 8rem;
     text-align: left;
-    background: var(--color-brutalist-black);
+    background: var(--about-bg);
     overflow: hidden;
 }
 
@@ -29,7 +42,7 @@
     left: 5%;
     font-size: 25vw;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.02);
+    color: var(--about-ghost);
     transform: translateY(-50%);
     pointer-events: none;
     line-height: 0.8;
@@ -39,8 +52,7 @@
     font-size: clamp(3rem, 8vw, 5.5rem);
     font-weight: 950;
     margin-bottom: 0;
-    /* Keep hero title readable in both dark and light themes */
-    color: #ffffff;
+    color: var(--about-heading);
     letter-spacing: -0.05em;
     line-height: 0.9;
     text-transform: uppercase;
@@ -63,6 +75,7 @@
 .about-intro {
     padding: 10rem 0;
     position: relative;
+    background: var(--about-bg);
 }
 
 .about-intro__grid {
@@ -98,7 +111,7 @@
     width: 50%;
     margin-top: -15%;
     margin-left: auto;
-    background: var(--color-brutalist-black);
+    background: var(--about-surface);
     border: var(--brutalist-border);
     padding: 4rem;
     position: relative;
@@ -124,10 +137,11 @@
     margin-bottom: 2rem;
     font-weight: 900;
     text-transform: uppercase;
+    color: var(--about-heading);
 }
 
 .about-intro__desc {
-    color: var(--color-text-muted);
+    color: var(--about-muted);
     line-height: 1.6;
     margin-bottom: 3rem;
     font-size: 1.1rem;
@@ -137,6 +151,7 @@
 .about-skills-stats {
     padding: 10rem 0;
     border-top: var(--brutalist-border);
+    background: var(--about-bg);
 }
 
 .about-skills-stats__grid {
@@ -149,6 +164,7 @@
 .about-services {
     padding: 8rem 0;
     border-top: var(--brutalist-border);
+    background: var(--about-bg);
 }
 
 .about-services__header {
@@ -163,11 +179,12 @@
     font-size: 2.25rem;
     font-weight: 900;
     text-transform: uppercase;
+    color: var(--about-heading);
 }
 
 .about-services__subtitle {
     max-width: 520px;
-    color: var(--color-text-muted);
+    color: var(--about-muted);
     font-size: 0.95rem;
     line-height: 1.7;
 }
@@ -211,7 +228,7 @@
 }
 
 .service-card-new-electric .service-card-new {
-    background: var(--color-brutalist-black);
+    background: var(--about-surface);
     border-radius: 16px;
     padding: 1.5rem;
     display: flex;
@@ -230,7 +247,7 @@
 .service-card-new--portfolio .service-card-new__title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--about-heading);
     margin: 0 0 0.5rem;
     letter-spacing: -0.02em;
 }
@@ -246,7 +263,7 @@
     flex: 1;
     min-height: 3.25em;
     -webkit-line-clamp: unset;
-    color: var(--color-text-muted, #94a3b8);
+    color: var(--about-muted);
     font-size: 0.95rem;
     line-height: 1.5;
     margin: 0 0 1rem;
@@ -266,7 +283,7 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    color: rgba(226, 232, 240, 0.9);
+    color: var(--about-text);
 }
 
 .service-card-new--portfolio .service-card-new__tag-check {
@@ -277,7 +294,7 @@
 .service-card-new--portfolio .service-card-new__footer {
     margin-top: auto;
     padding-top: 1rem;
-    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    border-top: 1px solid var(--color-border);
 }
 
 .service-card-new--portfolio .service-card-new__link {
@@ -320,10 +337,10 @@
 
 .portfolio-filter-chip {
     border-radius: 999px;
-    border: 1px solid rgba(148, 163, 184, 0.6);
+    border: 1px solid var(--color-border);
     padding: 0.35rem 1rem;
-    background: rgba(15, 23, 42, 0.6);
-    color: #e5e7eb;
+    background: var(--about-surface);
+    color: var(--about-text);
     font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -337,10 +354,10 @@
 }
 
 .portfolio-filter-chip:hover {
-    border-color: rgba(248, 250, 252, 0.9);
-    color: #f9fafb;
+    border-color: var(--color-accent);
+    color: var(--about-heading);
     transform: translateY(-1px);
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.7);
+    box-shadow: var(--shadow-md);
 }
 
 .portfolio-filter-chip--active {
@@ -378,10 +395,11 @@
     font-weight: 900;
     text-transform: uppercase;
     margin-bottom: 1.5rem;
+    color: var(--about-heading);
 }
 
 .about-skills__desc {
-    color: var(--color-text-muted);
+    color: var(--about-muted);
     font-size: 1.1rem;
     margin-bottom: 4rem;
     max-width: 100%;
@@ -398,11 +416,12 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    color: var(--about-heading);
 }
 
 .about-skill-bar-bg {
     height: 2px;
-    background: rgba(0, 229, 255, 0.1);
+    background: var(--about-skill-track);
 }
 
 .about-skill-bar-fill {
@@ -426,13 +445,13 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2px;
-    background: var(--color-brutalist-cyan);
+    background: var(--about-stat-grid-bg);
     border: 1px solid var(--color-brutalist-cyan);
 }
 
 .about-stat-card {
     padding: 4rem 2rem;
-    background: var(--color-brutalist-black);
+    background: var(--about-surface);
     text-align: center;
 }
 
@@ -447,7 +466,7 @@
 
 .about-stat-label {
     font-size: 0.75rem;
-    color: var(--color-text-muted);
+    color: var(--about-muted);
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -457,7 +476,7 @@
 .about-cta {
     padding: 15rem 0;
     text-align: left;
-    background: var(--color-brutalist-black);
+    background: var(--about-bg);
     border-top: var(--brutalist-border);
     position: relative;
     overflow: hidden;
@@ -470,7 +489,7 @@
     bottom: -2rem;
     font-size: 20vw;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.06);
+    color: var(--about-ghost);
     pointer-events: none;
 }
 
@@ -491,12 +510,13 @@
     margin-bottom: 4rem;
     text-transform: uppercase;
     max-width: 900px;
+    color: var(--about-heading);
 }
 
 /* Process timeline — horizontal nodes + SVG line on scroll */
 .process-timeline {
     padding: 8rem 0;
-    background: var(--color-brutalist-black);
+    background: var(--about-bg);
     position: relative;
 }
 
@@ -519,7 +539,7 @@
     font-size: clamp(1.75rem, 4vw, 2.5rem);
     font-weight: 800;
     letter-spacing: -0.03em;
-    color: #ffffff;
+    color: var(--about-heading);
     margin-bottom: 0.75rem;
 }
 
@@ -528,7 +548,7 @@
     margin: 0 auto;
     font-size: 1rem;
     line-height: 1.6;
-    color: var(--color-text-muted);
+    color: var(--about-muted);
 }
 
 .process-timeline__track {
@@ -542,7 +562,7 @@
     left: 0;
     right: 0;
     height: 8px;
-    color: rgba(255, 255, 255, 0.15);
+    color: color-mix(in srgb, var(--about-heading) 18%, transparent);
     z-index: 0;
 }
 
@@ -594,7 +614,7 @@
     line-height: 1;
     letter-spacing: -0.04em;
     color: transparent;
-    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.25);
+    -webkit-text-stroke: 2px color-mix(in srgb, var(--about-heading) 28%, transparent);
     paint-order: stroke fill;
     transition: -webkit-text-stroke 0.4s ease, color 0.4s ease;
     --fill-progress: 0;
@@ -614,13 +634,13 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: color-mix(in srgb, var(--about-surface) 88%, var(--color-accent) 12%);
+    border: 1px solid color-mix(in srgb, var(--about-heading) 12%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1.25rem;
-    color: var(--color-text-muted);
+    color: var(--about-muted);
     transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
@@ -634,7 +654,7 @@
 .process-timeline__heading {
     font-size: 1.25rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--about-heading);
     margin-bottom: 0.35rem;
     letter-spacing: -0.02em;
 }
@@ -642,7 +662,7 @@
 .process-timeline__text {
     font-size: 0.95rem;
     line-height: 1.5;
-    color: var(--color-text-muted);
+    color: var(--about-muted);
     margin: 0;
 }
 
@@ -668,7 +688,7 @@
         grid-template-columns: 1fr;
         gap: 2.5rem;
         padding-left: 2rem;
-        border-left: 2px solid rgba(255, 255, 255, 0.12);
+        border-left: 2px solid color-mix(in srgb, var(--about-heading) 14%, transparent);
         margin-left: 1.5rem;
     }
 

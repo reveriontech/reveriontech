@@ -10,6 +10,10 @@ import { services } from '../data/services';
 import { stats } from '../data/stats';
 import '../styles/landing.css';
 
+type DeviceOrientationPermissionEvent = typeof DeviceOrientationEvent & {
+  requestPermission?: () => Promise<'granted' | 'denied'>;
+};
+
 const laptopCodeLines = [
   "const solution = {",
   "  stack: 'Web3 · GenAI · React',",
@@ -22,8 +26,31 @@ const laptopCodeLines = [
 export function LandingPage() {
   const { hash } = useLocation();
   const heroOrbitsRef = useRef<HTMLDivElement | null>(null);
+  const heroGyroBaselineRef = useRef<{ beta: number; gamma: number } | null>(null);
+  const heroGyroPermissionRef = useRef<'unknown' | 'granted' | 'denied'>('unknown');
   const laptopRef = useRef<HTMLDivElement | null>(null);
   const [typedCode, setTypedCode] = useState('');
+
+  const applyHeroOrbitTransform = (x: number, y: number, mode: 'pointer' | 'gyro' = 'pointer') => {
+    const el = heroOrbitsRef.current;
+    if (!el) return;
+
+    const maxTilt = mode === 'gyro' ? 20 : 32;
+    const drift = mode === 'gyro' ? 18 : 10;
+    const depth = mode === 'gyro' ? 28 : 18;
+    const rotateX = y * -maxTilt;
+    const rotateY = x * maxTilt;
+    const translateX = x * drift;
+    const translateY = y * drift;
+
+    el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translate3d(${translateX}px, ${translateY}px, ${depth}px)`;
+  };
+
+  const resetHeroOrbitTransform = () => {
+    const el = heroOrbitsRef.current;
+    if (!el) return;
+    el.style.transform = '';
+  };
 
   const handleHeroMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     const el = heroOrbitsRef.current;
@@ -31,15 +58,35 @@ export function LandingPage() {
     const rect = el.getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width - 0.5;
     const y = (event.clientY - rect.top) / rect.height - 0.5;
-    const rotateX = y * -32;
-    const rotateY = x * 32;
-    el.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    applyHeroOrbitTransform(x * 2, y * 2);
   };
 
   const handleHeroMouseLeave = () => {
-    const el = heroOrbitsRef.current;
-    if (!el) return;
-    el.style.transform = '';
+    resetHeroOrbitTransform();
+  };
+
+  const enableHeroGyro = async () => {
+    if (typeof window === 'undefined' || typeof window.DeviceOrientationEvent === 'undefined') {
+      return;
+    }
+
+    const orientationEvent = window.DeviceOrientationEvent as DeviceOrientationPermissionEvent;
+    if (typeof orientationEvent.requestPermission !== 'function') {
+      heroGyroPermissionRef.current = 'granted';
+      return;
+    }
+
+    if (heroGyroPermissionRef.current !== 'unknown') return;
+
+    try {
+      const permission = await orientationEvent.requestPermission();
+      heroGyroPermissionRef.current = permission;
+      if (permission === 'granted') {
+        heroGyroBaselineRef.current = null;
+      }
+    } catch {
+      heroGyroPermissionRef.current = 'denied';
+    }
   };
 
   const handleLaptopMouseMove = (event: MouseEvent<HTMLDivElement>) => {
@@ -110,9 +157,6 @@ export function LandingPage() {
   const typedLines = typedCode.split('\n');
 
   useEffect(() => {
-    const el = heroOrbitsRef.current;
-    if (!el) return;
-
     const isTouchDevice =
       typeof window !== 'undefined' &&
       ('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -121,35 +165,38 @@ export function LandingPage() {
       return;
     }
 
+    const orientationEvent = window.DeviceOrientationEvent as DeviceOrientationPermissionEvent;
+    if (typeof orientationEvent.requestPermission !== 'function') {
+      heroGyroPermissionRef.current = 'granted';
+    }
+
     const handleOrientation = (event: DeviceOrientationEvent) => {
       const target = heroOrbitsRef.current;
       if (!target) return;
+      if (heroGyroPermissionRef.current === 'denied') return;
+      if (typeof orientationEvent.requestPermission === 'function' && heroGyroPermissionRef.current !== 'granted') {
+        return;
+      }
 
       const { beta, gamma } = event;
       if (beta == null || gamma == null) return;
 
-      const maxTilt = 22;
+      if (!heroGyroBaselineRef.current) {
+        heroGyroBaselineRef.current = { beta, gamma };
+      }
 
-      const clampedGamma = Math.max(-45, Math.min(45, gamma));
-      const clampedBeta = Math.max(0, Math.min(90, beta));
-
-      const x = clampedGamma / 45 - 0.5;
-      const y = clampedBeta / 90 - 0.5;
-
-      const rotateX = y * -maxTilt * 2;
-      const rotateY = x * maxTilt * 2;
-
-      target.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      const baseline = heroGyroBaselineRef.current;
+      const normalizedX = Math.max(-1, Math.min(1, (gamma - baseline.gamma) / 20));
+      const normalizedY = Math.max(-1, Math.min(1, (beta - baseline.beta) / 20));
+      applyHeroOrbitTransform(normalizedX, normalizedY, 'gyro');
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
 
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
-      const target = heroOrbitsRef.current;
-      if (target) {
-        target.style.transform = '';
-      }
+      heroGyroBaselineRef.current = null;
+      resetHeroOrbitTransform();
     };
   }, []);
 
@@ -194,6 +241,7 @@ export function LandingPage() {
               className="hero__image-orbits"
               onMouseMove={handleHeroMouseMove}
               onMouseLeave={handleHeroMouseLeave}
+              onTouchStart={enableHeroGyro}
             >
               <span className="hero__orbit hero__orbit--1" />
               <span className="hero__orbit hero__orbit--2" />

@@ -157,7 +157,8 @@ export function GlobalChatOverlay() {
                                         <Icon name="paperclip" size={18} />
                                     </button>
                                     <button type="submit" className="chatbot__submit-btn" disabled={!inputValue.trim() && !attachment}>
-                                        [ EXECUTE ]
+                                        <span className="chatbot__submit-btn-label chatbot__submit-btn-label--full">[ EXECUTE ]</span>
+                                        <span className="chatbot__submit-btn-label chatbot__submit-btn-label--compact">[ RUN ]</span>
                                     </button>
                                 </form>
                             </div>
