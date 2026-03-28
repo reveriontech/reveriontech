@@ -22,7 +22,7 @@ export const teamMembers: TeamMember[] = [
         bio: 'Co Founder of ReverionTech. Specializes in disruptive digital narratives and technical brutalism.',
         image: '/team/team11.jpg',
         socials: {
-            linkedin: '#',
+            linkedin: 'https://www.linkedin.com/in/rodalbores/',
             facebook: '#',
             instagram: '#',
             youtube: '#'
@@ -35,7 +35,7 @@ export const teamMembers: TeamMember[] = [
         bio: 'Back-end Developer of ReverionTech. Specializes in scalable systems and performance optimization.',
         image: '/team/team22.jpg',
         socials: {
-            linkedin: '#',
+            linkedin: 'https://www.linkedin.com/in/kent-ryan-gonzales-entice-25518535a/',
             facebook: '#',
             instagram: '#',
             youtube: '#'
@@ -83,8 +83,8 @@ export const teamMembers: TeamMember[] = [
     {
         id: '6',
         name: 'June Bation',
-        role: 'Front-end Developer',
-        bio: 'Front-end Developer of ReverionTech with specialisation in 3D animations and web applications.',
+        role: 'AI Engineer',
+        bio: 'AI Engineer of ReverionTech with specialisation in AI agenet development and military intelligence.',
         image: '/team/team66.jpg',
         socials: {
             linkedin: '#',
@@ -96,11 +96,24 @@ export const teamMembers: TeamMember[] = [
     {
         id: '7',
         name: 'Urian Buenconsejo',
-        role: 'Researcher',
-        bio: 'Researcher of ReverionTech with specialisation in AI and web applications.',
+        role: 'AI Orchestrator',
+        bio: 'AI Agent Orchestrator of ReverionTech with specialisation in AI and web3 research and data analysis.',
         image: '/team/team 7.jpg',
         socials: {
-            linkedin: '#',
+            linkedin: 'https://www.linkedin.com/in/urian-b-/',
+            facebook: '#',
+            instagram: '#',
+            youtube: '#'
+        }
+    },
+    {
+        id: '8',
+        name: 'Edmund Albores',
+        role: 'Full Stack Developer',
+        bio: 'Full Stack Developer of ReverionTech with specialisation in web3 development and blockchain technology.',
+        image: '/team/team88.jpg',
+        socials: {
+            linkedin: 'https://www.linkedin.com/in/mhokzone',
             facebook: '#',
             instagram: '#',
             youtube: '#'
