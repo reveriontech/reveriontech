@@ -62,11 +62,7 @@ interface WorldProps {
 
 export function Globe({ globeConfig, data }: WorldProps) {
   const globeRef = useRef<ThreeGlobe | null>(null);
-<<<<<<< HEAD
   const groupRef = useRef<Group | null>(null);
-=======
-  const groupRef = useRef(null);
->>>>>>> eba36abfe95e4c80dee1960f7ee9ba58c60bf366
   const [isInitialized, setIsInitialized] = useState(false);
 
   const defaultProps = {
@@ -291,16 +287,12 @@ export function World(props: WorldProps) {
 
 export function hexToRgb(hex: string) {
   var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-<<<<<<< HEAD
   hex = hex.replace(shorthandRegex, function (
     _m: string,
     r: string,
     g: string,
     b: string,
   ) {
-=======
-  hex = hex.replace(shorthandRegex, function (_m, r, g, b) {
->>>>>>> eba36abfe95e4c80dee1960f7ee9ba58c60bf366
     return r + r + g + g + b + b;
   });
 
