@@ -118,5 +118,18 @@ export const teamMembers: TeamMember[] = [
             instagram: '#',
             youtube: '#'
         }
+    },
+    {
+        id: '9',
+        name: 'RJ Solamo',
+        role: 'Blockchain Developer',
+        bio: 'Blockchain Developer of ReverionTech with specialisation in web3 development and blockchain technology.',
+        image: '/team/team99.jpg',
+        socials: {
+            linkedin: 'https://www.linkedin.com/in/rjaysolamo/',
+            facebook: 'https://www.facebook.com/gytchk',
+            instagram: '#',
+            youtube: '#'
+        }
     }
 ];
