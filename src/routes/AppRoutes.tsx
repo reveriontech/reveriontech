@@ -22,6 +22,7 @@ import { SolutionsPage } from '../pages/SolutionsPage';
 import { TermsPage } from '../pages/TermsPage';
 import { PrivacyPage } from '../pages/PrivacyPage';
 import { TeamPage } from '../pages/TeamPage';
+import { CertificatePage } from '../pages/Certificate';
 
 function AppRoutes() {
     const location = useLocation();
@@ -58,6 +59,7 @@ function AppRoutes() {
                             <Route path="/team" element={<TeamPage />} />
                             <Route path="/terms" element={<TermsPage />} />
                             <Route path="/privacy" element={<PrivacyPage />} />
+                            <Route path="/cert/:certId" element={<CertificatePage />} />
                         </Routes>
                     </main>
                     <GlobalChatOverlay />
