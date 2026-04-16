@@ -10,6 +10,7 @@ export interface TeamMember {
         facebook?: string;
         instagram?: string;
         youtube?: string;
+        twitter?: string;
     };
 }
 
@@ -23,9 +24,10 @@ export const teamMembers: TeamMember[] = [
         image: '/team/team11.jpg',
         socials: {
             linkedin: 'https://www.linkedin.com/in/rodalbores/',
-            facebook: '#',
+            facebook: 'https://www.facebook.com/rod.albores',
             instagram: '#',
-            youtube: '#'
+            youtube: '#',    
+            twitter: '#'
         }
     },
     {
@@ -38,7 +40,8 @@ export const teamMembers: TeamMember[] = [
             linkedin: 'https://www.linkedin.com/in/kent-ryan-gonzales-entice-25518535a/',
             facebook: '#',
             instagram: '#',
-            youtube: '#'
+            youtube: '#' ,
+            twitter: '#'
         }
     },
     {
@@ -51,7 +54,8 @@ export const teamMembers: TeamMember[] = [
             linkedin: '#',
             facebook: '#',
             instagram: '#',
-            youtube: '#'
+            youtube: '#',
+            twitter: '#'
         }
     },
     {
@@ -64,7 +68,8 @@ export const teamMembers: TeamMember[] = [
             linkedin: '#',
             facebook: '#',
             instagram: '#',
-            youtube: '#'
+            youtube: '#',
+            twitter: '#'
         }
     },
     {
@@ -77,7 +82,8 @@ export const teamMembers: TeamMember[] = [
             linkedin: '#',
             facebook: '#',
             instagram: '#',
-            youtube: '#'
+            youtube: '#',
+            twitter: '#'
         }
     },
     {
@@ -90,7 +96,8 @@ export const teamMembers: TeamMember[] = [
             linkedin: '#',
             facebook: '#',
             instagram: '#',
-            youtube: '#'
+            youtube: '#',
+             twitter: '#'
         }
     },
     {
@@ -103,7 +110,8 @@ export const teamMembers: TeamMember[] = [
             linkedin: 'https://www.linkedin.com/in/urian-b-/',
             facebook: '#',
             instagram: '#',
-            youtube: '#'
+            youtube: '#',
+                        twitter: '#'
         }
     },
     {
@@ -116,7 +124,8 @@ export const teamMembers: TeamMember[] = [
             linkedin: 'https://www.linkedin.com/in/mhokzone',
             facebook: '#',
             instagram: '#',
-            youtube: '#'
+            youtube: '#',
+                        twitter: '#'
         }
     },
     {
@@ -129,7 +138,22 @@ export const teamMembers: TeamMember[] = [
             linkedin: 'https://www.linkedin.com/in/rjaysolamo/',
             facebook: 'https://www.facebook.com/gytchk',
             instagram: '#',
-            youtube: '#'
+            youtube: '#',
+                        twitter: '#'
+        }
+    },
+    {
+        id: '10',
+        name: 'Tirso Benedict Naza',
+        role: 'AI & Rust Developer',
+        bio: 'AI Engineer & Rust Developer of ReverionTech with specialisation in RAG, LLM development, smart contract and backend development',
+        image: '/team/team90.jpg',
+        socials: {
+            linkedin: 'https://www.linkedin.com/in/benedictnaza/',
+            facebook: 'https://www.facebook.com/Nazakun',
+            instagram: '#',
+            youtube: '#',
+                        twitter: '#'
         }
     }
 ];
