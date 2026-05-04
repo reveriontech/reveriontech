@@ -12,7 +12,12 @@ import {
   updateRequestStatus,
   clearAllContactRequests,
 } from '../lib/contactRequests';
-import { fetchTeamMembers, updateTeamMemberStatus, removeTeamMember } from '../lib/team';
+import {
+  fetchTeamMembers,
+  fetchMyTeamStatus,
+  updateTeamMemberStatus,
+  removeTeamMember,
+} from '../lib/team';
 import '../styles/dashboard.css';
 
 import { DashboardSidebar, type Tab } from '../components/dashboard/DashboardSidebar';
@@ -41,16 +46,14 @@ export function DashboardPage() {
   const [myTeamStatus, setMyTeamStatus] = useState<{ status: string | null; is_admin: boolean; job_title?: string | null } | null>(null);
 
   useEffect(() => {
-    import('../lib/team').then(m => {
-      m.fetchMyTeamStatus().then((status) => {
-        setMyTeamStatus(status);
-        if (status.status) {
-          setSettingsCompany('Reverion Technologies');
-        }
-        if (status.job_title) {
-          setSettingsRole(status.job_title);
-        }
-      });
+    fetchMyTeamStatus().then((status) => {
+      setMyTeamStatus(status);
+      if (status.status) {
+        setSettingsCompany('Reverion Technologies');
+      }
+      if (status.job_title) {
+        setSettingsRole(status.job_title);
+      }
     });
   }, []);
 
