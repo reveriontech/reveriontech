@@ -23,7 +23,7 @@ export function ProjectDetailPage() {
             <div><dt>Service</dt><dd>{p.category}</dd></div>
             {p.industry && <div><dt>Industry</dt><dd>{p.industry}</dd></div>}
             <div><dt>Year</dt><dd>[YEAR]</dd></div>
-            {p.href && <div><dt>Live site</dt><dd><a href={p.href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--cyan)' }}>Visit ↗</a></dd></div>}
+            {p.href && <div><dt>Live site</dt><dd><a href={p.href} target="_blank" rel="nofollow noopener noreferrer" style={{ color: 'var(--cyan)' }}>Visit ↗</a></dd></div>}
           </dl>
           {p.image ? (
             <img src={p.image} alt={`${p.client} interface`} style={{ width: '100%', aspectRatio: '16 / 7.5', objectFit: 'cover', objectPosition: 'top', borderRadius: '12px 12px 0 0', display: 'block' }} />
@@ -43,10 +43,12 @@ export function ProjectDetailPage() {
             <div><p className="rv-eyebrow">Technical implementation</p><p style={{ fontSize: '1.0625rem', lineHeight: 1.7 }}>[ARCHITECTURE, INTEGRATIONS AND KEY ENGINEERING DECISIONS]</p></div>
           </div>
           <aside style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div className="rv-card" style={{ background: 'var(--alt)' }}>
-              <p className="rv-label" style={{ color: 'var(--navy)' }}>Technologies</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{p.tech.map((t) => <span key={t} className="rv-chip">{t}</span>)}</div>
-            </div>
+            {p.tech.length > 0 && (
+              <div className="rv-card" style={{ background: 'var(--alt)' }}>
+                <p className="rv-label" style={{ color: 'var(--navy)' }}>Technologies</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{p.tech.map((t) => <span key={t} className="rv-chip">{t}</span>)}</div>
+              </div>
+            )}
             <div className="rv-card dk">
               <p className="rv-label" style={{ color: 'var(--cyan)' }}>Results</p>
               <p style={{ color: '#fff', fontWeight: 600 }}>[VERIFIED RESULT]</p>

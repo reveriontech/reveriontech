@@ -52,7 +52,7 @@ function EngineArt() {
       ))}
       <g className="core">
         <circle cx="300" cy="300" r="58" fill="#032E32" stroke="#00DDEB" strokeWidth="2" />
-        <text x="300" y="316" textAnchor="middle" fontFamily="Manrope, sans-serif" fontWeight="800" fontSize="46" fill="#00DDEB">R</text>
+        <image href="/ReverionTech-dark.png" x="261" y="265.2" width="78" height="69.5" />
       </g>
     </svg>
   );
@@ -60,8 +60,8 @@ function EngineArt() {
 
 const how = [
   { n: '01', title: 'Build', what: 'Software Engineering', text: 'Web, mobile and enterprise products engineered around how your business operates.', to: '/services#software-engineering' },
-  { n: '02', title: 'Automate', what: 'AI & Intelligent Automation', text: 'AI agents, voice assistants and orchestrated workflows — with people in the loop.', to: '/services#ai-automation' },
-  { n: '03', title: 'Secure & Scale', what: 'Cloud, DevOps & Security', text: 'Reliable infrastructure, automated releases and security by design.', to: '/services#cloud-devops' },
+  { n: '02', title: 'Automate', what: 'Agents & Workflow Engines', text: 'AI agents, coordination, and orchestrated workflows — with people in the loop.', to: '/services#agents' },
+  { n: '03', title: 'Secure & Scale', what: 'Cloud, Operations & AI Security', text: 'Monitored infrastructure, automated operations, and governance around who and what can act.', to: '/services#cloud-operations' },
 ];
 
 const words = ['Engineering', 'what’s', 'next.'];

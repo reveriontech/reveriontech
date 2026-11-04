@@ -54,7 +54,7 @@
 .dark .rv-link:hover, .teal .rv-link:hover { color: #fff; }
 
 /* header */
-.rv-hdr { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.rv-hdr { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
 .rv-hdr__in { max-width: 1240px; margin: 0 auto; padding: 0 1.5rem; height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .rv-logo { display: flex; align-items: center; gap: 10px; color: var(--navy); }
 .rv a.rv-logo { color: var(--navy); }
@@ -210,7 +210,10 @@
 .rv-big { font-size: clamp(1.25rem, 2.2vw, 1.625rem); line-height: 1.45; color: #fff; font-weight: 500; }
 .rv-value { border-top: 1px solid var(--line); padding: 1.25rem 0; }
 .rv-value .rv-mono { color: var(--teal2); }
+.rv-team { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr)); margin-top: 1.25rem; }
 .rv-person .ph { aspect-ratio: 1; border-radius: 12px; background: var(--alt); border: 1px dashed var(--strong); margin-bottom: 10px; }
+.rv-person img.ph { width: 100%; object-fit: cover; object-position: center 15%; display: block; border-style: solid; }
+.rv-person p.small { font-size: .875rem; color: var(--ink); }
 .rv-service { display: flex; flex-wrap: wrap; gap: 2rem 5rem; padding: 5rem 0; border-top: 1px solid var(--line); }
 .dark .rv-service { border-color: #17414a; }
 .rv-service__a { flex: 1 1 380px; }

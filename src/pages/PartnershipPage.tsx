@@ -2,45 +2,78 @@
 
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
-import { Icon } from '../components/ui/Icon';
-import { CardBody, CardContainer, CardItem } from '../components/ui/3d-card';
 import '../styles/partners.css';
 
 const partners = [
   {
-    name: 'DCT',
-    fullName: 'Lungsod ng Dabaw',
-    description: 'Government & civic innovation partner for Davao City.',
-    logo: '/partnership/DAVAO_logo.png',
-    url: 'https://davaocity.gov.ph',
+    name: 'Stripe',
+    fullName: 'Stripe',
+    description: 'Payments infrastructure for internet businesses.',
+    logo: '/partnership/stripe.svg',
+    url: 'https://stripe.com',
   },
   {
-    name: 'ICP-PH',
-    fullName: 'ICP Philippines',
-    description: 'Internet Computer Protocol community and blockchain initiatives.',
-    logo: '/partnership/ICP_logo.png',
-    url: 'https://internetcomputer.org',
+    name: 'Techstars',
+    fullName: 'Techstars',
+    description: 'Global accelerator and early-stage investor.',
+    logo: '/partnership/techstars.png',
+    url: 'https://www.techstars.com',
   },
   {
-    name: 'NFT Davao',
-    fullName: 'NFT Davao',
-    description: 'NFT and digital collectibles ecosystem in Davao.',
-    logo: '/partnership/NFTDAVAO_logo.png',
-    url: 'https://www.facebook.com/nftdavao',
+    name: 'Stanford',
+    fullName: 'Stanford University',
+    description: 'Research university and innovation partner.',
+    logo: '/partnership/stanford.png',
+    url: 'https://www.stanford.edu',
   },
   {
-    name: 'RERDAO',
-    fullName: 'RERDAO',
-    description: 'Regional blockchain and Web3 innovation hub.',
-    logo: '/partnership/REDDAO_logo.jpg',
-    url: 'https://www.facebook.com/reveriondao',
+    name: 'Google',
+    fullName: 'Google',
+    description: 'Search, cloud, and developer platforms.',
+    logo: '/partnership/google.svg',
+    url: 'https://www.google.com',
   },
   {
-    name: 'CoWorq',
-    fullName: 'CoWorqCo',
-    description: 'Ethical Outsourcing for Growing SMEs',
-    logo: '/partnership/coworq.png',
-    url: 'https://coworq.co/#row-0yDhWM5bmo',
+    name: 'Berkeley IPIRA',
+    fullName: 'UC Berkeley IPIRA',
+    description: 'Intellectual property and industry research alliances.',
+    logo: '/partnership/berkeley.svg',
+    url: 'https://ipira.berkeley.edu',
+  },
+  {
+    name: 'Cloudflare',
+    fullName: 'Cloudflare',
+    description: 'Global network for security and performance.',
+    logo: '/partnership/cloudflare.svg',
+    url: 'https://www.cloudflare.com',
+  },
+  {
+    name: 'Accenture',
+    fullName: 'Accenture',
+    description: 'Technology and professional services.',
+    logo: '/partnership/accenture.svg',
+    url: 'https://www.accenture.com',
+  },
+  {
+    name: 'Sui',
+    fullName: 'Sui',
+    description: 'Layer 1 blockchain built for high throughput.',
+    logo: '/partnership/sui.svg',
+    url: 'https://sui.io',
+  },
+  {
+    name: 'Stellar',
+    fullName: 'Stellar',
+    description: 'Open network for cross-border payments.',
+    logo: '/partnership/stellar.svg',
+    url: 'https://stellar.org',
+  },
+  {
+    name: 'a16z',
+    fullName: 'Andreessen Horowitz',
+    description: 'Venture capital firm backing technology companies.',
+    logo: '/partnership/a16z.svg',
+    url: 'https://a16z.com',
   },
 ];
 
@@ -63,30 +96,6 @@ const designBuildSteps = [
 ];
 
 export function PartnershipPage() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 40, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: 'spring' as const,
-        stiffness: 100,
-        damping: 20,
-      },
-    },
-  };
-
   return (
     <div className="partners-page">
       {/* Hero */}
@@ -156,86 +165,32 @@ export function PartnershipPage() {
             <h2 className="partners-title">We Work With the Best</h2>
           </motion.div>
 
-          <motion.div
-            className="partners-grid"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-          >
-            {partners.map((partner) => {
-              const cardContent = (
-                <CardContainer
-                  containerClassName="partner-3d-container"
-                  className="partner-3d-inner"
-                >
-                  <CardBody className="partner-card-3d">
-                    <CardItem
-                      translateZ={100}
-                      className="partner-card-3d__logo-wrap"
-                    >
-                      <img
-                        src={partner.logo}
-                        alt={`${partner.fullName} logo`}
-                        className="partner-card-3d__logo"
-                        loading="lazy"
-                      />
-                    </CardItem>
-                    <CardItem
-                      translateZ={50}
-                      as="p"
-                      className="partner-card-3d__name"
-                    >
-                      {partner.fullName}
-                    </CardItem>
-                    <CardItem
-                      translateZ={60}
-                      as="p"
-                      className="partner-card-3d__desc"
-                    >
-                      {partner.description}
-                    </CardItem>
-                    <CardItem
-                      translateZ={20}
-                      as="span"
-                      className={`partner-card-3d__link ${partner.url === '#' ? 'partner-card-3d__link--disabled' : ''}`}
-                    >
-                      {partner.url !== '#' ? (
-                        <>
-                          Visit website
-                          <Icon name="arrow-right" size={14} />
-                        </>
-                      ) : (
-                        'Coming soon'
-                      )}
-                    </CardItem>
-                  </CardBody>
-                </CardContainer>
-              );
+        </div>
 
-              return partner.url !== '#' ? (
-                <motion.a
-                  key={partner.name}
-                  href={partner.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="partner-card-3d-wrapper"
-                  variants={itemVariants}
-                  aria-label={`Visit ${partner.fullName} website`}
-                >
-                  {cardContent}
-                </motion.a>
-              ) : (
-                <motion.div
-                  key={partner.name}
-                  className="partner-card-3d-wrapper partner-card-3d-wrapper--no-link"
-                  variants={itemVariants}
-                >
-                  {cardContent}
-                </motion.div>
-              );
-            })}
-          </motion.div>
+        <div className="partners-marquee">
+          <div className="partners-marquee__track">
+            {[0, 1].map((copy) => (
+              <ul key={copy} className="partners-marquee__row" aria-hidden={copy === 1 || undefined}>
+                {partners.map((partner) => (
+                  <li key={`${partner.name}-${copy}`}>
+                    <a
+                      href={partner.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="partners-marquee__item"
+                      aria-label={partner.fullName}
+                      tabIndex={copy === 1 ? -1 : undefined}
+                    >
+                      <span className="partners-marquee__logo">
+                        <img src={partner.logo} alt="" />
+                      </span>
+                      <span className="partners-marquee__name">{partner.fullName}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
         </div>
       </section>
 

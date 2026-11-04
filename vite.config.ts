@@ -2,6 +2,7 @@ import path from 'node:path'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwind from '@tailwindcss/vite'
+import { xaiRealtimeProxy } from './server/xai-proxy'
 
 // https://vite.dev/config/
 // Local dev: .env.development sets VITE_*_URL=/api; proxy strips /api and forwards to DEV_BACKEND_ORIGIN (default :8080).
@@ -26,6 +27,7 @@ export default defineConfig(({ mode }) => {
         },
       }),
       tailwind(),
+      xaiRealtimeProxy(env.XAI_API_KEY),
     ],
     resolve: {
       alias: {

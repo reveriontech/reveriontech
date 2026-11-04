@@ -55,7 +55,7 @@ export function PinContainer({
                             className="pin-needle__head"
                             href={href}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="nofollow noopener noreferrer"
                         >
                             <span className="pin-needle__text">{title}</span>
                         </a>

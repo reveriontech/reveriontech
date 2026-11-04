@@ -12,7 +12,7 @@ export function ProjectsPage() {
         <Wrap>
           <Eyebrow>PROJECTS</Eyebrow>
           <h1 className="rv-h1" style={{ marginBottom: 24, fontSize: 'clamp(2.5rem, 6vw, 4.25rem)' }}>Engineering in Action.</h1>
-          <p className="rv-lead" style={{ maxWidth: '42rem' }}>Selected client work and clearly labelled concept projects. Every case study shows the challenge, the solution, how it was built, and verified results.</p>
+          <p className="rv-lead" style={{ maxWidth: '42rem' }}>Selected client work, including private infrastructure and healthcare applications. Every case study shows the challenge, the solution, how it was built, and verified results.</p>
         </Wrap>
       </section>
       <section className="rv-sec" style={{ padding: '3.5rem 0 6rem' }}>

@@ -7,7 +7,7 @@ import '../../styles/chatbot.css';
 import { useLocation } from 'react-router-dom';
 
 export function GlobalChatOverlay() {
-    const { isOpen, closeChat, messages, addMessage, toggleChat, model, setModel } = useChat();
+    const { isOpen, closeChat, messages, addMessage, toggleChat, callActive, startCall, endCall } = useChat();
     const [inputValue, setInputValue] = useState('');
     const [attachment, setAttachment] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,27 +72,24 @@ export function GlobalChatOverlay() {
                         >
                             <div className="chatbot__header">
                                 <div className="chatbot__header-status">
-                                    <span className="chatbot__status-dot"></span>
-                                    <span>SYS_READY</span>
+                                    <span className={`chatbot__status-dot ${callActive ? 'chatbot__status-dot--call' : ''}`}></span>
+                                    <span>{callActive ? 'ON_CALL' : 'SYS_READY'}</span>
                                 </div>
-                                <div className="chatbot__header-model">
-                                    <label className="chatbot__model-label">
-                                        MODEL
-                                        <select
-                                            className="chatbot__model-select"
-                                            value={model}
-                                            onChange={(e) => setModel(e.target.value)}
-                                        >
-                                            <option value="default">Auto</option>
-                                            <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
-                                            <option value="gpt-4.1">GPT-4.1</option>
-                                            <option value="gemini-2.0-flash">Gemini Flash</option>
-                                        </select>
-                                    </label>
+                                <div className="chatbot__header-actions">
+                                    <button
+                                        type="button"
+                                        className={`chatbot__call-btn ${callActive ? 'chatbot__call-btn--live' : ''}`}
+                                        aria-label={callActive ? 'End voice call' : 'Start voice call'}
+                                        onClick={() => { if (callActive) endCall(); else void startCall(); }}
+                                    >
+                                        <Icon name="phone" size={14} />
+                                        <span className="chatbot__call-btn-label chatbot__call-btn-label--full">{callActive ? '[ END CALL ]' : '[ VOICE CALL ]'}</span>
+                                        <span className="chatbot__call-btn-label chatbot__call-btn-label--compact">{callActive ? '[ END ]' : '[ CALL ]'}</span>
+                                    </button>
+                                    <button className="chatbot__close-btn" aria-label="Close chat window" onClick={closeChat}>
+                                        <Icon name="x" size={16} />
+                                    </button>
                                 </div>
-                                <button className="chatbot__close-btn" aria-label="Close chat window" onClick={closeChat}>
-                                    <Icon name="x" size={16} />
-                                </button>
                             </div>
 
                             <div className="chatbot__messages">
@@ -104,6 +101,11 @@ export function GlobalChatOverlay() {
                                         </div>
                                         <div className={`chatbot__message chatbot__message--${msg.sender}`}>
                                             {msg.text && <div>{msg.text}</div>}
+                                            {msg.link && (
+                                                <a className="chatbot__whatsapp-link" href={msg.link} target="_blank" rel="noopener noreferrer">
+                                                    Open WhatsApp
+                                                </a>
+                                            )}
                                             {msg.attachment && (
                                                 <div className="chatbot__message-attachment">
                                                     {msg.attachment.type.startsWith('image/') ? (

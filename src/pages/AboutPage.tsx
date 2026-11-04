@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Page, Sec, Eyebrow, Cta } from '../components/site/parts';
 import { values } from '../data/site';
+import { teamMembers } from '../data/teamData';
 
 const facts: [string, React.ReactNode][] = [
   ['Company type', 'AI-enabled technology engineering company'],
@@ -60,19 +61,23 @@ export function AboutPage() {
       </Sec>
 
       <Sec>
-        <div className="rv-split">
-          <div className="rv-stack">
-            <Eyebrow>OUR STORY</Eyebrow>
-            <h2 className="rv-h2">[STORY HEADLINE]</h2>
-            <p>[COMPANY STORY — WHEN AND WHY REVERION TECH STARTED, AND HOW IT HAS GROWN. VERIFIED FACTS ONLY.]</p>
+        <div className="rv-stack" style={{ maxWidth: '40rem' }}>
+          <Eyebrow>OUR STORY</Eyebrow>
+          <h2 className="rv-h2">[STORY HEADLINE]</h2>
+          <p>[COMPANY STORY — WHEN AND WHY REVERION TECH STARTED, AND HOW IT HAS GROWN. VERIFIED FACTS ONLY.]</p>
+        </div>
+        <div style={{ marginTop: '3rem' }}>
+          <Eyebrow>OUR TEAM</Eyebrow>
+          <div className="rv-team">
+            {teamMembers.map((m) => (
+              <div key={m.id} className="rv-person">
+                <img src={encodeURI(m.image)} alt="" className="ph" />
+                <p style={{ color: 'var(--navy)', fontWeight: 600 }}>{m.name}</p>
+                <p className="small">{m.role}</p>
+              </div>
+            ))}
           </div>
-          <div>
-            <Eyebrow>OUR TEAM</Eyebrow>
-            <div className="rv-grid w240">
-              {[0, 1, 2].map((i) => (<div key={i} className="rv-person"><div className="ph" /><p style={{ color: 'var(--navy)', fontWeight: 600 }}>[NAME]</p><p className="small">[ROLE]</p></div>))}
-            </div>
-            <p style={{ marginTop: 20 }}><Link to="/our-team" className="rv-link">Meet the team →</Link> · <Link to="/partners" className="rv-link">Our partners →</Link></p>
-          </div>
+          <p style={{ marginTop: 20 }}><Link to="/our-team" className="rv-link">Meet the team →</Link> · <Link to="/partners" className="rv-link">Our partners →</Link></p>
         </div>
       </Sec>
 

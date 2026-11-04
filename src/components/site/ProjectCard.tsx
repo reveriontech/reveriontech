@@ -18,7 +18,7 @@ export function ProjectCard({ p, headingLevel = 'h2' }: { p: SiteProject; headin
         <p className="cat">{p.category} · {p.concept ? 'Concept project' : p.client}</p>
         <H>{p.title}</H>
         <p>{p.summary}</p>
-        <p className="rv-mono">{p.tech.join(' · ')}</p>
+        {p.tech.length > 0 && <p className="rv-mono">{p.tech.join(' · ')}</p>}
       </div>
     </Link>
   );
@@ -45,7 +45,7 @@ export function FeaturedProjectCard({ p }: { p: SiteProject }) {
           </>
         )}
         {!p.concept && <p className="res"><strong>Results</strong> — [VERIFIED RESULT]</p>}
-        <p className="rv-mono">{p.tech.join(' · ')}</p>
+        {p.tech.length > 0 && <p className="rv-mono">{p.tech.join(' · ')}</p>}
       </div>
     </Link>
   );

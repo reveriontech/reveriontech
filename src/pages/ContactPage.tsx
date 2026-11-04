@@ -4,7 +4,7 @@ import { Page, Wrap } from '../components/site/parts';
 import { industriesForm } from '../data/site';
 import { submitContactRequest } from '../lib/contactRequests';
 
-const serviceOptions = ['Software Development', 'AI & Automation', 'Business Systems', 'Cloud & DevOps', 'Cybersecurity', 'Technology Consulting', 'Other'];
+const serviceOptions = ['Software Engineering', 'AI Applications', 'AI-Native Development and Custom Platforms', 'Agents', 'Multi-Agent Coordination and Workflow Engines', 'RAG', 'Multimodal Systems', 'Business Systems', 'Cloud, DevOps, Monitoring and Automated Operations', 'AI Governance, Identity, Permissions and Security', 'Technology Consulting', 'Other'];
 const budgets = ['Under $10,000', '$10,000 – $25,000', '$25,000 – $50,000', '$50,000 – $100,000', '$100,000+', 'Not sure yet'];
 const timelines = ['As soon as possible', '1 – 3 months', '3 – 6 months', '6+ months', 'Just exploring'];
 

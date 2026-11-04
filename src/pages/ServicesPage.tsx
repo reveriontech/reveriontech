@@ -29,7 +29,7 @@ export function ServicesPage() {
       </section>
 
       {services.map((s, i) => {
-        const dark = i === 1;
+        const dark = s.slug === 'ai-applications';
         return (
           <section key={s.slug} id={s.slug} className={`rv-sec ${dark ? 'dark deep' : i % 2 ? 'alt' : ''}`} style={{ paddingTop: 0, paddingBottom: 0 }}>
             <Wrap>

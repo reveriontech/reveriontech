@@ -21,8 +21,7 @@ export function Header() {
   useEffect(() => setOpen(false), [pathname]);
 
   return (
-    <div className="rv">
-      <header className="rv-hdr">
+      <header className="rv rv-hdr">
         <div className="rv-hdr__in">
           <Link to="/" className="rv-logo" aria-label="Reverion Tech home">
             <img src="/ReverionTech.png" alt="" width={36} height={36} />
@@ -59,6 +58,5 @@ export function Header() {
           <Link to="/contact" className="rv-btn primary">Start a Project</Link>
         </nav>
       </header>
-    </div>
   );
 }

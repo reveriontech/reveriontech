@@ -10,7 +10,7 @@ import {
 
 export function LandingPage() {
   const [cat, setCat] = useState('All');
-  const featured = ['talinoed', 'findarchi', 'ai-booking-assistant'].map((s) => siteProjects.find((p) => p.slug === s)!);
+  const featured = ['prime-grand', 'talinoed', 'waste2earn'].map((s) => siteProjects.find((p) => p.slug === s)!);
   const shown = cat === 'All' ? featured : siteProjects.filter((p) => p.category === cat).slice(0, 3);
 
   return (
