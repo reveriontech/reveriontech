@@ -1,50 +1,56 @@
 import { Link } from 'react-router-dom';
-import { Icon } from '../ui/Icon';
-import '../../styles/layout.css';
+import { services } from '../../data/site';
+import '../../styles/redesign.css';
 
 export function Footer() {
   return (
-    <footer className="footer">
-      <div className="footer__inner">
-        <div className="footer__brand">
-          <h3>REVERIONTECH</h3>
-          <p>
-            We craft digital experiences that drive growth. From web development to AI integration,
-            we bring your vision to life with clean code and modern design.
-          </p>
-        </div>
-
-        <div>
-          <h4 className="footer__heading">Quick Links</h4>
-          <div className="footer__links">
-            <Link to="/">Home</Link>
-            <Link to="/case-studies">Case Studies</Link>
-            <Link to="/solutions">Solutions</Link>
-            <Link to="/contact">Contact</Link>
-            <Link to="/auth">Login</Link>
+    <div className="rv">
+      <footer className="rv-ftr">
+        <div className="rv-wrap">
+          <div className="rv-ftr__top">
+            <div>
+              <Link to="/" className="rv-logo" aria-label="Reverion Tech home">
+                <img src="/ReverionTech.png" alt="" width={36} height={36} />
+                <span>REVERION TECH</span>
+              </Link>
+              <p style={{ marginTop: 16, fontWeight: 700, color: 'var(--navy)' }}>Engineering What’s Next.</p>
+              <p style={{ fontSize: '.875rem' }}>AI-powered. Human-led.</p>
+            </div>
+            <div className="rv-ftr__cols">
+              <div>
+                <h4>Services</h4>
+                {services.map((s) => (
+                  <Link key={s.slug} to={`/services#${s.slug}`}>{s.title}</Link>
+                ))}
+              </div>
+              <div>
+                <h4>Company</h4>
+                <Link to="/about">About</Link>
+                <Link to="/solutions">Solutions</Link>
+                <Link to="/projects">Projects</Link>
+                <Link to="/insights">Insights</Link>
+                <Link to="/partners">Partners</Link>
+                <Link to="/our-team">Our Team</Link>
+                <Link to="/contact">Contact</Link>
+              </div>
+              <div>
+                <h4>Offices</h4>
+                <p><strong>Main Office</strong><br />212 N. 2nd St. Ste 100<br />Richmond, KY 40475, USA</p>
+                <p><strong>Philippines</strong><br />Davao City 8000</p>
+                <a href="mailto:hello@reveriontech.com">hello@reveriontech.com</a>
+              </div>
+            </div>
+          </div>
+          <div className="rv-ftr__bot">
+            <p>© 2026 Reverion Tech. All rights reserved.</p>
+            <div>
+              <Link to="/privacy">Privacy</Link>
+              <Link to="/terms">Terms</Link>
+              <Link to="/auth">Client Login</Link>
+            </div>
           </div>
         </div>
-
-        <div>
-          <h4 className="footer__heading">Contact</h4>
-          <div className="footer__contact-item">
-            <Icon name="mail" size={16} />
-            <span>hello@reveriontech.com</span>
-          </div>
-          <div className="footer__contact-item">
-            <Icon name="phone" size={16} />
-            <span>+63 82 282 0645</span>
-          </div>
-          <div className="footer__contact-item">
-            <Icon name="map-pin" size={16} />
-            <span>Davao City, Philippines, 8000</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="footer__bottom">
-        <p>Poweredby <span>REVERIONTECH</span></p>
-      </div>
-    </footer>
+      </footer>
+    </div>
   );
 }

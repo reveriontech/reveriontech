@@ -1,423 +1,187 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Button } from '../components/ui/Button';
-import { Icon } from '../components/ui/Icon';
-import { Reveal } from '../components/ui/Reveal';
-import { SectionHeading } from '../components/ui/SectionHeading';
-import { StatCounter } from '../components/ui/StatCounter';
-import { Chatbot } from '../components/Chatbot/Chatbot';
-import { services } from '../data/services';
-import { stats } from '../data/stats';
-import '../styles/landing.css';
-
-type DeviceOrientationPermissionEvent = typeof DeviceOrientationEvent & {
-  requestPermission?: () => Promise<'granted' | 'denied'>;
-};
-
-const laptopCodeLines = [
-  "const solution = {",
-  "  stack: 'Web3 · GenAI · React',",
-  "  status: 'live',",
-  "  outcomes: ['secure', 'scalable', 'beautiful'],",
-  "};",
-  '// ReverionTech · building your next product',
-];
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Page, Sec, Eyebrow, Arrow, Cta } from '../components/site/parts';
+import { FeaturedProjectCard } from '../components/site/ProjectCard';
+import { Hero } from '../components/site/Hero';
+import {
+  homeCapabilities, homeSolutions, industries, process, stack, workflow, pillars, faqs,
+  projectCategories, siteProjects, insightTopics,
+} from '../data/site';
 
 export function LandingPage() {
-  const { hash } = useLocation();
-  const heroOrbitsRef = useRef<HTMLDivElement | null>(null);
-  const heroGyroBaselineRef = useRef<{ beta: number; gamma: number } | null>(null);
-  const heroGyroPermissionRef = useRef<'unknown' | 'granted' | 'denied'>('unknown');
-  const laptopRef = useRef<HTMLDivElement | null>(null);
-  const [typedCode, setTypedCode] = useState('');
-
-  const applyHeroOrbitTransform = (x: number, y: number, mode: 'pointer' | 'gyro' = 'pointer') => {
-    const el = heroOrbitsRef.current;
-    if (!el) return;
-
-    const maxTilt = mode === 'gyro' ? 20 : 32;
-    const drift = mode === 'gyro' ? 18 : 10;
-    const depth = mode === 'gyro' ? 28 : 18;
-    const rotateX = y * -maxTilt;
-    const rotateY = x * maxTilt;
-    const translateX = x * drift;
-    const translateY = y * drift;
-
-    el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translate3d(${translateX}px, ${translateY}px, ${depth}px)`;
-  };
-
-  const resetHeroOrbitTransform = () => {
-    const el = heroOrbitsRef.current;
-    if (!el) return;
-    el.style.transform = '';
-  };
-
-  const handleHeroMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    const el = heroOrbitsRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-    applyHeroOrbitTransform(x * 2, y * 2);
-  };
-
-  const handleHeroMouseLeave = () => {
-    resetHeroOrbitTransform();
-  };
-
-  const enableHeroGyro = async () => {
-    if (typeof window === 'undefined' || typeof window.DeviceOrientationEvent === 'undefined') {
-      return;
-    }
-
-    const orientationEvent = window.DeviceOrientationEvent as DeviceOrientationPermissionEvent;
-    if (typeof orientationEvent.requestPermission !== 'function') {
-      heroGyroPermissionRef.current = 'granted';
-      return;
-    }
-
-    if (heroGyroPermissionRef.current !== 'unknown') return;
-
-    try {
-      const permission = await orientationEvent.requestPermission();
-      heroGyroPermissionRef.current = permission;
-      if (permission === 'granted') {
-        heroGyroBaselineRef.current = null;
-      }
-    } catch {
-      heroGyroPermissionRef.current = 'denied';
-    }
-  };
-
-  const handleLaptopMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    const el = laptopRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-
-    const baseX = 20;
-    const baseY = -24;
-    const maxTilt = 22;
-
-    const rotateX = baseX + y * -maxTilt;
-    const rotateY = baseY + x * maxTilt;
-
-    el.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-  };
-
-  const handleLaptopMouseLeave = () => {
-    const el = laptopRef.current;
-    if (!el) return;
-    el.style.transform = '';
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const maxScroll = window.innerHeight * 2;
-      const progress = Math.max(0, Math.min(window.scrollY / maxScroll, 1));
-      document.documentElement.style.setProperty('--scroll-depth', progress.toString());
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const fullText = laptopCodeLines.join('\n');
-    let index = 0;
-    let phase: 'typing' | 'pause' | 'reset' = 'typing';
-    let pauseTicks = 0;
-
-    const interval = setInterval(() => {
-      if (phase === 'typing') {
-        index += 1;
-        if (index >= fullText.length) {
-          index = fullText.length;
-          phase = 'pause';
-        }
-      } else if (phase === 'pause') {
-        pauseTicks += 1;
-        if (pauseTicks > 40) {
-          phase = 'reset';
-        }
-      } else {
-        index = 0;
-        pauseTicks = 0;
-        phase = 'typing';
-      }
-
-      setTypedCode(fullText.slice(0, index));
-    }, 45);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const typedLines = typedCode.split('\n');
-
-  useEffect(() => {
-    const isTouchDevice =
-      typeof window !== 'undefined' &&
-      ('ontouchstart' in window || navigator.maxTouchPoints > 0);
-
-    if (!isTouchDevice || typeof window.DeviceOrientationEvent === 'undefined') {
-      return;
-    }
-
-    const orientationEvent = window.DeviceOrientationEvent as DeviceOrientationPermissionEvent;
-    if (typeof orientationEvent.requestPermission !== 'function') {
-      heroGyroPermissionRef.current = 'granted';
-    }
-
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      const target = heroOrbitsRef.current;
-      if (!target) return;
-      if (heroGyroPermissionRef.current === 'denied') return;
-      if (typeof orientationEvent.requestPermission === 'function' && heroGyroPermissionRef.current !== 'granted') {
-        return;
-      }
-
-      const { beta, gamma } = event;
-      if (beta == null || gamma == null) return;
-
-      if (!heroGyroBaselineRef.current) {
-        heroGyroBaselineRef.current = { beta, gamma };
-      }
-
-      const baseline = heroGyroBaselineRef.current;
-      const normalizedX = Math.max(-1, Math.min(1, (gamma - baseline.gamma) / 20));
-      const normalizedY = Math.max(-1, Math.min(1, (beta - baseline.beta) / 20));
-      applyHeroOrbitTransform(normalizedX, normalizedY, 'gyro');
-    };
-
-    window.addEventListener('deviceorientation', handleOrientation);
-
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-      heroGyroBaselineRef.current = null;
-      resetHeroOrbitTransform();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (hash) {
-      const el = document.getElementById(hash.slice(1));
-      if (el) {
-        setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 100);
-      }
-    }
-  }, [hash]);
+  const [cat, setCat] = useState('All');
+  const featured = ['talinoed', 'findarchi', 'ai-booking-assistant'].map((s) => siteProjects.find((p) => p.slug === s)!);
+  const shown = cat === 'All' ? featured : siteProjects.filter((p) => p.category === cat).slice(0, 3);
 
   return (
-    <>
-      {/* Hero */}
-      <section className="hero">
-        {/*you can also add any letter you want here */}
-        <div className="hero__bg-letter"> </div>
-        <div className="hero__inner">
-          <Reveal direction="left" className="hero__content">
-            <span className="hero__label">Web3 & GenAI Solutions</span>
-            <h1 className="hero__title">
-              Building with <span className="hero__title-accent">Blockchain</span> & <span className="hero__title-accent">GenAI</span>
-            </h1>
-            <div className="hero__bar" aria-hidden="true" />
-            <p className="hero__description">
-              Empower your business with Web3, GenAI, and scalable digital solutions that enhance security,
-              transparency, and innovation across Web3 and Web2 environments.
-            </p>
-            <div className="hero__cta-group">
-              <Button to="/contact?service=general" size="lg">
-                Get Started
-              </Button>
-              <Button variant="outline" to="/case-studies" size="lg">
-                View Our Work
-              </Button>
-            </div>
-          </Reveal>
-          <div className="hero__image">
-            <div
-              ref={heroOrbitsRef}
-              className="hero__image-orbits"
-              onMouseMove={handleHeroMouseMove}
-              onMouseLeave={handleHeroMouseLeave}
-              onTouchStart={enableHeroGyro}
-            >
-              <span className="hero__orbit hero__orbit--1" />
-              <span className="hero__orbit hero__orbit--2" />
-              <span className="hero__orbit hero__orbit--3" />
-              <img
-                src="/ReverionTech.png"
-                alt="ReverionTech"
-                className="hero__image-logo"
-              />
-            </div>
+    <Page>
+      <Hero />
+
+      {/* Intro */}
+      <Sec id="about">
+        <div className="rv-split">
+          <div><Eyebrow>WHO WE ARE</Eyebrow><h2 className="rv-h2">Technology Should Move Your Business Forward.</h2></div>
+          <div className="rv-stack">
+            <p className="rv-lead">Every business has processes that can be improved, systems that can work better, and opportunities that technology can unlock.</p>
+            <p>At Reverion Tech, we combine engineering expertise and intelligent automation to turn these opportunities into practical solutions.</p>
+            <p>From custom software to AI-powered workflows and secure cloud infrastructure, we build technology around the way businesses actually operate.</p>
+            <Link to="/about" className="rv-link">About Reverion Tech →</Link>
           </div>
         </div>
-      </section>
+      </Sec>
 
-      {/* Services */}
-      <section className="services" id="services">
-        <div className="services__layout">
-          <Reveal direction="left" className="services__text">
-            <SectionHeading subtitle="Our Services" title="WHAT WE" highlight="DO?" />
-            <p className="services__description">
-              Reverion builds secure, scalable digital solutions using Web3, Generative AI,
-              and modern software technologies to help businesses innovate, automate, and grow.
-            </p>
-            <p className="services__description">
-              We transform complex ideas into reliable, production-ready platforms
-              built for speed, security, and long-term scale.
-            </p>
-            <div className="services__view-btn">
-              <Button variant="primary" to="/case-studies" size="md">
-                View All
-              </Button>
-            </div>
-          </Reveal>
-          <div className="services__grid">
-            {services.slice(0, 4).map((service, i) => (
-              <Reveal key={service.id} direction="scale" delay={(i + 1) as 1 | 2 | 3 | 4}>
-                <div className="service-card">
-                  <div className="service-card__icon">
-                    <Icon name={service.icon} size={36} />
-                  </div>
-                  <h3 className="service-card__title">{service.title}</h3>
-                  <p className="service-card__desc">{service.description.split('.')[0]}.</p>
-                </div>
-              </Reveal>
-            ))}
+      {/* Capabilities */}
+      <Sec tone="alt" id="services">
+        <div className="rv-head">
+          <div style={{ maxWidth: '40rem' }}>
+            <Eyebrow>CORE CAPABILITIES</Eyebrow>
+            <h2 className="rv-h2">Build Better. Work Smarter. Scale Further.</h2>
+            <p style={{ marginTop: 16 }}>Five practices, one engineering team — from the first line of code to secure, monitored infrastructure.</p>
+          </div>
+          <Link to="/services" className="rv-link">Explore Our Capabilities →</Link>
+        </div>
+        <div className="rv-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(340px, 100%), 1fr))' }}>
+          {homeCapabilities.map((c) => (
+            <article key={c.n} className="rv-card" style={{ padding: '2rem', gap: 14 }}>
+              <p className="rv-mono idx">{c.n}</p>
+              <h3 className="rv-h3">{c.title}</h3>
+              <p>{c.text}</p>
+              <p className="rv-tags" style={{ fontSize: '.875rem', lineHeight: 1.9, color: 'var(--navy)' }}>{c.items.join(' · ')}</p>
+              <Link to="/services" className="rv-link grow">Learn more →</Link>
+            </article>
+          ))}
+          <Link to="/contact" className="rv-card dk" style={{ justifyContent: 'center' }}>
+            <h3 className="rv-h3" style={{ color: '#fff' }}>Not sure where to start?</h3>
+            <p>Tell us the problem. We’ll recommend the right mix of engineering, automation and infrastructure.</p>
+            <span style={{ color: 'var(--cyan)', fontWeight: 600 }}>Talk to Our Team →</span>
+          </Link>
+        </div>
+      </Sec>
+
+      {/* AI human-led */}
+      <Sec tone="deep">
+        <div className="rv-split">
+          <div><Eyebrow>AI-POWERED. HUMAN-LED.</Eyebrow><h2 className="rv-h2">Automation Should Make Work Better, Not More Complicated.</h2></div>
+          <div className="rv-stack">
+            <p>Artificial intelligence can process information, coordinate workflows, and handle repetitive tasks at scale. But effective automation requires more than connecting tools and deploying AI models.</p>
+            <p>We combine intelligent automation with human oversight, engineering discipline, and business understanding — so automated systems stay practical, accountable, and aligned with real business objectives.</p>
           </div>
         </div>
-      </section>
-
-      {/* About */}
-      <section className="about" id="about">
-        {/*you can also add any letter you want here */}
-
-        <div className="about__bg-letter"> </div>
-        <div className="about__inner">
-          <Reveal direction="left" className="about__image">
-            <div
-              ref={laptopRef}
-              className="about__laptop"
-              onMouseMove={handleLaptopMouseMove}
-              onMouseLeave={handleLaptopMouseLeave}
-            >
-              <div className="about__laptop-screen">
-                <div className="about__laptop-screen-inner">
-                  <div className="about__laptop-code3d">
-                    <div className="about__laptop-code3d-panel">
-                      <div className="about__laptop-code3d-header">
-                        <div className="about__laptop-code3d-dots">
-                          <span className="about__laptop-code3d-dot about__laptop-code3d-dot--red" />
-                          <span className="about__laptop-code3d-dot about__laptop-code3d-dot--yellow" />
-                          <span className="about__laptop-code3d-dot about__laptop-code3d-dot--green" />
-                        </div>
-                        <span>reverion-tech.ts</span>
-                      </div>
-                      <div className="about__laptop-code3d-body">
-                        {typedLines.map((line, index) => (
-                          <div key={index} className="about__laptop-code3d-line">
-                            {line}
-                            {index === typedLines.length - 1 && (
-                              <span className="about__laptop-code3d-caret" />
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="about__laptop-code3d-input">
-                      <span className="about__laptop-code3d-input-label">Prompt</span>
-                      <div className="about__laptop-code3d-input-field" />
-                      <span className="about__laptop-code3d-input-btn">Run</span>
-                    </div>
-                  </div>
-                  <div className="about__laptop-screen-glow" />
-                </div>
-              </div>
-              <div className="about__laptop-base">
-                <div className="about__laptop-base-top" />
-                <div className="about__laptop-base-front" />
-              </div>
-              <div className="about__laptop-shadow" />
+        <div className="rv-wf" role="img" aria-label="Workflow: business input, AI processing, orchestration, human review where needed, system execution, monitoring and improvement">
+          {workflow.map(([k, v], i) => (
+            <div key={v} style={{ display: 'contents' }}>
+              <div className={`step ${v === 'Human Review' ? 'human' : ''}`}><p>{k}</p><p>{v}</p></div>
+              {i < workflow.length - 1 && <div className="arrow"><Arrow /></div>}
             </div>
-          </Reveal>
-          <Reveal direction="right" delay={1} className="about__content">
-            <SectionHeading subtitle="About Us" title="WHO ARE" highlight="WE?" />
-            <p className="about__description">
-              Whether you're looking to harness the power of blockchain, implement AI-driven solutions,
-              or transform your data into actionable insights, Reverion Tech has the expertise, experience,
-              and enthusiasm to make it happen.
-            </p>
-            <div className="about__features">
-              <div className="about__feature">
-                <div className="about__feature-icon">
-                  <Icon name="clean-code" size={28} />
-                </div>
-                <div>
-                  <p className="about__feature-title">Clean Code</p>
-                  <p className="about__feature-desc">
-                    We write clean, efficient, and maintainable code that ensures
-                    your digital solutions are robust, scalable, and future-ready.
-                  </p>
-                </div>
-              </div>
-              <div className="about__feature">
-                <div className="about__feature-icon">
-                  <Icon name="modern-design" size={28} />
-                </div>
-                <div>
-                  <p className="about__feature-title">Modern Design</p>
-                  <p className="about__feature-desc">
-                    Our designs combine creativity and usability, delivering modern,
-                    intuitive interfaces that engage users and elevate your brand.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <Reveal as="section" className="stats">
-        <div className="stats__inner">
-          {stats.map((stat) => (
-            <StatCounter
-              key={stat.label}
-              value={stat.value}
-              suffix={stat.suffix}
-              label={stat.label}
-              icon={stat.icon}
-            />
           ))}
         </div>
-      </Reveal>
+        <p style={{ fontSize: '.875rem', color: '#8fa5aa' }}>Human checkpoints are added where risk, context or business rules call for judgment — not on every step.</p>
+        <div className="rv-pillars">
+          {pillars.map((p) => (
+            <div key={p.title}><h3 className="rv-h3" style={{ marginBottom: 8 }}>{p.title}</h3><p>{p.text}</p></div>
+          ))}
+        </div>
+        <div style={{ marginTop: '3rem' }}><Link to="/contact" className="rv-btn cyan">Discuss an AI Opportunity</Link></div>
+      </Sec>
 
-      {/* CTA Banner */}
-      <Reveal as="section" direction="scale" className="cta-banner">
-        <div className="cta-banner__inner">
-          <div className="cta-banner__left">
-            <h2 className="cta-banner__title">
-              Ready to <span className="accent">Transform</span> Your Business?
-            </h2>
-            <p className="cta-banner__text">
-              Let's discuss your project and find the perfect solution for your needs.
-            </p>
-            <Button to="/contact" size="lg">
-              Book Consultation
-            </Button>
-          </div>
-          {/*This area is chatbot area with the separated file chatbot so that can easily add backend */}
-          <div className="cta-banner__right" aria-hidden>
-            <div className="cta-banner__spline">
-              <Chatbot />
-            </div>
+      {/* Solutions */}
+      <Sec id="solutions">
+        <div className="rv-head">
+          <div><Eyebrow>SOLUTIONS</Eyebrow><h2 className="rv-h2">Built Around Real Business Needs.</h2><p style={{ marginTop: 16 }}>Start from the problem. We bring the engineering.</p></div>
+          <Link to="/solutions" className="rv-link">All solutions →</Link>
+        </div>
+        <div className="rv-grid w240">
+          {homeSolutions.map((s) => (
+            <article key={s.title} className="rv-card">
+              <h3 className="rv-h3" style={{ fontSize: '1.125rem' }}>{s.title}</h3>
+              <p className="small"><strong style={{ color: 'var(--navy)' }}>Problem</strong> — {s.problem}</p>
+              <p className="small"><strong style={{ color: 'var(--navy)' }}>Solution</strong> — {s.solution}</p>
+              <p className="small"><strong style={{ color: 'var(--navy)' }}>Benefit</strong> — {s.benefit}</p>
+              <p className="rv-tags grow">{s.tags}</p>
+              <Link to="/solutions" className="rv-link">Explore →</Link>
+            </article>
+          ))}
+        </div>
+      </Sec>
+
+      {/* Industries */}
+      <Sec tone="alt">
+        <div className="rv-split narrow-left">
+          <div><Eyebrow>INDUSTRIES</Eyebrow><h2 className="rv-h2">Technology for Businesses Moving Forward.</h2></div>
+          <div className="rv-ind">{industries.map((i) => <p key={i}>{i}</p>)}</div>
+        </div>
+      </Sec>
+
+      {/* Process */}
+      <Sec>
+        <div style={{ marginBottom: '3rem' }}><Eyebrow>OUR ENGINEERING PROCESS</Eyebrow><h2 className="rv-h2">From Business Challenge to Working Solution.</h2></div>
+        <ol className="rv-process">
+          {process.map((s) => (
+            <li key={s.n}><span className="rv-mono">{s.n}</span><h3 className="rv-h3" style={{ marginBottom: 6 }}>{s.title}</h3><p>{s.text}</p></li>
+          ))}
+        </ol>
+      </Sec>
+
+      {/* Featured work */}
+      <Sec tone="dark" id="projects">
+        <div className="rv-head">
+          <div><Eyebrow>FEATURED WORK</Eyebrow><h2 className="rv-h2">Engineering in Action.</h2></div>
+          <Link to="/projects" className="rv-link">All projects →</Link>
+        </div>
+        <div className="rv-filter" role="group" aria-label="Filter projects" style={{ marginBottom: '2.5rem' }}>
+          {['All', ...projectCategories].map((c) => (
+            <button key={c} type="button" aria-pressed={cat === c} onClick={() => setCat(c)}>{c}</button>
+          ))}
+        </div>
+        {shown.length ? (
+          <div className="rv-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(340px, 100%), 1fr))' }}>{shown.map((p) => <FeaturedProjectCard key={p.slug} p={p} />)}</div>
+        ) : (
+          <p>No projects in this category yet. <Link to="/contact" className="rv-link">Start one with us →</Link></p>
+        )}
+      </Sec>
+
+      {/* Stack */}
+      <Sec>
+        <div style={{ marginBottom: '3rem' }}><Eyebrow>TECHNOLOGY</Eyebrow><h2 className="rv-h2">Built with Modern Engineering Tools.</h2></div>
+        <div className="rv-grid w240" style={{ gap: '32px 24px' }}>
+          {stack.map((s) => (
+            <div key={s.label} className="rv-stack-col"><p className="l">{s.label}</p><ul>{s.items.map((i) => <li key={i}>{i}</li>)}</ul></div>
+          ))}
+        </div>
+      </Sec>
+
+      {/* Insights teaser */}
+      <Sec tone="alt" id="insights">
+        <div className="rv-head">
+          <div><Eyebrow>INSIGHTS</Eyebrow><h2 className="rv-h2">Perspectives on Technology and Engineering.</h2></div>
+          <Link to="/insights" className="rv-link">All insights →</Link>
+        </div>
+        <div className="rv-grid">
+          {[insightTopics[0], insightTopics[1], insightTopics[4]].map((t, i) => (
+            <Link key={t} to="/insights" className="rv-card rv-ph-card">
+              <p className="rv-eyebrow" style={{ marginBottom: 0 }}>{t}</p>
+              <h3 className="rv-h3">[ARTICLE TITLE]</h3>
+              <p className="small grow">{['Guide', 'Article', 'Technical guide'][i]} · [READ TIME]</p>
+            </Link>
+          ))}
+        </div>
+      </Sec>
+
+      {/* FAQ */}
+      <Sec id="faq">
+        <div className="rv-split narrow-left">
+          <div><Eyebrow>FAQ</Eyebrow><h2 className="rv-h2">Questions Businesses Ask Us.</h2><p style={{ marginTop: 16 }}>Straight answers about who we are and how we work.</p></div>
+          <div className="rv-faq">
+            {faqs.map((f) => (<details key={f.q}><summary>{f.q}</summary><p>{f.a}</p></details>))}
           </div>
         </div>
-      </Reveal>
-    </>
+      </Sec>
+
+      <Cta
+        title="Let’s Build Something That Moves Your Business Forward."
+        text="Whether you’re developing a new digital product, improving business operations, or exploring how AI can create value in your organization, let’s engineer the right solution."
+        secondary={['Talk to Our Team', '/contact']}
+      />
+    </Page>
   );
 }

@@ -1,105 +1,61 @@
-import { Reveal } from '../components/ui/Reveal';
-import { Button } from '../components/ui/Button';
-import { Icon } from '../components/ui/Icon';
-import { solutionsTiers } from '../data/solutionsTiers';
-import '../styles/about.css';
-import '../styles/solutions.css';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Page, Eyebrow, Wrap, Cta } from '../components/site/parts';
+import { solutionPages } from '../data/site';
 
-function TierIllustration({ type }: { type: 'starter' | 'growth' | 'enterprise' }) {
-  if (type === 'starter') {
-    return (
-      <div className="solutions-card__illus solutions-card__illus--starter">
-        <div className="solutions-card__block" />
-        <div className="solutions-card__block solutions-card__block--2" />
-        <div className="solutions-card__block solutions-card__block--3" />
-      </div>
-    );
-  }
-  if (type === 'growth') {
-    return (
-      <div className="solutions-card__illus solutions-card__illus--growth">
-        <div className="solutions-card__layer" />
-        <div className="solutions-card__layer solutions-card__layer--2" />
-        <div className="solutions-card__arrow">↑</div>
-      </div>
-    );
-  }
-  return (
-    <div className="solutions-card__illus solutions-card__illus--enterprise">
-      <div className="solutions-card__node" />
-      <div className="solutions-card__node solutions-card__node--2" />
-      <div className="solutions-card__node solutions-card__node--3" />
-      <div className="solutions-card__shield" />
-    </div>
-  );
-}
+// Card grounds follow the design: navy, light, white, deep teal, light.
+const grounds = ['navy', 'alt', 'outline', 'deep', 'alt'] as const;
 
 export function SolutionsPage() {
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (hash) setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }), 50);
+  }, [hash]);
+
   return (
-    <div className="about-page solutions">
-      <section className="about-hero solutions-hero">
-        <div className="container">
-          <Reveal direction="scale" className="about-hero__content">
-            <span className="about-hero__subtitle" />
-            <h1 className="about-hero__title">Smart Solutions</h1>
-            <p className="about-hero__description">
-              Pricing tiers that scale with your business. From getting started to enterprise grade choose the right fit.
-            </p>
-          </Reveal>
-        </div>
+    <Page>
+      <section className="rv-sec" style={{ padding: '6rem 0 4rem' }}>
+        <Wrap>
+          <Eyebrow>SOLUTIONS</Eyebrow>
+          <h1 className="rv-h1" style={{ marginBottom: 24, maxWidth: '18ch', fontSize: 'clamp(2.5rem, 6vw, 4.25rem)' }}>Built Around Real Business Needs.</h1>
+          <p className="rv-lead" style={{ marginBottom: '2.5rem', maxWidth: '42rem' }}>Start with the problem you need solved. Each solution combines the right engineering, automation and infrastructure — no more, no less.</p>
+          <nav className="rv-filter pills" aria-label="Solutions">
+            {solutionPages.map((s) => (<a key={s.id} href={`#${s.id}`}>{s.title}</a>))}
+          </nav>
+        </Wrap>
       </section>
 
-      <section className="solutions-section">
-        <div className="container">
-          <Reveal direction="up" className="solutions-section__header">
-            <h2 className="solutions-section__title">Solutions That Scale With Your Business</h2>
-            <p className="solutions-section__desc">
-              Whether you’re a small team or a large organization, we have a plan designed for your needs.
-            </p>
-          </Reveal>
-
-          <div className="solutions-grid">
-            {solutionsTiers.map((tier, i) => (
-              <Reveal
-                key={tier.id}
-                direction="up"
-                delay={((i % 3) + 1) as 1 | 2 | 3}
-                className={`solutions-card-wrapper ${tier.recommended ? 'solutions-card-wrapper--featured' : ''}`}
-              >
-                <article className={`solutions-card ${tier.recommended ? 'solutions-card--growth' : ''}`}>
-                  {tier.recommended && (
-                    <div className="solutions-card__badge">Recommended</div>
-                  )}
-                  <div className="solutions-card__illus-wrap">
-                    <TierIllustration type={tier.illustration} />
+      <section className="rv-sec" style={{ padding: '0 0 6rem' }}>
+        <Wrap>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {solutionPages.map((s, i) => {
+              const g = grounds[i % grounds.length];
+              const dark = g === 'navy' || g === 'deep';
+              return (
+                <article key={s.id} id={s.id} className={`rv-sol ${g}`}>
+                  <div className="rv-sol__a">
+                    <p className="rv-mono">{s.n}</p>
+                    <h2>{s.title}</h2>
+                    <p>{s.lead}</p>
+                    <Link to="/contact" className={`rv-btn ${dark ? 'cyan' : 'primary'}`}>{s.cta}</Link>
                   </div>
-                  <h3 className="solutions-card__title">{tier.name}</h3>
-                  <p className="solutions-card__subtitle">{tier.subtitle}</p>
-                  <div className="solutions-card__divider" />
-                  <ul className="solutions-card__features">
-                    {tier.features.map((feature) => (
-                      <li key={feature} className="solutions-card__feature">
-                        <Icon name="check" size={18} className="solutions-card__check" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="solutions-card__cta">
-                    <Button
-                      to={tier.ctaTo}
-                      variant={tier.ctaVariant}
-                      size="lg"
-                      className="solutions-card__btn"
-                    >
-                      {tier.ctaText}
-                    </Button>
+                  <div className="rv-sol__b">
+                    <div><p className="l">The problem</p><p>{s.problem}</p></div>
+                    <div><p className="l">What we build</p><ul>{s.build.map((b) => <li key={b}>{b}</li>)}</ul></div>
+                    <div><p className="l">The benefit</p><p>{s.benefit}</p><p className="tags">{s.tags}</p></div>
                   </div>
                 </article>
-              </Reveal>
-            ))}
+              );
+            })}
           </div>
-        </div>
+        </Wrap>
       </section>
-    </div>
+
+      <Cta
+        title="Don’t See Your Challenge?"
+        text="Describe it. We’ll tell you honestly whether technology can help."
+        primary={['Talk to Our Team', '/contact']}
+      />
+    </Page>
   );
 }

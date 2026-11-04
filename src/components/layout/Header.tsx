@@ -1,174 +1,64 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { Icon } from '../ui/Icon';
-import { Button } from '../ui/Button';
-import '../../styles/layout.css';
+import '../../styles/redesign.css';
 
-const navLinks = [
+export const navLinks = [
   { label: 'Home', to: '/' },
-  {
-    label: 'Our Work',
-    children: [
-      { label: 'Portfolio', to: '/portfolio' },
-      { label: 'Solutions', to: '/solutions' },
-    ],
-  },
-  { label: 'Services', to: '/#services' },
-  {
-    label: 'About Us',
-    children: [
-      { label: 'About Us', to: '/about' },
-      { label: 'Partners', to: '/partners' },
-      { label: 'Our Team', to: '/our-team' },
-    ],
-  },
-  { label: 'Contact Us', to: '/contact' },
+  { label: 'About', to: '/about' },
+  { label: 'Services', to: '/services' },
+  { label: 'Solutions', to: '/solutions' },
+  { label: 'Projects', to: '/projects' },
+  { label: 'Insights', to: '/insights' },
+  { label: 'Contact', to: '/contact' },
 ];
 
-type NavLink = (typeof navLinks)[number];
-function isDropdown(link: NavLink): link is NavLink & { children: { label: string; to: string }[] } {
-  return 'children' in link && Array.isArray((link as { children?: unknown }).children);
-}
-
 export function Header() {
-  const { isAuthenticated, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
-  const location = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
+  const [open, setOpen] = useState(false);
+  const { pathname } = useLocation();
 
-  const handleNavClick = (to: string) => {
-    setMobileOpen(false);
-    if (to.startsWith('/#') && location.pathname === '/') {
-      const id = to.slice(2);
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  useEffect(() => setOpen(false), [pathname]);
 
   return (
-    <header className="header">
-      <div className="header__inner">
-        <Link to="/" className="header__logo">
-          ReverionTech
-          {/* <span className="header__logo-sub">ReverionTechnology</span> */}
-        </Link>
-
-        <nav className="header__nav">
-          {navLinks.map((link) =>
-            isDropdown(link) ? (
-              <div
-                key={link.label}
-                className="header__dropdown"
-                onMouseEnter={() => setOpenDropdown(link.label)}
-                onMouseLeave={() => setOpenDropdown(null)}
-              >
-                <button
-                  type="button"
-                  className={`header__link header__link--trigger ${openDropdown === link.label || link.children.some((c) => location.pathname === c.to) ? 'header__link--active' : ''}`}
-                  aria-expanded={openDropdown === link.label}
-                  aria-haspopup="true"
-                >
-                  {link.label}
-                </button>
-                <div className={`header__dropdown-menu ${openDropdown === link.label ? 'header__dropdown-menu--open' : ''}`}>
-                  {link.children.map((item) => (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      className={`header__dropdown-item ${location.pathname === item.to ? 'header__link--active' : ''}`}
-                      onClick={() => { handleNavClick(item.to); setOpenDropdown(null); }}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`header__link ${location.pathname === link.to ? 'header__link--active' : ''}`}
-                onClick={() => handleNavClick(link.to)}
-              >
-                {link.label}
-              </Link>
-            )
-          )}
-        </nav>
-
-        <div className="header__actions">
-          {isAuthenticated ? (
-            <>
-              <Button variant="ghost" size="sm" to="/dashboard">
-                Dashboard
-              </Button>
-              <Button variant="outline" size="sm" onClick={logout}>
-                Logout
-              </Button>
-            </>
-          ) : (
-            <Button variant="ghost" size="sm" to="/auth">
-              <Icon name="user" size={16} />
-            </Button>
-          )}
-          <button className="header__search-btn" onClick={toggleTheme} aria-label="Toggle theme">
-            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
-          </button>
-
-          <button
-            className="header__menu-btn"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            <Icon name={mobileOpen ? 'close' : 'dashboard'} size={22} />
-          </button>
-        </div>
-      </div>
-
-      <nav className={`header__mobile-nav ${mobileOpen ? 'header__mobile-nav--open' : ''}`}>
-        {navLinks.map((link) =>
-          isDropdown(link) ? (
-            <div key={link.label} className="header__mobile-dropdown">
-              <span className="header__link header__link--mobile-label">{link.label}</span>
-              {link.children.map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className="header__link header__dropdown-item--mobile"
-                  onClick={() => handleNavClick(item.to)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Link
-              key={link.to}
-              to={link.to}
-              className="header__link"
-              onClick={() => handleNavClick(link.to)}
-            >
-              {link.label}
-            </Link>
-          )
-        )}
-        {isAuthenticated ? (
-          <>
-            <Link to="/dashboard" className="header__link" onClick={() => setMobileOpen(false)}>
-              Dashboard
-            </Link>
-            <button className="header__link" onClick={() => { logout(); setMobileOpen(false); }} style={{ textAlign: 'left' }}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <Link to="/auth" className="header__link" onClick={() => setMobileOpen(false)}>
-            Login
+    <div className="rv">
+      <header className="rv-hdr">
+        <div className="rv-hdr__in">
+          <Link to="/" className="rv-logo" aria-label="Reverion Tech home">
+            <img src="/ReverionTech.png" alt="" width={36} height={36} />
+            <span>REVERION TECH</span>
           </Link>
-        )}
-      </nav>
-    </header>
+          <nav className="rv-nav" aria-label="Main">
+            {navLinks.map((l) => (
+              <NavLink key={l.to} to={l.to} end={l.to === '/'} className={({ isActive }) => (isActive ? 'on' : '')}>
+                {l.label}
+              </NavLink>
+            ))}
+          </nav>
+          <div className="rv-hdr__act">
+            {isAuthenticated && <Link to="/dashboard" className="rv-link">Dashboard</Link>}
+            <Link to="/contact" className="rv-btn primary">Start a Project</Link>
+            <button
+              type="button"
+              className="rv-menu-btn"
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              aria-expanded={open}
+              onClick={() => setOpen(!open)}
+            >
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                {open ? <><line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" /></> : <><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></>}
+              </svg>
+            </button>
+          </div>
+        </div>
+        <nav className={`rv-mobile ${open ? 'open' : ''}`} aria-label="Mobile">
+          {navLinks.map((l) => (
+            <Link key={l.to} to={l.to}>{l.label}</Link>
+          ))}
+          {isAuthenticated && <Link to="/dashboard">Dashboard</Link>}
+          <Link to="/contact" className="rv-btn primary">Start a Project</Link>
+        </nav>
+      </header>
+    </div>
   );
 }

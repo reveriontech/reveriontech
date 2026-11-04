@@ -1,226 +1,90 @@
-import { animate, motion, useInView, useReducedMotion } from 'framer-motion';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '../components/ui/Button';
-import '../styles/about.css';
+import { Link } from 'react-router-dom';
+import { Page, Sec, Eyebrow, Cta } from '../components/site/parts';
+import { values } from '../data/site';
 
-type CountUpStatProps = {
-    value: number;
-    suffix?: string;
-    delay?: number;
-    className?: string;
-};
-
-function CountUpStatNumber({ value, suffix = '', delay = 0, className }: CountUpStatProps) {
-    const reduceMotion = useReducedMotion();
-    const ref = useRef<HTMLSpanElement | null>(null);
-    const isInView = useInView(ref, { once: true, margin: '-10% 0px' });
-    const formatter = useMemo(() => new Intl.NumberFormat(), []);
-
-    const [display, setDisplay] = useState(() => (reduceMotion ? formatter.format(value) : '0'));
-
-    useEffect(() => {
-        if (reduceMotion) {
-            setDisplay(formatter.format(value));
-            return;
-        }
-        if (!isInView) return;
-
-        const controls = animate(0, value, {
-            duration: 1.6,
-            delay,
-            ease: [0.16, 1, 0.3, 1],
-            onUpdate: (latest) => setDisplay(formatter.format(Math.round(latest))),
-        });
-
-        return () => controls.stop();
-    }, [delay, formatter, isInView, reduceMotion, value]);
-
-    if (reduceMotion) {
-        return (
-            <span ref={ref} className={className}>
-                {display}
-                {suffix}
-            </span>
-        );
-    }
-
-    return (
-        <motion.span
-            ref={ref}
-            className={className}
-            initial={{ opacity: 0, y: 10, scale: 0.98, filter: 'brightness(1)' }}
-            animate={isInView ? { opacity: 1, y: 0, scale: [1, 1.08, 1], filter: ['brightness(1)', 'brightness(1.35)', 'brightness(1)'] } : undefined}
-            transition={{ duration: 0.9, delay, times: [0, 0.45, 1], ease: [0.16, 1, 0.3, 1] }}
-        >
-            {display}
-            {suffix}
-        </motion.span>
-    );
-}
+const facts: [string, React.ReactNode][] = [
+  ['Company type', 'AI-enabled technology engineering company'],
+  ['Main office', '212 N. 2nd St. Ste 100, Richmond, KY 40475, USA'],
+  ['Second office', 'Davao City, Philippines'],
+  ['Services', 'Software engineering, AI & automation, business systems, cloud & DevOps, cybersecurity, technology consulting'],
+  ['Clients', 'SMEs, startups, established companies, enterprises and public-sector organizations'],
+  ['Contact', <a key="m" href="mailto:hello@reveriontech.com">hello@reveriontech.com</a>],
+];
 
 export function AboutPage() {
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.3
-            }
-        }
-    };
+  return (
+    <Page>
+      <Sec>
+        <Eyebrow>ABOUT REVERION TECH</Eyebrow>
+        <h1 className="rv-h1" style={{ marginBottom: 24 }}>Technology That Works for People.</h1>
+        <p className="rv-lead">Reverion Tech is an AI-enabled technology engineering company. We help businesses build intelligent digital products, automate complex operations, and modernize their technology infrastructure — combining software engineering, artificial intelligence and human expertise.</p>
+      </Sec>
 
-    const itemVariants = {
-        hidden: { y: 40, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: {
-                type: 'spring' as const,
-                stiffness: 100,
-                damping: 20
-            }
-        }
-    };
+      <Sec tone="alt" label="Reverion Tech at a glance">
+        <h2 className="rv-h2">Reverion Tech at a Glance</h2>
+        <dl className="rv-facts">
+          {facts.map(([k, v]) => (<div key={k}><dt>{k}</dt><dd>{v}</dd></div>))}
+        </dl>
+      </Sec>
 
-    return (
-        <div className="about-page">
-            {/* Hero Section */}
-            <section className="about-hero">
-                <div className="container">
-                    <motion.h1
-                        className="about-hero__title"
-                        initial={{ clipPath: 'inset(100% 0 0 0)' }}
-                        animate={{ clipPath: 'inset(0% 0 0 0)' }}
-                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                        About Us
-                    </motion.h1>
-                </div>
-            </section>
-
-            {/* Intro Section - Asymmetric */}
-            <section className="about-intro">
-                <div className="container">
-                    <div className="about-intro__grid">
-                        <motion.div
-                            className="about-intro__image-wrapper"
-                            initial={{ x: -100, opacity: 0 }}
-                            whileInView={{ x: 0, opacity: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, ease: 'easeOut' }}
-                        >
-                            <img
-                                src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop"
-                                alt="Our Team"
-                                className="about-intro__image"
-                            />
-                        </motion.div>
-
-                        <motion.div
-                            className="about-intro__content"
-                            initial={{ x: 100, opacity: 0 }}
-                            whileInView={{ x: 0, opacity: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, delay: 0.2, ease: 'easeOut' }}
-                        >
-                            <span className="about-intro__label">Identity</span>
-                            <h2 className="about-intro__title">Breaking The Norm</h2>
-                            <p className="about-intro__desc">
-                                We are a creative collective dedicated to pushing the boundaries of
-                                visual storytelling. Our approach is rooted in brutal honesty and
-                                technical precision, ensuring every frame we produce is unforgettable.
-                            </p>
-                            <Button to="/contact" size="md" variant="primary">Initiate Contact</Button>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Skills & Stats Section */}
-            <section className="about-skills-stats">
-                <div className="container">
-                    <div className="about-skills-stats__grid">
-                        <motion.div
-                            className="about-skills"
-                            variants={containerVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                        >
-                            <motion.h2 variants={itemVariants} className="about-skills__title">Capabilities</motion.h2>
-                            <motion.p variants={itemVariants} className="about-skills__desc">
-                                Excellence is not an act, but a habit. We've refined our skills
-                                over decades of relentless pursuit of quality.
-                            </motion.p>
-
-                            {[
-                                { name: 'Technical Execution', val: 95 },
-                                { name: 'Artistic Vision', val: 98 },
-                                { name: 'Strategic Branding', val: 82 }
-                            ].map((skill, idx) => (
-                                <motion.div key={idx} variants={itemVariants} className="about-skill-item">
-                                    <div className="about-skill-info">
-                                        <span>{skill.name}</span>
-                                        <span>{skill.val}%</span>
-                                    </div>
-                                    <div className="about-skill-bar-bg">
-                                        <motion.div
-                                            className="about-skill-bar-fill"
-                                            initial={{ width: 0 }}
-                                            whileInView={{ width: `${skill.val}%` }}
-                                            transition={{ duration: 1.5, delay: 0.5 + idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                                        />
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </motion.div>
-
-                        <div className="about-stats-grid">
-                            {[
-                                { label: 'Years Active', value: 12, suffix: '+' },
-                                { label: 'Artifacts Built', value: 500, suffix: '+' },
-                                { label: 'Core Partners', value: 34 },
-                                { label: 'Design Awards', value: 12 }
-                            ].map((stat, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    className="about-stat-card"
-                                    initial={{ scale: 0.8, opacity: 0 }}
-                                    whileInView={{ scale: 1, opacity: 1 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: idx * 0.1 }}
-                                >
-                                    <CountUpStatNumber
-                                        className="about-stat-number"
-                                        value={stat.value}
-                                        suffix={stat.suffix}
-                                        delay={0.15 + idx * 0.1}
-                                    />
-                                    <span className="about-stat-label">{stat.label}</span>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="about-cta">
-                <div className="container">
-                    <motion.div
-                        initial={{ y: 50, opacity: 0 }}
-                        whileInView={{ y: 0, opacity: 1 }}
-                        viewport={{ once: true }}
-                    >
-                        <span className="about-cta__label">Next Step</span>
-                        <h2 className="about-cta__title">
-                            Ready to shatter expectations?
-                        </h2>
-                        <Button to="/contact" size="lg" variant="primary">Start Project</Button>
-                    </motion.div>
-                </div>
-            </section>
+      <Sec tone="dark">
+        <div className="rv-split">
+          <div><Eyebrow>MISSION</Eyebrow><p className="rv-big">To engineer intelligent, secure, and reliable technology solutions that empower businesses and organizations to operate smarter and achieve more.</p></div>
+          <div><Eyebrow>VISION</Eyebrow><p className="rv-big">To become a trusted technology engineering partner recognized for building meaningful digital solutions and advancing the practical application of emerging technologies.</p></div>
         </div>
-    );
+      </Sec>
+
+      <Sec>
+        <div className="rv-split">
+          <div className="rv-stack">
+            <Eyebrow>OUR PHILOSOPHY</Eyebrow>
+            <h2 className="rv-h2">More Capable, Not More Complicated.</h2>
+            <p>We don’t simply implement technology. We understand business challenges, engineer solutions, and help organizations operate smarter. AI should amplify human capabilities — not become a marketing gimmick or a replacement for thoughtful engineering.</p>
+          </div>
+          <div>
+            <p className="rv-label">The best technology combines</p>
+            <ul className="rv-list">
+              {['Intelligent systems', 'Human judgment', 'Engineering excellence', 'Responsible automation', 'Security and reliability', 'Continuous improvement'].map((v) => <li key={v}>{v}</li>)}
+            </ul>
+          </div>
+        </div>
+      </Sec>
+
+      <Sec tone="alt">
+        <div style={{ marginBottom: '2.5rem' }}><Eyebrow>CORE VALUES</Eyebrow><h2 className="rv-h2">How We Work.</h2></div>
+        <div className="rv-grid">
+          {values.map((v, i) => (
+            <div key={v} className="rv-value"><p className="rv-mono">{String(i + 1).padStart(2, '0')}</p><h3 className="rv-h3">{v}</h3></div>
+          ))}
+        </div>
+      </Sec>
+
+      <Sec>
+        <div className="rv-split">
+          <div className="rv-stack">
+            <Eyebrow>OUR STORY</Eyebrow>
+            <h2 className="rv-h2">[STORY HEADLINE]</h2>
+            <p>[COMPANY STORY — WHEN AND WHY REVERION TECH STARTED, AND HOW IT HAS GROWN. VERIFIED FACTS ONLY.]</p>
+          </div>
+          <div>
+            <Eyebrow>OUR TEAM</Eyebrow>
+            <div className="rv-grid w240">
+              {[0, 1, 2].map((i) => (<div key={i} className="rv-person"><div className="ph" /><p style={{ color: 'var(--navy)', fontWeight: 600 }}>[NAME]</p><p className="small">[ROLE]</p></div>))}
+            </div>
+            <p style={{ marginTop: 20 }}><Link to="/our-team" className="rv-link">Meet the team →</Link> · <Link to="/partners" className="rv-link">Our partners →</Link></p>
+          </div>
+        </div>
+      </Sec>
+
+      <Sec tone="alt">
+        <div className="rv-grid">
+          <div><Eyebrow>OFFICES</Eyebrow><h2 className="rv-h2">Local Presence. International Reach.</h2></div>
+          <div className="rv-card"><p className="rv-label">Main office</p><p>212 N. 2nd St. Ste 100<br />Richmond, KY 40475<br />United States</p></div>
+          <div className="rv-card"><p className="rv-label">Philippines</p><p>Davao City 8000<br />Philippines</p></div>
+        </div>
+      </Sec>
+
+      <Cta title="From Complex Challenges to Practical Solutions." secondary={['Explore Our Capabilities', '/services']} />
+    </Page>
+  );
 }

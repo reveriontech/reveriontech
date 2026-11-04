@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from '../context/AuthContext';
 import { ThemeProvider } from '../context/ThemeContext';
 import { Header } from '../components/layout/Header';
@@ -13,8 +13,10 @@ import { AuthCallbackPage } from '../pages/AuthCallbackPage';
 import { UpdatePasswordPage } from '../pages/UpdatePasswordPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { ContactPage } from '../pages/ContactPage';
-import { CaseStudiesPage } from '../pages/CaseStudiesPage';
-import { PortfolioPage } from '../pages/PortfolioPage';
+import { ServicesPage } from '../pages/ServicesPage';
+import { ProjectsPage } from '../pages/ProjectsPage';
+import { ProjectDetailPage } from '../pages/ProjectDetailPage';
+import { InsightsPage } from '../pages/InsightsPage';
 import { OurTeamPage } from '../pages/OurTeamPage';
 import { AboutPage } from '../pages/AboutPage';
 import { PartnershipPage } from '../pages/PartnershipPage';
@@ -50,8 +52,12 @@ function AppRoutes() {
                                 }
                             />
                             <Route path="/contact" element={<ContactPage />} />
-                            <Route path="/case-studies" element={<CaseStudiesPage />} />
-                            <Route path="/portfolio" element={<PortfolioPage />} />
+                            <Route path="/services" element={<ServicesPage />} />
+                            <Route path="/projects" element={<ProjectsPage />} />
+                            <Route path="/projects/:slug" element={<ProjectDetailPage />} />
+                            <Route path="/insights" element={<InsightsPage />} />
+                            <Route path="/case-studies" element={<Navigate to="/projects" replace />} />
+                            <Route path="/portfolio" element={<Navigate to="/projects" replace />} />
                             <Route path="/solutions" element={<SolutionsPage />} />
                             <Route path="/about" element={<AboutPage />} />
                             <Route path="/our-team" element={<OurTeamPage />} />
