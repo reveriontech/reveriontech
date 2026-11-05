@@ -83,8 +83,12 @@ export function GlobalChatOverlay() {
                                         onClick={() => { if (callActive) endCall(); else void startCall(); }}
                                     >
                                         <Icon name="phone" size={14} />
-                                        <span className="chatbot__call-btn-label chatbot__call-btn-label--full">{callActive ? '[ END CALL ]' : '[ VOICE CALL ]'}</span>
-                                        <span className="chatbot__call-btn-label chatbot__call-btn-label--compact">{callActive ? '[ END ]' : '[ CALL ]'}</span>
+                                        {callActive && (
+                                            <>
+                                                <span className="chatbot__call-btn-label chatbot__call-btn-label--full">[ END CALL ]</span>
+                                                <span className="chatbot__call-btn-label chatbot__call-btn-label--compact">[ END ]</span>
+                                            </>
+                                        )}
                                     </button>
                                     <button className="chatbot__close-btn" aria-label="Close chat window" onClick={closeChat}>
                                         <Icon name="x" size={16} />
@@ -159,8 +163,8 @@ export function GlobalChatOverlay() {
                                         <Icon name="paperclip" size={18} />
                                     </button>
                                     <button type="submit" className="chatbot__submit-btn" disabled={!inputValue.trim() && !attachment}>
-                                        <span className="chatbot__submit-btn-label chatbot__submit-btn-label--full">[ EXECUTE ]</span>
-                                        <span className="chatbot__submit-btn-label chatbot__submit-btn-label--compact">[ RUN ]</span>
+                                        <span className="chatbot__submit-btn-label chatbot__submit-btn-label--full">Send</span>
+                                        <span className="chatbot__submit-btn-label chatbot__submit-btn-label--compact">Send</span>
                                     </button>
                                 </form>
                             </div>

@@ -1,16 +1,6 @@
-import { services } from '../data/site';
+import { companyFactsBrief } from './knowledgeSearch';
 
-const facts = `## Company facts
-Answer company questions only from these facts or from https://www.reveriontech.com/. If it is not here, say you do not know. Do not describe Reverion Tech as a Web3 or smart-contract studio.
-- Business: Reverion Tech, an AI-enabled technology engineering company.
-- Website: https://www.reveriontech.com/
-- Email: hello@reveriontech.com
-- Main office: 212 N. 2nd St. Ste 100, Richmond, KY 40475, United States.
-- Second office: Davao City, Philippines.
-- Starting a project: use the contact page or hello@reveriontech.com. The team reviews the inquiry, arranges a short discovery call, then sends a proposal with approach, timeline, and cost.
-Services:
-${services.map((service) => `- ${service.title}: ${service.short} Includes ${service.delivers.join(', ')}.`).join('\n')}
-`;
+const facts = companyFactsBrief();
 
 export function withCompanyFacts(instructions: string) {
     let text = instructions

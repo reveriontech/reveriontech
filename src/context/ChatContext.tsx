@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { onXaiEvent, playPcm16Base64, resetPlayback, sendFunctionOutput, sendUserTurn, startVoiceCall, stopVoiceCall } from '../lib/xaiRealtime';
+import { onXaiEvent, playPcm16Base64, resetPlayback, sendFunctionOutput, sendUserTurn, startVoiceCall, stopVoiceCall, takeKnowledgeFollowUp } from '../lib/xaiRealtime';
 import { whatsappLink } from '../data/site';
 
 export interface ChatAttachment {
@@ -33,6 +33,44 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
+const MORNING = [
+    'Good morning, this is Darian.',
+    'Good morning. I\'m Darian.',
+    'Morning. Darian here. What can I help with?',
+    'Good morning. Darian here. Something on your mind?',
+    'Good morning. I\'m Darian. What would you like to ask?',
+];
+
+const AFTERNOON = [
+    'Good afternoon, this is Darian.',
+    'Good afternoon. I\'m Darian.',
+    'Afternoon. Darian here. Do you have something in mind?',
+    'Good afternoon. I\'m Darian. Something to ask?',
+    'Hey, good afternoon. Darian here.',
+];
+
+const EVENING = [
+    'Good evening, I\'m Darian.',
+    'Good evening, this is Darian.',
+    'Evening. Darian here. Do you have something to ask?',
+    'Good evening. I\'m Darian. What\'s on your mind?',
+    'Hey, good evening. Darian here.',
+];
+
+const NIGHT = [
+    'Hey, Darian here. Do you have something in mind?',
+    'Hey, Darian here. Something to ask?',
+    'Hi, I\'m Darian. What\'s on your mind?',
+    'Darian here. What can I do for you?',
+    'Hey. I\'m Darian. Ask me anything.',
+];
+
+function darianGreeting(now = new Date()): string {
+    const hour = now.getHours();
+    const pool = hour < 5 ? NIGHT : hour < 12 ? MORNING : hour < 17 ? AFTERNOON : hour < 21 ? EVENING : NIGHT;
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
 export function ChatProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
@@ -44,7 +82,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     const handoff = useRef(false);
     const [messages, setMessages] = useState<ChatMessage[]>([
         { id: '1', text: 'SYSTEM INITIALIZED.', sender: 'ai', timestamp: new Date() },
-        { id: '2', text: 'Awaiting input...', sender: 'ai', timestamp: new Date() }
+        { id: '2', text: darianGreeting(), sender: 'ai', timestamp: new Date() }
     ]);
 
     const endCall = () => {
@@ -201,6 +239,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         }
 
         if (event.type === 'response.done') {
+            if (takeKnowledgeFollowUp()) return;
             if (handoff.current) {
                 handoff.current = false;
                 replyId.current = null;

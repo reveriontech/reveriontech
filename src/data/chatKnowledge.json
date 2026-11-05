@@ -1,0 +1,390 @@
+{
+  "version": 1,
+  "source": "Public site content for the Reverion Tech assistant. Search these records before answering company questions.",
+  "documents": [
+    {
+      "id": "company-contact",
+      "type": "company",
+      "title": "Company, offices, email, and how to start",
+      "path": "/contact",
+      "questions": ["what is reverion tech", "where are you located", "what is your address", "what is your email", "how do i contact you", "how do i start a project", "phone", "office"],
+      "text": "Reverion Tech is an AI-enabled technology engineering company. Website: https://www.reveriontech.com/. Email: hello@reveriontech.com. Main office: 212 N. 2nd St. Ste 100, Richmond, KY 40475, United States. Second office: Davao City 8000, Philippines. Clients include SMEs, startups, established companies, enterprises, and public-sector organizations, locally and internationally. To start a project, use https://www.reveriontech.com/contact or email hello@reveriontech.com. An engineer reviews every inquiry and replies within one business day, then arranges a short discovery call, then sends a proposal with approach, timeline, and cost. The inquiry form asks for name, business email, company, industry, service, budget, timeline, and project description. Budget ranges on the form: Under $10,000, $10,000–$25,000, $25,000–$50,000, $50,000–$100,000, $100,000+, or not sure yet. Timelines: as soon as possible, 1–3 months, 3–6 months, 6+ months, or just exploring. Do not describe Reverion Tech as a Web3 or smart-contract studio."
+    },
+    {
+      "id": "company-story",
+      "type": "company",
+      "title": "Mission, vision, story, and values",
+      "path": "/about",
+      "questions": ["mission", "vision", "history", "story", "values", "philosophy", "who are you"],
+      "text": "Mission: engineer intelligent, secure, and reliable technology solutions that help businesses and organizations operate smarter. Vision: become a trusted technology engineering partner for meaningful digital solutions and the practical use of emerging technologies. Philosophy: understand the business challenge, engineer the solution, and make the organization more capable without making the technology more complicated. AI should amplify human judgment, not replace thoughtful engineering. The best technology combines intelligent systems, human judgment, engineering excellence, responsible automation, security and reliability, and continuous improvement. Values: Engineering Excellence, Innovation with Purpose, Integrity and Accountability, Security by Design, Human-Centered Technology, Continuous Improvement. Story: Reverion Tech began in the Southern Philippines among developers and researchers interested in cryptographic encryption, cybersecurity, AI and machine learning, and technology policy. That community became a company established in Kentucky, United States, while remaining connected to the Philippines. Pillars of the work: Intelligent Automation, Human Oversight, Connected Systems, and Continuous Improvement."
+    },
+    {
+      "id": "company-process",
+      "type": "process",
+      "title": "Delivery process and technology stack",
+      "path": "/about",
+      "questions": ["how do you work", "what is your process", "what technologies do you use", "tech stack"],
+      "text": "Delivery process: 1 Discover — understand the business, objectives, requirements, and existing processes. 2 Strategize — identify opportunities, define the architecture, and create a roadmap. 3 Design — user experiences, system specifications, and solution architecture. 4 Engineer — build, integrate, test, and validate. 5 Deploy — launch on reliable infrastructure. 6 Optimize — monitor, maintain, measure, and improve. Operating flow: business input, AI processing, orchestration, human review where needed, system execution, monitoring and improvement. Stack: Frontend React, Next.js, TypeScript. Backend Rust, Node.js, Python. Database PostgreSQL, MongoDB, Supabase. AI OpenAI, Gemini, vector databases, RAG frameworks. Infrastructure Google Cloud, Cloudflare, Docker, Kubernetes. Automation n8n, APIs, webhooks, workflow orchestration."
+    },
+    {
+      "id": "company-industries",
+      "type": "company",
+      "title": "Industries",
+      "path": "/about",
+      "questions": ["what industries do you work with", "who are your clients", "sectors"],
+      "text": "Reverion Tech works with professional services, real estate and property management, retail and e-commerce, healthcare administration, education and training, logistics and operations, government and public services, and technology startups."
+    },
+    {
+      "id": "faq-what",
+      "type": "faq",
+      "title": "FAQ: What does Reverion Tech do?",
+      "path": "/",
+      "questions": ["what do you do", "what services", "are you an ai company"],
+      "text": "Reverion Tech is an AI-enabled technology engineering company. It designs and builds custom software, automates business operations with AI and workflow orchestration, and engineers secure cloud infrastructure. It is a technology engineering company that uses AI as one capability. It also provides software engineering, business systems, cloud and automated operations, AI governance and security, and technology consulting."
+    },
+    {
+      "id": "faq-agents",
+      "type": "faq",
+      "title": "FAQ: AI agents and automation",
+      "path": "/services",
+      "questions": ["do you build ai agents", "automation", "rag", "voice agents"],
+      "text": "Yes. Reverion Tech builds AI agents and assistants, AI voice agents, document processing, retrieval-augmented generation (RAG) knowledge assistants, and workflow automation, with human review where risk, context, or business rules require it."
+    },
+    {
+      "id": "service-software-engineering",
+      "type": "service",
+      "title": "Service: Software Engineering",
+      "path": "/services",
+      "questions": ["custom software", "web app", "mobile app", "saas", "api"],
+      "text": "Software Engineering: design and develop reliable digital products tailored to business requirements, from first release to long-term evolution. Problems addressed: outdated software, disconnected business systems, limited internal technical resources, difficulty scaling operations. Delivers: custom web applications, mobile application development, enterprise software, SaaS development, API development and integration, UI/UX and product engineering."
+    },
+    {
+      "id": "service-intelligent-systems",
+      "type": "service",
+      "title": "Service: Intelligent Business Systems",
+      "path": "/services",
+      "questions": ["crm", "erp", "dashboard", "booking system", "business platform"],
+      "text": "Intelligent Business Systems: connected systems that bring operations, data, and processes together. Problems addressed: lack of business visibility, inefficient administrative workflows, data spread across tools, manual reporting. Delivers: business management systems, CRM and ERP integration, booking and reservation systems, business dashboards, workflow management, reporting and analytics, custom business platforms."
+    },
+    {
+      "id": "service-consulting",
+      "type": "service",
+      "title": "Service: Technology Consulting",
+      "path": "/services",
+      "questions": ["consulting", "technology strategy", "due diligence", "roadmap"],
+      "text": "Technology Consulting: help leaders decide what to build, what to buy, and where AI fits. Problems addressed: unclear technology roadmap, uncertainty about AI adoption, architecture that will not scale. Delivers: system architecture, technology strategy, digital transformation consulting, technical due diligence."
+    },
+    {
+      "id": "service-ai-applications",
+      "type": "service",
+      "title": "Service: AI Applications",
+      "path": "/services",
+      "questions": ["ai application", "model integration", "put ai in a product"],
+      "text": "AI Applications: design and build AI applications that put models to work inside real products, from prototype to a release customers use. Problems addressed: a product idea that needs AI rather than a demo, models that work in a notebook but not in the product, no clear path from prototype to production. Delivers: custom AI applications, AI features in existing products, model integration, evaluation and release."
+    },
+    {
+      "id": "service-ai-native",
+      "type": "service",
+      "title": "Service: AI-Native Development and Custom Platforms",
+      "path": "/services",
+      "questions": ["custom platform", "ai native"],
+      "text": "AI-Native Development and Custom Platforms: platforms designed around AI from the start, shaped to how the business operates, with models in the product rather than bolted on. Problems addressed: off-the-shelf tools that do not fit the work, AI added after the product is already built, no platform the team can extend. Delivers: AI-native product development, custom platforms, model-backed workflows, APIs and admin tools."
+    },
+    {
+      "id": "service-agents",
+      "type": "service",
+      "title": "Service: Agents",
+      "path": "/services",
+      "questions": ["ai agent", "task agent", "human in the loop"],
+      "text": "Agents: agents that plan, use tools, and complete tasks inside client systems, with human checkpoints where judgment matters. Problems addressed: the same steps still done by hand, chatbots that answer but cannot act, no control over what an agent is allowed to do. Delivers: task agents, tool-using agents, multi-agent workflows, human-in-the-loop controls."
+    },
+    {
+      "id": "service-multi-agent",
+      "type": "service",
+      "title": "Service: Multi-Agent Coordination and Workflow Engines",
+      "path": "/services",
+      "questions": ["workflow engine", "orchestration", "multi agent"],
+      "text": "Multi-Agent Coordination and Workflow Engines: engines that coordinate multiple agents and run workflows across systems, with routing, state, and human checkpoints. Problems addressed: work that spans several tools and hand-offs, agents that cannot share a task or a result, no record of what ran, failed, or needs review. Delivers: multi-agent coordination, workflow engines, routing and state, retries, queues, and audit trails."
+    },
+    {
+      "id": "service-rag",
+      "type": "service",
+      "title": "Service: RAG",
+      "path": "/services",
+      "questions": ["knowledge assistant", "document search", "retrieval augmented generation"],
+      "text": "RAG: retrieval-augmented generation that answers from a client's documents, policies, and records and shows where the answer came from. Problems addressed: answers buried in documents and inboxes, models that do not know the business, no way to trace where an answer came from. Delivers: knowledge assistants, document retrieval, source citations, access-controlled knowledge bases."
+    },
+    {
+      "id": "service-multimodal",
+      "type": "service",
+      "title": "Service: Multimodal Systems",
+      "path": "/services",
+      "questions": ["voice", "image", "documents", "multimodal"],
+      "text": "Multimodal Systems: systems that read, see, and listen, combining text, voice, image, and documents in one workflow. Problems addressed: information split across calls, photos, and files, tools that only handle one kind of input, manual review of images, audio, and documents. Delivers: vision and document understanding, voice and text interfaces, image and media pipelines, cross-modal workflows."
+    },
+    {
+      "id": "service-cloud",
+      "type": "service",
+      "title": "Service: Cloud, DevOps, Monitoring and Automated Operations",
+      "path": "/services",
+      "questions": ["cloud", "devops", "monitoring", "infrastructure"],
+      "text": "Cloud, DevOps, Monitoring and Automated Operations: cloud and DevOps so releases, monitoring, and day-to-day operations stay reliable as the system grows. Problems addressed: releases that still depend on manual steps, incidents found by users rather than monitoring, operations that do not scale with the product. Delivers: cloud and DevOps, monitoring and alerting, automated operations, incident response and runbooks."
+    },
+    {
+      "id": "service-governance",
+      "type": "service",
+      "title": "Service: AI Governance, Identity, Permissions and Security",
+      "path": "/services",
+      "questions": ["security", "permissions", "identity", "governance", "audit"],
+      "text": "AI Governance, Identity, Permissions and Security: governance, identity, and permissions around AI so access, actions, and data stay controlled. Problems addressed: unclear who can use an AI system or what it can do, models and agents with broader access than they need, no record of prompts, actions, or data use. Delivers: AI governance, identity and access, permissions and least privilege, audit and security controls."
+    },
+    {
+      "id": "solutions-index",
+      "type": "solution",
+      "title": "Solutions",
+      "path": "/solutions",
+      "questions": ["what solutions do you offer", "customer support", "scheduling", "document processing"],
+      "text": "Solutions are built around the business problem. AI Customer Experience: support assistants, AI voice agents, lead qualification, inquiry routing and hand-off. Intelligent Business Operations: workflow automation, system orchestration, document processing, process optimization. Digital Business Platforms: customer and partner portals, management systems, booking platforms, SaaS applications. Data and Decision Intelligence: business dashboards, reporting systems, analytics pipelines, AI knowledge assistants (RAG). Modern Technology Infrastructure: cloud migration, CI/CD and DevOps automation, security architecture, infrastructure optimization. Example systems: AI customer support with hand-off to people; appointment scheduling synced to a calendar with reminders; business process automation across tools; document extraction from invoices, forms, and PDFs with review queues; customer and operations portals; business intelligence dashboards; custom enterprise applications; RAG knowledge assistants with sources."
+    },
+    {
+      "id": "projects-index",
+      "type": "project",
+      "title": "Project list",
+      "path": "/projects",
+      "questions": ["what projects have you built", "portfolio", "case studies", "clients"],
+      "text": "Public project work includes Prime Grand (property reservations), TalinoEd (classroom management), Prime LendRow (Stellar lending workspace), PaddlQ (pickleball community), Thessalieh Property (land parcel portal), EduSeal (document verification), Reverion Labs (applied research site), Waste2Earn (waste management), Log House (wellness collection), Spa & Saunas (public website), Lime PH (solar for homes and businesses), Web3 Davao (builder community), Smart Sparrow (digital learning), Prime VPN (private VPN in Rust), and Private Video Calls (HIPAA-compliant video calls). Case studies are at https://www.reveriontech.com/projects."
+    },
+    {
+      "id": "project-prime-grand",
+      "type": "project",
+      "title": "Project: Prime Grand",
+      "path": "/projects/prime-grand",
+      "questions": ["prime grand", "property reservations", "lot inventory"],
+      "text": "Prime Grand — Premium Property Reservations. Industry: real estate. Category: software engineering. Live site: https://prime-grand.com. Real-time lot inventory, instant reservations, and an interactive 3D site plan for agents, brokers, and buyers. Challenge: agents and buyers needed a live view of available lots and a way to reserve them without tracking inventory by hand. Solution: a platform with live lot inventory, instant reservations, and an interactive 3D site plan."
+    },
+    {
+      "id": "project-talinoed",
+      "type": "project",
+      "title": "Project: TalinoEd",
+      "path": "/projects/talinoed",
+      "questions": ["talinoed", "classroom", "grades", "attendance"],
+      "text": "TalinoEd — Classroom Management System. Industry: education. Category: business systems. Live site: https://talinoed.com. Technology: Rust, PostgreSQL, React. Attendance, grades, nutrition, and student records in one platform for educators. Challenge: those records were tracked in separate places. Solution: one classroom system that brings them together."
+    },
+    {
+      "id": "project-prime-lendrow",
+      "type": "project",
+      "title": "Project: Prime LendRow",
+      "path": "/projects/prime-lendrow",
+      "questions": ["prime lendrow", "lending", "stellar", "kyc"],
+      "text": "Prime LendRow — Stellar Lending Workspace. Industry: lending. Category: business systems. Live site: https://primelendrow.com. Technology: Stellar. KYC, lending, borrowing, repayment, and portfolio insight in one workspace for borrowers and lenders. Solution: a Stellar-native workspace with deposit-backed, XLM collateral-backed, and guarantor-backed loans."
+    },
+    {
+      "id": "project-paddlq",
+      "type": "project",
+      "title": "Project: PaddlQ",
+      "path": "/projects/paddlq",
+      "questions": ["paddlq", "pickleball"],
+      "text": "PaddlQ — Pickleball Community. Industry: sports. Category: software engineering. Live site: https://paddlq.com. A community platform for pickleball players in the Philippines to find courts, join open plays, compete in tournaments, and connect with players nearby."
+    },
+    {
+      "id": "project-thessalieh",
+      "type": "project",
+      "title": "Project: Thessalieh Property",
+      "path": "/projects/thessalieh-property",
+      "questions": ["thessalieh", "greece", "land parcels"],
+      "text": "Thessalieh Property — Land Parcel Portal. Industry: real estate. Category: software engineering. Site: https://thessalieh-property.reveriontech.com. A signed-in member portal for premium land parcels across Thessaloniki, Chalkidiki, and Northern Greece."
+    },
+    {
+      "id": "project-eduseal",
+      "type": "project",
+      "title": "Project: EduSeal",
+      "path": "/projects/eduseal",
+      "questions": ["eduseal", "document verification", "credentials"],
+      "text": "EduSeal — Document Verification. Industry: education. Category: business systems. Live site: https://eduseal-verify.com. Technology: React, Node.js, blockchain. Institutions needed a way to confirm that issued documents are authentic. EduSeal checks documents against a verification record."
+    },
+    {
+      "id": "project-reverionlabs",
+      "type": "project",
+      "title": "Project: Reverion Labs",
+      "path": "/projects/reverionlabs",
+      "questions": ["reverion labs", "research", "r&d"],
+      "text": "Reverion Labs — Applied Research. Industry: research. Category: software engineering. Live site: https://reverionlabs.com. The public site for Reverion Tech’s R&D division, covering applied research in AI, autonomous platforms, quantum technologies, and secure communications, plus projects, technology, news, careers, and partnership inquiries."
+    },
+    {
+      "id": "project-waste2earn",
+      "type": "project",
+      "title": "Project: Waste2Earn",
+      "path": "/projects/waste2earn",
+      "questions": ["waste2earn", "recycling", "waste"],
+      "text": "Waste2Earn — Waste Management Platform. Industry: sustainability. Category: business systems. Live site: https://waste2earn.com. Technology: React, Node.js, PostgreSQL. Connects waste collectors and recyclers, with route mapping, a data layer for collections, and a live earnings dashboard. Built so households, collectors, and recycling facilities can handle logistics, payouts, and impact tracking in one place."
+    },
+    {
+      "id": "project-log-house",
+      "type": "project",
+      "title": "Project: Log House",
+      "path": "/projects/log-house",
+      "questions": ["log house", "sauna", "cold plunge"],
+      "text": "Log House — Wellness Collection. Industry: wellness. Category: software engineering. Live site: https://loghouse.co.uk. A wellness site for saunas, indoor saunas, cold plunges, and hot tubs, including the Cube garden sauna, with visits and a way to plan a space."
+    },
+    {
+      "id": "project-spa-saunas",
+      "type": "project",
+      "title": "Project: Spa & Saunas",
+      "path": "/projects/spa-saunas",
+      "questions": ["spa and saunas", "spasaunas"],
+      "text": "Spa & Saunas. Industry: hospitality. Category: software engineering. Live site: https://spasaunas.co.uk. Reverion Tech designed and built the public website for the business."
+    },
+    {
+      "id": "project-lime-ph",
+      "type": "project",
+      "title": "Project: Lime PH",
+      "path": "/projects/lime-ph",
+      "questions": ["lime ph", "solar", "philippines solar"],
+      "text": "Lime PH — Solar for Homes and Businesses. Industry: energy. Category: software engineering. A site for a Philippine solar provider that supplies and installs panels for Filipino homes and businesses, with free quotes, assessments, and a knowledge hub."
+    },
+    {
+      "id": "project-web3-davao",
+      "type": "project",
+      "title": "Project: Web3 Davao",
+      "path": "/projects/web3-davao",
+      "questions": ["web3 davao", "guild", "grants"],
+      "text": "Web3 Davao — Builder Community. Industry: Web3. Category: software engineering. A membership site for a guild of developers and founders in the Davao Region who are learning Web3, shipping projects, and passing on preseed grants. The site covers the guild, members, grants, the manifesto, and applications to join. This is a client community project, not a description of Reverion Tech’s own business."
+    },
+    {
+      "id": "project-smart-sparrow",
+      "type": "project",
+      "title": "Project: Smart Sparrow",
+      "path": "/projects/smart-sparrow",
+      "questions": ["smart sparrow", "digital learning"],
+      "text": "Smart Sparrow — Digital Learning. Industry: education. Category: business systems. Live site: https://smartsparrow.com. A public site for a digital learning platform, including the platform, studio, solutions, and ways to discover the product."
+    },
+    {
+      "id": "project-prime-vpn",
+      "type": "project",
+      "title": "Project: Prime VPN",
+      "path": "/projects/prime-vpn",
+      "questions": ["prime vpn", "vpn", "rust vpn"],
+      "text": "Prime VPN — Private VPN. Industry: security. Category: software engineering. Technology: Rust. A private, secured VPN application built natively in Rust."
+    },
+    {
+      "id": "project-private-video",
+      "type": "project",
+      "title": "Project: Private Video Calls",
+      "path": "/projects/private-video-calls",
+      "questions": ["video calls", "hipaa", "telehealth"],
+      "text": "Private Video Calls — HIPAA-Compliant Video Calls. Industry: healthcare. Category: software engineering. A secured private video-call application for care teams, built to stay secured and HIPAA compliant."
+    },
+    {
+      "id": "team-roster",
+      "type": "team",
+      "title": "Team roster",
+      "path": "/our-team",
+      "questions": ["who is on the team", "team members", "who works at reverion", "staff", "founders"],
+      "text": "Public team on https://www.reveriontech.com/our-team: Rod Albores, CEO and Founder. Kent Ryan Entice, Back-end Developer. John Rexey Cabrera, Front-end Developer. Gigi Valdez, Front-end Developer. Dangrey Concepcion, Back-end Developer. June Bation, AI Engineer. Urian Buenconsejo, AI Orchestrator. Edmund Albores, Full Stack Developer. RJ Solamo, Blockchain Developer. Tirso Benedict Naza, AI and Rust Developer. Contact the company at hello@reveriontech.com. Do not invent emails or phone numbers for individual people."
+    },
+    {
+      "id": "team-rod-albores",
+      "type": "team",
+      "title": "Team: Rod Albores",
+      "path": "/our-team",
+      "questions": ["who is the ceo", "who is the founder", "rod albores"],
+      "text": "Rod Albores is CEO and Co-founder of Reverion Tech. Focus: disruptive digital narratives and technical product direction. LinkedIn: https://www.linkedin.com/in/rodalbores/."
+    },
+    {
+      "id": "team-kent",
+      "type": "team",
+      "title": "Team: Kent Ryan Entice",
+      "path": "/our-team",
+      "questions": ["kent ryan entice", "backend developer"],
+      "text": "Kent Ryan Entice is a Back-end Developer at Reverion Tech. Focus: scalable systems and performance optimization. LinkedIn: https://www.linkedin.com/in/kent-ryan-gonzales-entice-25518535a/."
+    },
+    {
+      "id": "team-john",
+      "type": "team",
+      "title": "Team: John Rexey Cabrera",
+      "path": "/our-team",
+      "questions": ["john rexey cabrera", "frontend"],
+      "text": "John Rexey Cabrera is a Front-end Developer at Reverion Tech, working on mobile applications and web applications."
+    },
+    {
+      "id": "team-gigi",
+      "type": "team",
+      "title": "Team: Gigi Valdez",
+      "path": "/our-team",
+      "questions": ["gigi valdez", "3d animation"],
+      "text": "Gigi Valdez is a Front-end Developer at Reverion Tech. Focus: 3D animations and web applications."
+    },
+    {
+      "id": "team-dangrey",
+      "type": "team",
+      "title": "Team: Dangrey Concepcion",
+      "path": "/our-team",
+      "questions": ["dangrey concepcion"],
+      "text": "Dangrey Concepcion is a Back-end Developer at Reverion Tech. Focus: scalable systems and performance optimization using Node.js and Rust."
+    },
+    {
+      "id": "team-june",
+      "type": "team",
+      "title": "Team: June Bation",
+      "path": "/our-team",
+      "questions": ["june bation", "ai engineer"],
+      "text": "June Bation is an AI Engineer at Reverion Tech. Focus: AI agent development."
+    },
+    {
+      "id": "team-urian",
+      "type": "team",
+      "title": "Team: Urian Buenconsejo",
+      "path": "/our-team",
+      "questions": ["urian buenconsejo", "orchestrator"],
+      "text": "Urian Buenconsejo is AI Orchestrator at Reverion Tech. Focus: AI and Web3 research and data analysis. LinkedIn: https://www.linkedin.com/in/urian-b-/."
+    },
+    {
+      "id": "team-edmund",
+      "type": "team",
+      "title": "Team: Edmund Albores",
+      "path": "/our-team",
+      "questions": ["edmund albores", "full stack"],
+      "text": "Edmund Albores is a Full Stack Developer at Reverion Tech. Focus: Web3 development and blockchain technology. LinkedIn: https://www.linkedin.com/in/mhokzone."
+    },
+    {
+      "id": "team-rj",
+      "type": "team",
+      "title": "Team: RJ Solamo",
+      "path": "/our-team",
+      "questions": ["rj solamo", "blockchain developer"],
+      "text": "RJ Solamo is a Blockchain Developer at Reverion Tech. Focus: Web3 development and blockchain technology. LinkedIn: https://www.linkedin.com/in/rjaysolamo/."
+    },
+    {
+      "id": "team-tirso",
+      "type": "team",
+      "title": "Team: Tirso Benedict Naza",
+      "path": "/our-team",
+      "questions": ["tirso", "benedict naza", "rust developer", "rag engineer"],
+      "text": "Tirso Benedict Naza is an AI and Rust Developer at Reverion Tech. Focus: RAG, LLM development, smart contracts, and backend development. LinkedIn: https://www.linkedin.com/in/benedictnaza/."
+    },
+    {
+      "id": "partners",
+      "type": "partner",
+      "title": "Partners page",
+      "path": "/partners",
+      "questions": ["partners", "who do you work with", "stripe", "cloudflare", "stellar"],
+      "text": "The partners page at https://www.reveriontech.com/partners lists Stripe, Techstars, Stanford University, Google, UC Berkeley IPIRA, Cloudflare, Accenture, Sui, Stellar, and Andreessen Horowitz (a16z). The page describes a design-build approach: Discover, Design and Build, Deliver, with one team accountable for the outcome."
+    },
+    {
+      "id": "legal",
+      "type": "legal",
+      "title": "Privacy and terms",
+      "path": "/privacy",
+      "questions": ["privacy policy", "terms of service", "data", "personal information"],
+      "text": "Privacy policy (https://www.reveriontech.com/privacy): Reverion Tech collects information provided at registration, such as name and email, and usage data needed to provide services. It uses that information to provide and improve services, communicate, and keep the service secure. Inquiry details from the contact form are used only to respond to that inquiry. Privacy questions go through the contact page or hello@reveriontech.com. Terms (https://www.reveriontech.com/terms): by registering or using the services, the user agrees to the terms and the privacy policy, to use the services only for lawful purposes, and to keep their account and password confidential."
+    },
+    {
+      "id": "insights-page",
+      "type": "insight",
+      "title": "Insights page",
+      "path": "/insights",
+      "questions": ["insights", "articles", "blog", "newsletter", "subscribe", "perspectives"],
+      "text": "The Insights page is titled Perspectives on Technology and Engineering. It publishes practical guides for business leaders on AI adoption, automation, software, and infrastructure. Visitors filter by topic. The earliest article is featured, and the rest are listed as cards with category, title, date, and reading time. A business email form offers occasional practical articles, with no spam and unsubscribe anytime. Full article text is included in the knowledge search. These articles are commentary by Reverion Tech. They are not a change to what the company sells, and they do not make Reverion Tech a Web3 or smart-contract studio."
+    }
+  ]
+}

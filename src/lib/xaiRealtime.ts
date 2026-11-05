@@ -1,4 +1,5 @@
 import { withCompanyFacts } from './agentKnowledge';
+import { knowledgeContext } from './knowledgeSearch';
 
 type XaiEvent = Record<string, unknown> & { type?: string };
 
@@ -16,6 +17,38 @@ let nextTime = 0;
 let savedTools: unknown[] | undefined;
 let savedInstructions = '';
 let knowledgeSource = '';
+let searchToolSent = false;
+let pendingKnowledgeReply = false;
+let knowledgeFollowUp = false;
+
+export function takeKnowledgeFollowUp() {
+    const pending = knowledgeFollowUp;
+    knowledgeFollowUp = false;
+    return pending;
+}
+
+const searchTool = {
+    type: 'function',
+    name: 'search_company_knowledge',
+    description: 'Search Reverion Tech company records: offices, email, team, services, projects, insights, partners, and policies. Call this before answering a company question.',
+    parameters: {
+        type: 'object',
+        properties: {
+            query: { type: 'string', description: 'The visitor question or search terms.' },
+        },
+        required: ['query'],
+    },
+};
+
+function withSearchTool(tools: unknown[] | undefined) {
+    const list = Array.isArray(tools) ? [...tools] : [];
+    const has = list.some((tool) => {
+        const row = tool as { name?: string; function?: { name?: string } };
+        return row.name === 'search_company_knowledge' || row.function?.name === 'search_company_knowledge';
+    });
+    if (!has) list.push(searchTool);
+    return list;
+}
 let callActive = false;
 let callStream: MediaStream | null = null;
 let callCtx: AudioContext | null = null;
@@ -31,7 +64,31 @@ export function onXaiEvent(listener: Listener) {
 let responseInProgress = false;
 const idleWaiters: Array<() => void> = [];
 
+function answerKnowledgeSearch(event: XaiEvent) {
+    if (event.type !== 'response.function_call_arguments.done' || event.name !== 'search_company_knowledge') return;
+    const callId = typeof event.call_id === 'string' ? event.call_id : '';
+    if (!callId || socket?.readyState !== WebSocket.OPEN) return;
+    let query = '';
+    try {
+        const raw = typeof event.arguments === 'string' ? JSON.parse(event.arguments) : event.arguments;
+        query = String((raw as { query?: string } | null)?.query ?? '');
+    } catch {
+        query = '';
+    }
+    sendFunctionOutput(callId, knowledgeContext(query));
+    pendingKnowledgeReply = true;
+}
+
+function continueAfterKnowledge(event: XaiEvent) {
+    if (event.type !== 'response.done' || !pendingKnowledgeReply) return;
+    pendingKnowledgeReply = false;
+    knowledgeFollowUp = true;
+    if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'response.create' }));
+}
+
 function emit(event: XaiEvent) {
+    answerKnowledgeSearch(event);
+    continueAfterKnowledge(event);
     syncKnowledge(event);
     if (event.type === 'response.created') responseInProgress = true;
     if (event.type === 'response.done' || event.type === 'error') {
@@ -56,17 +113,24 @@ function syncKnowledge(event: XaiEvent) {
     if (Array.isArray(session.tools) && session.tools.length) savedTools = session.tools;
     if (session.instructions.includes('212 N. 2nd St. Ste 100')) {
         savedInstructions = session.instructions;
+        if (!searchToolSent && socket?.readyState === WebSocket.OPEN) {
+            searchToolSent = true;
+            savedTools = withSearchTool(savedTools);
+            socket.send(JSON.stringify({ type: 'session.update', session: { tools: savedTools } }));
+        }
         return;
     }
     if (knowledgeSource === session.instructions || socket?.readyState !== WebSocket.OPEN) return;
     knowledgeSource = session.instructions;
     const next = withCompanyFacts(session.instructions);
     savedInstructions = next;
+    savedTools = withSearchTool(savedTools);
+    searchToolSent = true;
     socket?.send(JSON.stringify({
         type: 'session.update',
         session: {
             instructions: next,
-            ...(savedTools ? { tools: savedTools } : {}),
+            tools: savedTools,
         },
     }));
 }
@@ -245,6 +309,9 @@ export function connectXai(): Promise<WebSocket> {
         ws.addEventListener('open', () => {
             socket = ws;
             knowledgeSource = '';
+            searchToolSent = false;
+            pendingKnowledgeReply = false;
+            knowledgeFollowUp = false;
             opening = null;
             resolve(ws);
         }, { once: true });
@@ -320,7 +387,7 @@ export async function sendUserTurn(text: string, onReady?: () => void) {
         item: {
             type: 'message',
             role: 'user',
-            content: [{ type: 'input_text', text }],
+            content: [{ type: 'input_text', text: `${knowledgeContext(text)}\n\nVisitor question: ${text}` }],
         },
     }));
     await waitForUserItem();
