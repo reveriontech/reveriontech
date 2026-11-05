@@ -1,0 +1,13 @@
+{
+  "routes": [
+    {
+      "routePath": "/api/xai-realtime",
+      "mountPath": "/api",
+      "method": "",
+      "module": [
+        "api/xai-realtime.ts:onRequest"
+      ]
+    }
+  ],
+  "baseURL": "/"
+}

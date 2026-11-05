@@ -74,7 +74,7 @@ export function ContactPage() {
             <div>
               <p className="l">What happens next</p>
               <ol className="rv-steps">
-                <li><span className="rv-mono">01</span><span>We review your inquiry and reply within [1 BUSINESS DAY].</span></li>
+                <li><span className="rv-mono">01</span><span>We review your inquiry and reply within 1 bussiness day.</span></li>
                 <li><span className="rv-mono">02</span><span>A short discovery call to understand goals, constraints and existing systems.</span></li>
                 <li><span className="rv-mono">03</span><span>A clear proposal: approach, timeline and cost.</span></li>
               </ol>
