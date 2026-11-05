@@ -1,6 +1,20 @@
 import type { ContactRequest } from '../types';
+import { createEncryptedFetch, type ApiFetch } from './payloadCrypto';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+/** The engine's payload public key (logged by reverion_engine at startup). */
+const PAYLOAD_PUBLIC_KEY = import.meta.env.VITE_PAYLOAD_PUBLIC_KEY as string | undefined;
+/** On unless set to "false" — the escape hatch for an engine without `/x`. */
+const PAYLOAD_TUNNEL = import.meta.env.VITE_PAYLOAD_TUNNEL !== 'false';
+
+/**
+ * With VITE_PAYLOAD_PUBLIC_KEY set, request and response bodies are sealed to
+ * the engine's key (see payloadCrypto.ts). Without it this is plain fetch,
+ * which an engine with PAYLOAD_ENCRYPTION_REQUIRED=true refuses.
+ */
+const engineFetch: ApiFetch = PAYLOAD_PUBLIC_KEY
+    ? createEncryptedFetch(PAYLOAD_PUBLIC_KEY, API_BASE, { tunnel: PAYLOAD_TUNNEL })
+    : (path, init) => fetch(`${API_BASE}${path}`, init);
 
 interface ContactRequestForm {
     name: string;
@@ -13,97 +27,32 @@ interface ContactRequestForm {
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-    const res = await fetch(`${API_BASE}${path}`, {
-        headers: { 'Content-Type': 'application/json', ...options.headers as Record<string, string> },
+    const res = await engineFetch(path, {
         ...options,
+        headers: { 'Content-Type': 'application/json', ...options.headers as Record<string, string> },
     });
 
-    if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.error ?? `Request failed (${res.status})`);
-    }
+    const text = await res.text();
+    // Handler errors are JSON ({ error }); middleware rejections are plain text.
+    const data = (() => {
+        try { return text ? JSON.parse(text) : undefined; } catch { return undefined; }
+    })();
 
-    const data = await res.json();
-    if (data && typeof data === 'object' && 'payload' in data && typeof data.payload === 'string') {
-        return (await decryptPayload(data.payload)) as T;
+    if (res.status === 429) {
+        throw new Error('Too many requests. Please wait a few minutes and try again.');
+    }
+    if (!res.ok) {
+        throw new Error(data?.error ?? (text || `Request failed (${res.status})`));
     }
     return data as T;
 }
 
-async function encryptPayload(data: unknown): Promise<string> {
-    const enc = new TextEncoder();
-    // Using the same 32-byte secret key expected by the backend
-    const keyBytes = enc.encode("super_secure_key_32_bytes_length");
-
-    const cryptoKey = await crypto.subtle.importKey(
-        'raw',
-        keyBytes,
-        { name: 'AES-GCM' },
-        false,
-        ['encrypt']
-    );
-
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const encodedData = enc.encode(JSON.stringify(data));
-
-    const encryptedBuf = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv },
-        cryptoKey,
-        encodedData
-    );
-
-    const encryptedBytes = new Uint8Array(encryptedBuf);
-    const combined = new Uint8Array(iv.length + encryptedBytes.length);
-    combined.set(iv);
-    combined.set(encryptedBytes, iv.length);
-
-    let binary = '';
-    for (let i = 0; i < combined.length; i++) {
-        binary += String.fromCharCode(combined[i]);
-    }
-    return btoa(binary);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function decryptPayload(encryptedBase64: string): Promise<any> {
-    const enc = new TextEncoder();
-    const keyBytes = enc.encode("super_secure_key_32_bytes_length");
-
-    const cryptoKey = await crypto.subtle.importKey(
-        'raw',
-        keyBytes,
-        { name: 'AES-GCM' },
-        false,
-        ['decrypt']
-    );
-
-    const binary = atob(encryptedBase64);
-    const combined = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-        combined[i] = binary.charCodeAt(i);
-    }
-
-    const iv = combined.slice(0, 12);
-    const ciphertext = combined.slice(12);
-
-    const decryptedBuf = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv },
-        cryptoKey,
-        ciphertext
-    );
-
-    const dec = new TextDecoder();
-    return JSON.parse(dec.decode(decryptedBuf));
-}
-
-export async function submitContactRequest(form: ContactRequestForm): Promise<ContactRequest> {
-    const encrypted = await encryptPayload(form);
-
-    const row = await apiFetch<Record<string, unknown>>('/auth/contact', {
+/** The form is sealed to the engine's key by engineFetch, then emailed by reverion_mailer. */
+export async function submitContactRequest(form: ContactRequestForm): Promise<void> {
+    await apiFetch<{ success: boolean }>('/auth/contact', {
         method: 'POST',
-        body: JSON.stringify({ payload: encrypted }),
+        body: JSON.stringify(form),
     });
-    return mapRow(row);
 }
 
 export async function fetchContactRequests(): Promise<ContactRequest[]> {
