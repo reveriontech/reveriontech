@@ -63,8 +63,10 @@ export function AboutPage() {
       <Sec>
         <div className="rv-stack" style={{ maxWidth: '40rem' }}>
           <Eyebrow>OUR STORY</Eyebrow>
-          <h2 className="rv-h2">[STORY HEADLINE]</h2>
-          <p>[COMPANY STORY — WHEN AND WHY REVERION TECH STARTED, AND HOW IT HAS GROWN. VERIFIED FACTS ONLY.]</p>
+          <h2 className="rv-h2">From the Southern Philippines to Kentucky.</h2>
+          <p>Reverion Tech began with humble beginnings in the Southern Region of the Philippines, where a group of developers and technology enthusiasts came together around a shared interest in cryptographic encryption, cybersecurity, AI and machine learning, and technology policy.</p>
+          <p>That early community of builders, researchers, engineers, analysts, designers, and solution specialists grew into a technology company established in Kentucky, United States. Kentucky gives Reverion Tech a base in the American market while our roots and collaborative spirit remain connected to the Philippines.</p>
+          <p>Today, we bring diverse disciplines together to research, engineer, and deliver purposeful technology. Our work is guided by a simple belief: build responsibly, solve meaningful problems, and keep pushing what is possible.</p>
         </div>
         <div style={{ marginTop: '3rem' }}>
           <Eyebrow>OUR TEAM</Eyebrow>

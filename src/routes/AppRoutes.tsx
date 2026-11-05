@@ -17,6 +17,7 @@ import { ServicesPage } from '../pages/ServicesPage';
 import { ProjectsPage } from '../pages/ProjectsPage';
 import { ProjectDetailPage } from '../pages/ProjectDetailPage';
 import { InsightsPage } from '../pages/InsightsPage';
+import { InsightArticlePage } from '../pages/InsightArticlePage';
 import { OurTeamPage } from '../pages/OurTeamPage';
 import { AboutPage } from '../pages/AboutPage';
 import { PartnershipPage } from '../pages/PartnershipPage';
@@ -56,6 +57,7 @@ function AppRoutes() {
                             <Route path="/projects" element={<ProjectsPage />} />
                             <Route path="/projects/:slug" element={<ProjectDetailPage />} />
                             <Route path="/insights" element={<InsightsPage />} />
+                            <Route path="/insights/:slug" element={<InsightArticlePage />} />
                             <Route path="/case-studies" element={<Navigate to="/projects" replace />} />
                             <Route path="/portfolio" element={<Navigate to="/projects" replace />} />
                             <Route path="/solutions" element={<SolutionsPage />} />

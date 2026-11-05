@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { Page, Sec, Eyebrow, NetworkArt, Wrap } from '../components/site/parts';
-import { insightTopics } from '../data/site';
+import { Link } from 'react-router-dom';
+import { insights, formatDate } from '../lib/insights';
+
+// The earliest article leads the page; topics come from the articles that exist.
+const [featured, ...rest] = insights;
+const topics = [...new Set(insights.map((a) => a.category))];
 
 export function InsightsPage() {
   const [topic, setTopic] = useState('All');
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
-  const cards = insightTopics.slice(1).filter((t) => topic === 'All' || t === topic);
+  const showFeatured = featured && (topic === 'All' || topic === featured.category);
+  const cards = rest.filter((a) => topic === 'All' || a.category === topic);
 
   return (
     <Page>
@@ -16,34 +22,35 @@ export function InsightsPage() {
         <h1 className="rv-h1" style={{ marginBottom: 24 }}>Perspectives on Technology and Engineering.</h1>
         <p className="rv-lead" style={{ marginBottom: '2.5rem', maxWidth: '42rem' }}>Practical guides for business leaders on AI adoption, automation, software and infrastructure.</p>
         <div className="rv-filter" role="group" aria-label="Topics">
-          {['All', ...insightTopics].map((t) => (<button key={t} type="button" aria-pressed={topic === t} onClick={() => setTopic(t)}>{t}</button>))}
+          {['All', ...topics].map((t) => (<button key={t} type="button" aria-pressed={topic === t} onClick={() => setTopic(t)}>{t}</button>))}
         </div>
         </Wrap>
       </section>
 
       <section className="rv-sec" style={{ padding: '1rem 0 6rem' }}>
         <Wrap>
-        {(topic === 'All' || topic === insightTopics[0]) && (
-          <div className="rv-art">
+        {showFeatured && (
+          <Link to={`/insights/${featured.slug}`} className="rv-art">
             <div className="rv-art__v"><NetworkArt /></div>
             <div className="rv-art__t">
-              <p className="rv-eyebrow on-dark" style={{ marginBottom: 0 }}>FEATURED · AI IN BUSINESS OPERATIONS</p>
-              <h2>[FEATURED ARTICLE TITLE]</h2>
-              <p>[ONE-SENTENCE SUMMARY OF THE ARTICLE]</p>
-              <p className="small" style={{ color: '#8fa5aa' }}>[AUTHOR] · [DATE] · [READ TIME]</p>
+              <p className="rv-eyebrow on-dark" style={{ marginBottom: 0 }}>Featured · {featured.category}</p>
+              <h2>{featured.title}</h2>
+              <p>{featured.excerpt}</p>
+              <p className="small" style={{ color: '#8fa5aa' }}>Reverion Tech · <time dateTime={featured.date}>{formatDate(featured.date)}</time> · {featured.readMinutes} min read</p>
             </div>
+          </Link>
+        )}
+        {cards.length > 0 && (
+          <div className="rv-grid">
+            {cards.map((a) => (
+              <Link key={a.slug} to={`/insights/${a.slug}`} className="rv-card rv-ph-card">
+                <p className="rv-eyebrow" style={{ marginBottom: 0 }}>{a.category}</p>
+                <h3 className="rv-h3" style={{ fontSize: '1.25rem', lineHeight: 1.35 }}>{a.title}</h3>
+                <p className="small grow"><time dateTime={a.date}>{formatDate(a.date)}</time> · {a.readMinutes} min read</p>
+              </Link>
+            ))}
           </div>
         )}
-        <div className="rv-grid">
-          {cards.map((t) => (
-            <article key={t} className="rv-card rv-ph-card">
-              <p className="rv-eyebrow" style={{ marginBottom: 0 }}>{t}</p>
-              <h3 className="rv-h3">[ARTICLE TITLE]</h3>
-              <p className="small grow">[DATE] · [READ TIME]</p>
-            </article>
-          ))}
-        </div>
-        {topic !== 'All' && topic !== insightTopics[0] && cards.length === 0 && <p>No articles in this topic yet.</p>}
         </Wrap>
       </section>
 

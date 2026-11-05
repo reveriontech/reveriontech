@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { Page, Sec, Eyebrow, Arrow, Cta } from '../components/site/parts';
 import { FeaturedProjectCard } from '../components/site/ProjectCard';
 import { Hero } from '../components/site/Hero';
+import { insights, formatDate } from '../lib/insights';
 import {
   homeCapabilities, homeSolutions, industries, process, stack, workflow, pillars, faqs,
-  projectCategories, siteProjects, insightTopics,
+  projectCategories, siteProjects,
 } from '../data/site';
 
 export function LandingPage() {
@@ -157,11 +158,11 @@ export function LandingPage() {
           <Link to="/insights" className="rv-link">All insights →</Link>
         </div>
         <div className="rv-grid">
-          {[insightTopics[0], insightTopics[1], insightTopics[4]].map((t, i) => (
-            <Link key={t} to="/insights" className="rv-card rv-ph-card">
-              <p className="rv-eyebrow" style={{ marginBottom: 0 }}>{t}</p>
-              <h3 className="rv-h3">[ARTICLE TITLE]</h3>
-              <p className="small grow">{['Guide', 'Article', 'Technical guide'][i]} · [READ TIME]</p>
+          {insights.slice(0, 3).map((a) => (
+            <Link key={a.slug} to={`/insights/${a.slug}`} className="rv-card rv-ph-card">
+              <p className="rv-eyebrow" style={{ marginBottom: 0 }}>{a.category}</p>
+              <h3 className="rv-h3" style={{ fontSize: '1.25rem', lineHeight: 1.35 }}>{a.title}</h3>
+              <p className="small grow"><time dateTime={a.date}>{formatDate(a.date)}</time> · {a.readMinutes} min read</p>
             </Link>
           ))}
         </div>
